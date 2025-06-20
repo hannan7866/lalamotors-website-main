@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sale & Purchase | LALA MOTORS</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav class="sticky-nav">
+            <a href="../index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+            <span class="breadcrumb">Home &gt; Services &gt; Sale & Purchase</span>
+            <ul class="nav-links">
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="../index.html#services">Services</a></li>
+                <li><a href="../index.html#booking">Booking</a></li>
+                <li><a href="../index.html#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section class="sale-section">
+            <h2 class="section-title">Pre-Owned Bikes</h2>
+            <div class="sale-filters" style="max-width:900px;margin:0 auto 2rem auto;display:flex;flex-wrap:wrap;gap:1rem;align-items:center;">
+                <select id="filter-brand" style="padding:0.5rem 1rem;border-radius:6px;border:1.2px solid var(--primary-blue);font-size:1rem;">
+                    <option value="">All Brands</option>
+                    <option>Hero</option><option>Honda</option><option>Bajaj</option><option>TVS</option><option>Yamaha</option><option>Suzuki</option><option>KTM</option><option>Royal Enfield</option><option>Jawa</option><option>Benelli</option><option>Kawasaki</option>
+                </select>
+                <select id="filter-model" style="padding:0.5rem 1rem;border-radius:6px;border:1.2px solid var(--primary-blue);font-size:1rem;">
+                    <option value="">All Models</option>
+                </select>
+                <select id="filter-price" style="padding:0.5rem 1rem;border-radius:6px;border:1.2px solid var(--primary-blue);font-size:1rem;">
+                    <option value="">All Prices</option>
+                    <option value="0-20000">Below ₹20,000</option>
+                    <option value="20000-50000">₹20,000–₹50,000</option>
+                    <option value="50000-100000">₹50,000–₹1,00,000</option>
+                    <option value="100000-999999">Above ₹1,00,000</option>
+                </select>
+            </div>
+            <div class="bike-listings-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:2rem;max-width:900px;margin:0 auto 2rem auto;">
+                <!-- Bike listings will be rendered here by JS -->
+            </div>
+            <div class="bike-upload-form" style="max-width:600px;margin:2rem auto;background:#fff;padding:2rem;border-radius:10px;box-shadow:0 2px 8px rgba(43,75,140,0.08);">
+                <h3 style="color:var(--primary-blue);margin-bottom:1rem;">List Your 2-Wheeler for Sale in Agra</h3>
+                <form id="bike-upload-form">
+                    <input type="text" name="brand" placeholder="Brand" required style="width:100%;margin-bottom:1rem;padding:0.6rem;border-radius:6px;border:1.2px solid var(--primary-blue);">
+                    <input type="text" name="model" placeholder="Model" required style="width:100%;margin-bottom:1rem;padding:0.6rem;border-radius:6px;border:1.2px solid var(--primary-blue);">
+                    <input type="number" name="year" placeholder="Year" min="1990" max="2025" required style="width:100%;margin-bottom:1rem;padding:0.6rem;border-radius:6px;border:1.2px solid var(--primary-blue);">
+                    <input type="text" name="condition" placeholder="Condition (e.g. Good, Excellent)" required style="width:100%;margin-bottom:1rem;padding:0.6rem;border-radius:6px;border:1.2px solid var(--primary-blue);">
+                    <input type="number" name="price" placeholder="Expected Price (₹)" min="1000" required style="width:100%;margin-bottom:1rem;padding:0.6rem;border-radius:6px;border:1.2px solid var(--primary-blue);">
+                    <input type="text" name="contact" placeholder="Contact Number" required style="width:100%;margin-bottom:1rem;padding:0.6rem;border-radius:6px;border:1.2px solid var(--primary-blue);">
+                    <button type="submit" class="primary-button" style="width:100%;">List Bike</button>
+                </form>
+                <div id="bike-upload-success" style="display:none;color:var(--primary-blue);margin-top:1rem;"></div>
+            </div>
+        </section>
+        <div id="sale-contact-modal" style="display:none;"></div>
+    </main>
+    <script src="../script.js"></script>
+</body>
+</html> 

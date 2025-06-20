@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Repairing | LALA MOTORS</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav class="sticky-nav">
+            <a href="../index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+            <span class="breadcrumb">Home &gt; Services &gt; Repairing</span>
+            <ul class="nav-links">
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="../index.html#services">Services</a></li>
+                <li><a href="../index.html#booking">Booking</a></li>
+                <li><a href="../index.html#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section class="repairing-section">
+            <h2 class="section-title">Repair Types</h2>
+            <div class="repair-types-list" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:2rem;max-width:900px;margin:0 auto;">
+                <div class="service-card">
+                    <i class="fas fa-bolt"></i>
+                    <h3>Electrical</h3>
+                    <p>Battery, wiring, lighting, starter, and all electrical issues.</p>
+                    <div class="package-meta"><span>₹299 – ₹1299</span></div>
+                    <button class="primary-button book-now-btn" onclick="openBookingForm('Electrical Repair')">Book Inspection</button>
+                </div>
+                <div class="service-card">
+                    <i class="fas fa-cogs"></i>
+                    <h3>Mechanical</h3>
+                    <p>Engine, gearbox, transmission, and other mechanical repairs.</p>
+                    <div class="package-meta"><span>₹499 – ₹4999</span></div>
+                    <button class="primary-button book-now-btn" onclick="openBookingForm('Mechanical Repair')">Book Inspection</button>
+                </div>
+                <div class="service-card">
+                    <i class="fas fa-car-crash"></i>
+                    <h3>Accidental Damage</h3>
+                    <p>Bodywork, frame, and accidental damage repairs.</p>
+                    <div class="package-meta"><span>₹999 – ₹9999</span></div>
+                    <button class="primary-button book-now-btn" onclick="openBookingForm('Accidental Damage Repair')">Book Inspection</button>
+                </div>
+                <div class="service-card">
+                    <i class="fas fa-wrench"></i>
+                    <h3>Brake/Clutch</h3>
+                    <p>Brake pads, clutch plates, cables, and lever repairs.</p>
+                    <div class="package-meta"><span>₹199 – ₹999</span></div>
+                    <button class="primary-button book-now-btn" onclick="openBookingForm('Brake/Clutch Repair')">Book Inspection</button>
+                </div>
+                <div class="service-card">
+                    <i class="fas fa-compress-arrows-alt"></i>
+                    <h3>Suspension</h3>
+                    <p>Front fork, rear shock absorber, swing arm, and bush repairs.</p>
+                    <div class="package-meta"><span>₹499 – ₹2999</span></div>
+                    <button class="primary-button book-now-btn" onclick="openBookingForm('Suspension Repair')">Book Inspection</button>
+                </div>
+                <div class="service-card">
+                    <i class="fas fa-dot-circle"></i>
+                    <h3>Tyres</h3>
+                    <p>Tyre replacement, tube change, and wheel balancing.</p>
+                    <div class="package-meta"><span>₹299 – ₹1999</span></div>
+                    <button class="primary-button book-now-btn" onclick="openBookingForm('Tyre Service')">Book Inspection</button>
+                </div>
+            </div>
+        </section>
+        <div id="repairing-booking-modal" style="display:none;"></div>
+    </main>
+    <script src="../script.js"></script>
+</body>
+</html> 

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restoring | LALA MOTORS</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav class="sticky-nav">
+            <a href="../index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+            <span class="breadcrumb">Home &gt; Services &gt; Restoring</span>
+            <ul class="nav-links">
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="../index.html#services">Services</a></li>
+                <li><a href="../index.html#booking">Booking</a></li>
+                <li><a href="../index.html#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section class="restoring-section">
+            <h2 class="section-title">Classic Bike Restoration</h2>
+            <div class="restoration-cards-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:2rem;max-width:900px;margin:0 auto 2rem auto;">
+                <div class="service-card">
+                    <i class="fas fa-cogs"></i>
+                    <h3>Frame Restoration</h3>
+                    <p>Chassis repair, rust removal, repainting, and alignment.</p>
+                    <div class="package-meta"><span>₹4,999 – ₹14,999</span> <span>1–2 weeks</span></div>
+                    <button class="primary-button" onclick="openRestorationForm('Frame Restoration')">Request Call Back</button>
+                </div>
+                <div class="service-card">
+                    <i class="fas fa-cogs"></i>
+                    <h3>Engine Restoration</h3>
+                    <p>Engine overhaul, tuning, and performance restoration.</p>
+                    <div class="package-meta"><span>₹9,999 – ₹24,999</span> <span>2–3 weeks</span></div>
+                    <button class="primary-button" onclick="openRestorationForm('Engine Restoration')">Request Call Back</button>
+                </div>
+                <div class="service-card">
+                    <i class="fas fa-paint-roller"></i>
+                    <h3>Paint Restoration</h3>
+                    <p>Full body paint, custom graphics, and finishing.</p>
+                    <div class="package-meta"><span>₹5,999 – ₹19,999</span> <span>1–2 weeks</span></div>
+                    <button class="primary-button" onclick="openRestorationForm('Paint Restoration')">Request Call Back</button>
+                </div>
+                <div class="service-card">
+                    <i class="fas fa-motorcycle"></i>
+                    <h3>Full Classic Restoration</h3>
+                    <p>Complete bike restoration: frame, engine, paint, chrome, and detailing.</p>
+                    <div class="package-meta"><span>₹24,999 – ₹59,999</span> <span>3–6 weeks</span></div>
+                    <button class="primary-button" onclick="openRestorationForm('Full Classic Restoration')">Get Quote</button>
+                </div>
+            </div>
+            <div class="before-after-slider" style="margin:2rem auto;max-width:900px;text-align:center;">
+                <h3 style="color:var(--primary-blue);margin-bottom:1rem;">Before & After Gallery</h3>
+                <div style="background:#f7f7f7;border-radius:10px;padding:2rem;min-height:180px;">[Gallery Placeholder]</div>
+            </div>
+        </section>
+        <div class="restoration-form" id="restoration-form-modal" style="display:none;"></div>
+    </main>
+    <script src="../script.js"></script>
+</body>
+</html> 

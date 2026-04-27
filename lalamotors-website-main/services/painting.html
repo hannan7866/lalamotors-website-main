@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painting | LALA MOTORS</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav class="sticky-nav">
+            <a href="../index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+            <span class="breadcrumb">Home &gt; Services &gt; Painting</span>
+            <ul class="nav-links">
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="../index.html#services">Services</a></li>
+                <li><a href="../index.html#booking">Booking</a></li>
+                <li><a href="../index.html#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section class="painting-section">
+            <h2 class="section-title">Paint Jobs</h2>
+            <div class="paint-jobs-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:2rem;max-width:900px;margin:0 auto 2rem auto;">
+                <div class="service-card">
+                    <i class="fas fa-paint-roller"></i>
+                    <h3>Standard</h3>
+                    <p>High-quality single-color paint with clear coat for lasting shine.</p>
+                    <div class="package-meta"><span>₹2,499 – ₹4,999</span> <span>2–4 days</span></div>
+                    <button class="primary-button" onclick="openPaintingBooking('Standard Paint Job')">Book Now</button>
+                </div>
+                <div class="service-card">
+                    <i class="fas fa-fill-drip"></i>
+                    <h3>Dual-tone</h3>
+                    <p>Two-tone paint finish for a stylish, modern look.</p>
+                    <div class="package-meta"><span>₹4,999 – ₹7,999</span> <span>3–5 days</span></div>
+                    <button class="primary-button" onclick="openPaintingBooking('Dual-tone Paint Job')">Book Now</button>
+                </div>
+                <div class="service-card">
+                    <i class="fas fa-gem"></i>
+                    <h3>Metallic</h3>
+                    <p>Premium metallic paint for a sparkling, eye-catching finish.</p>
+                    <div class="package-meta"><span>₹7,999 – ₹12,999</span> <span>4–6 days</span></div>
+                    <button class="primary-button" onclick="openPaintingBooking('Metallic Paint Job')">Book Now</button>
+                </div>
+                <div class="service-card">
+                    <i class="fas fa-brush"></i>
+                    <h3>Custom Graphics</h3>
+                    <p>Unique designs, graphics, and multi-color paint for a personalized look.</p>
+                    <div class="package-meta"><span>₹12,999+</span> <span>5–10 days</span></div>
+                    <button class="primary-button" onclick="openPaintingBooking('Custom Graphics')">Book Now</button>
+                </div>
+            </div>
+            <div class="paint-gallery" style="margin:2rem auto;max-width:900px;text-align:center;">
+                <h3 style="color:var(--primary-blue);margin-bottom:1rem;">Sample Paint Jobs</h3>
+                <div style="background:#f7f7f7;border-radius:10px;padding:2rem;min-height:180px;">[Gallery Placeholder]</div>
+            </div>
+            <div class="paint-upload-form" style="margin:2rem auto;max-width:600px;text-align:center;">
+                <h3 style="color:var(--primary-blue);margin-bottom:1rem;">Upload Your Bike Image for Custom Job</h3>
+                <form id="paint-upload-form" enctype="multipart/form-data" style="background:#fff;padding:1.5rem;border-radius:10px;box-shadow:0 2px 8px rgba(43,75,140,0.08);">
+                    <input type="file" name="bike-image" accept="image/*" style="margin-bottom:1rem;" required><br>
+                    <textarea name="custom-request" placeholder="Describe your custom paint request..." style="width:100%;margin-bottom:1rem;padding:0.6rem;border-radius:6px;border:1.2px solid var(--primary-blue);"></textarea><br>
+                    <button type="submit" class="primary-button">Request Quote</button>
+                </form>
+                <div id="paint-upload-success" style="display:none;color:var(--primary-blue);margin-top:1rem;"></div>
+            </div>
+        </section>
+        <div id="painting-booking-modal" style="display:none;"></div>
+    </main>
+    <script src="../script.js"></script>
+</body>
+</html> 

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autoparts | LALA MOTORS</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav class="sticky-nav">
+            <a href="../index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+            <span class="breadcrumb">Home &gt; Services &gt; Autoparts</span>
+            <ul class="nav-links">
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="../index.html#services">Services</a></li>
+                <li><a href="../index.html#booking">Booking</a></li>
+                <li><a href="../index.html#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section class="autoparts-selector">
+            <h2 class="section-title">LALA MOTORS Genuine Parts</h2>
+            <div style="display:flex;justify-content:space-between;align-items:center;max-width:900px;margin:0 auto 1.5rem auto;">
+                <input type="text" id="part-search" class="part-search" placeholder="Search parts, brands, or models..." autocomplete="off" style="width:100%;max-width:500px;padding:0.7rem 1rem;border-radius:8px;border:1.5px solid var(--primary-blue);font-size:1.1rem;">
+                <div id="cart-icon" style="margin-left:1.5rem;cursor:pointer;position:relative;">
+                    <i class="fas fa-shopping-cart" style="font-size:2rem;color:var(--primary-blue);"></i>
+                    <span id="cart-count" style="position:absolute;top:-8px;right:-8px;background:var(--primary-yellow);color:var(--primary-blue);font-size:0.95rem;padding:2px 7px;border-radius:50%;font-weight:700;">0</span>
+                </div>
+            </div>
+            <div id="brand-step" class="step active"> <!-- Step 1: Brands grid -->
+                <!-- Brands grid will be rendered here -->
+            </div>
+            <div id="model-step" class="step"> <!-- Step 2: Models grid -->
+                <!-- Models grid will be rendered here -->
+            </div>
+            <div id="parts-step" class="step"> <!-- Step 3: Parts categories and list -->
+                <!-- Parts categories and list will be rendered here -->
+            </div>
+            <div id="part-listing-step" class="step"> <!-- Step 4: Part listing grid -->
+                <!-- Part listing grid will be rendered here -->
+            </div>
+        </section>
+        <div id="cart-modal" class="cart-modal" style="display:none;"></div>
+        <div id="enquiry-modal" class="enquiry-modal" style="display:none;"></div>
+    </main>
+    <script src="../script.js"></script>
+</body>
+</html> 

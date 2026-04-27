@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Servicing | LALA MOTORS</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav class="sticky-nav">
+            <a href="../index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+            <span class="breadcrumb">Home &gt; Services &gt; Servicing</span>
+            <ul class="nav-links">
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="../index.html#services">Services</a></li>
+                <li><a href="../index.html#booking">Booking</a></li>
+                <li><a href="../index.html#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section class="servicing-section">
+            <h2 class="section-title">Service Packages</h2>
+            <div class="service-cards-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:2rem;max-width:900px;margin:0 auto;">
+                <div class="service-card">
+                    <i class="fas fa-tools"></i>
+                    <h3>Basic Service</h3>
+                    <p>Essential maintenance: oil change, filter cleaning, safety checks.</p>
+                    <div class="package-meta"><span>₹499 – ₹799</span> <span>1–2 hours</span></div>
+                    <button class="primary-button book-now-btn" onclick="openBookingForm('Basic Service')">Book Now</button>
+                </div>
+                <div class="service-card">
+                    <i class="fas fa-star"></i>
+                    <h3>Premium Service</h3>
+                    <p>All-inclusive: premium fluids, detailing, priority delivery.</p>
+                    <div class="package-meta"><span>₹1799 – ₹2499</span> <span>4–6 hours</span></div>
+                    <button class="primary-button book-now-btn" onclick="openBookingForm('Premium Service')">Book Now</button>
+                </div>
+                <div class="service-card">
+                    <i class="fas fa-truck"></i>
+                    <h3>Pickup & Drop</h3>
+                    <p>Convenient pickup and drop for your bike anywhere in Agra.</p>
+                    <div class="package-meta"><span>₹299</span> <span>Pickup & Drop</span></div>
+                    <button class="primary-button book-now-btn" onclick="openBookingForm('Pickup & Drop')">Book Now</button>
+                </div>
+                <div class="service-card">
+                    <i class="fas fa-home"></i>
+                    <h3>Doorstep Service</h3>
+                    <p>Home Services: Normal servicing and replacement of parts (cables, brake shoes, etc.). Please describe your bike's issues in advance for part availability.</p>
+                    <div class="package-meta"><span>₹999 – ₹1499</span> <span>2–3 hours</span></div>
+                    <button class="primary-button book-now-btn" onclick="openBookingForm('Doorstep Service')">Book Now</button>
+                </div>
+            </div>
+        </section>
+        <section class="home-services-jobcard" id="home-services-jobcard" style="display:none;max-width:600px;margin:2rem auto 0 auto;background:#fff;padding:2rem;border-radius:10px;box-shadow:0 2px 8px rgba(43,75,140,0.08);">
+            <h3 style="color:var(--primary-blue);margin-bottom:1rem;">Home Services Job Card</h3>
+            <p style="margin-bottom:1rem;">Tell us the problems you are facing with your bike (e.g., cable replacement, brake shoe, etc.). This helps us ensure part availability for your doorstep service.</p>
+            <form id="jobcard-form">
+                <div class="form-group">
+                    <label for="jobcard-name">Your Name</label>
+                    <input type="text" id="jobcard-name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="jobcard-phone">Phone Number</label>
+                    <input type="tel" id="jobcard-phone" name="phone" required>
+                </div>
+                <div class="form-group">
+                    <label for="jobcard-vehicle">Vehicle Model</label>
+                    <input type="text" id="jobcard-vehicle" name="vehicle" required>
+                </div>
+                <div class="form-group">
+                    <label for="jobcard-problems">Describe Problems / Services Needed</label>
+                    <textarea id="jobcard-problems" name="problems" rows="4" required placeholder="E.g., clutch cable replacement, brake shoe issue, general service..."></textarea>
+                </div>
+                <button type="submit" class="primary-button">Submit Job Card</button>
+            </form>
+            <div id="jobcard-success" style="display:none;color:var(--primary-blue);margin-top:1rem;">Thank you! Your job card has been submitted.</div>
+        </section>
+        <div id="servicing-booking-modal" style="display:none;"></div>
+    </main>
+    <script src="../script.js"></script>
+    <script>
+    document.getElementById('jobcard-form').onsubmit = function(e) {
+        e.preventDefault();
+        document.getElementById('jobcard-success').style.display = 'block';
+        this.reset();
+    };
+    // Show job card on Book Now click for Doorstep Service
+    var doorstepBtn = Array.from(document.getElementsByClassName('book-now-btn')).find(btn => btn.textContent.includes('Book Now') && btn.parentElement.querySelector('h3')?.textContent.includes('Doorstep Service'));
+    if (doorstepBtn) {
+        doorstepBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            var jobcard = document.getElementById('home-services-jobcard');
+            if (jobcard) {
+                jobcard.style.display = 'block';
+                jobcard.scrollIntoView({behavior: 'smooth'});
+            }
+        });
+    }
+    </script>
+</body>
+</html> 

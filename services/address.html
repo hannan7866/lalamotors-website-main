@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Addresses - LALA MOTORS</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <!-- Sidebar overlay and menu -->
+    <div id="notification" class="notification"></div>
+    <div id="cart-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeCartModal()">&times;</span>
+            <h2>Shopping Cart</h2>
+            <div id="cart-items"></div>
+            <div class="cart-total">
+                <strong>Total: ₹</strong>
+                <span id="cart-total">0</span>
+            </div>
+            <button onclick="checkoutCart()" class="checkout-btn">Proceed to Checkout</button>
+        </div>
+    </div>
+    <div id="sidebar-overlay" class="sidebar-overlay" style="display:none;"></div>
+    <nav id="sidebar-menu" class="sidebar-menu" style="display:none;">
+      <div class="sidebar-header">
+        <button id="close-sidebar" class="close-sidebar" title="Close">&times;</button>
+      </div>
+      <div class="sidebar-profile-section">
+        <div class="sidebar-profile-info">
+          <i class="fa-regular fa-user sidebar-profile-icon"></i>
+          <div>
+            <span class="sidebar-profile-greeting">Hello,</span>
+            <span class="sidebar-profile-name" id="sidebar-profile-name">Guest</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-section-title">Account Settings</div>
+      <ul class="sidebar-list">
+        <li><a href="#" id="sidebar-profile-info"><i class="fa-solid fa-user-pen"></i> Profile information</a></li>
+        <li><a href="#" id="sidebar-manage-address" class="active"><i class="fa-solid fa-location-dot"></i> Manage Address</a></li>
+        <li><a href="#" id="sidebar-orders"><i class="fa-solid fa-box"></i> My Orders</a></li>
+        <li><a href="cart.html" id="sidebar-cart"><i class="fa-solid fa-cart-shopping"></i> Cart</a></li>
+        <li><a href="#" id="sidebar-subscriptions"><i class="fa-solid fa-id-badge"></i> Subscriptions</a></li>
+      </ul>
+
+      <div class="sidebar-section-title">Payment Setting</div>
+      <ul class="sidebar-list">
+        <li><a href="#" id="sidebar-upi-saved"><i class="fa-brands fa-google-pay"></i> UPI Saved</a></li>
+        <li><a href="#" id="sidebar-add-payment"><i class="fa-solid fa-credit-card"></i> Add New Payment</a></li>
+      </ul>
+
+      <div class="sidebar-section-title">MY STUFF</div>
+      <ul class="sidebar-list">
+        <li><a href="#" id="sidebar-last-service"><i class="fa-solid fa-clock-rotate-left"></i> Last services booked</a></li>
+        <li><a href="#" id="sidebar-invoices"><i class="fa-solid fa-file-invoice"></i> Invoices</a></li>
+      </ul>
+
+      <ul class="sidebar-list">
+        <li><a href="#" id="sidebar-support"><i class="fa-solid fa-headset"></i> Customer Care</a></li>
+        <li id="sidebar-logout-li" style=""><a href="#" id="sidebar-logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
+      </ul>
+    </nav>
+    <!-- Hamburger icon -->
+    <header>
+        <div class="top-bar">
+            <div class="contact-info">
+                <a href="tel:+917310542113"><i class="fas fa-phone"></i> 7310542113</a>
+                <a href="mailto:lalamotors1@gmail.com"><i class="fas fa-envelope"></i> lalamotors1@gmail.com</a>
+                <a href="https://instagram.com/lalamotors1" target="_blank"><i class="fab fa-instagram"></i> @lalamotors1</a>
+                <a href="https://www.google.com/maps/place/Lala+Motors/@27.1674164,78.0161954,17z/data=!4m6!3m5!1s0x397477aa18fdfe99:0xcfb37df5b30ed1a6!8m2!3d27.1676738!4d78.0159854!16s%2Fg%2F11vl7kctdh?entry=ttu&amp;g_ep=EgoyMDI1MDYyMy4yIKXMDSoASAFQAw%3D%3D" target="_blank"><i class="fas fa-location-dot"></i> 4/143 Ahmedia Market Baluganj Agra</a>
+            </div>
+        </div>
+        <nav>
+            <button id="sidebar-hamburger" class="sidebar-hamburger" title="Menu" aria-label="Open menu">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect y="7" width="32" height="3" rx="1.5" fill="#FFD700"/>
+                    <rect y="14.5" width="32" height="3" rx="1.5" fill="#FFD700"/>
+                    <rect y="22" width="32" height="3" rx="1.5" fill="#FFD700"/>
+                </svg>
+            </button>
+            <div class="logo">
+                <img src="../images/logoo neww.png" alt="LALA MOTORS Logo" class="main-logo">
+            </div>
+            <ul class="nav-links">
+                <li><a href="../index.html#home">Home</a></li>
+                <li><a href="../index.html#services">Services</a></li>
+                <li><a href="../index.html#booking">Booking</a></li>
+                <li><a href="../index.html#contact">Contact</a></li>
+                <li><a href="about.html">About Us</a></li>
+                <li>
+                  <div class="cart-icon-container">
+                    <a href="cart.html" class="cart-icon" title="Cart">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span id="cart-count" class="cart-item-count">0</span>
+                    </a>
+                  </div>
+                </li>
+            </ul>
+            <a href="login.html" class="login-btn" title="Login">
+              <i class="fa-regular fa-user"></i>
+            </a>
+        </nav>
+    </header>
+
+    <main class="address-page-main">
+        <div class="address-container">
+            <h1>Manage Addresses</h1>
+            <div class="add-address-box">
+                <button id="add-new-address-btn"><i class="fa-solid fa-plus"></i> ADD A NEW ADDRESS</button>
+            </div>
+
+            <div id="add-address-form-container" class="form-container" style="display: none;">
+                <h3>Add a New Address</h3>
+                <form id="add-address-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="full-name">Full Name</label>
+                            <input type="text" id="full-name" name="full-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contact-number">Contact Number</label>
+                            <input type="tel" id="contact-number" name="contact-number" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="address-line">Address</label>
+                        <input type="text" id="address-line" name="address-line" placeholder="Street name, Building, House No." required>
+                    </div>
+                     <div class="form-row">
+                        <div class="form-group">
+                            <label for="pincode">Pincode</label>
+                            <input type="text" id="pincode" name="pincode" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="city">City</label>
+                            <input type="text" id="city" name="city" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="state">State</label>
+                            <input type="text" id="state" name="state" required>
+                        </div>
+                    </div>
+                    <div class="form-buttons">
+                        <button type="submit" class="save-btn">Save Address</button>
+                        <button type="button" id="cancel-add-address" class="cancel-btn">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="address-list">
+                <!-- <div class="empty-state">
+                    <i class="fa-solid fa-map-location-dot"></i>
+                    <h2>No Saved Addresses</h2>
+                    <p>Add an address to see it here.</p>
+                </div> -->
+                <table class="address-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Address</th>
+                            <th>Phone</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Example row, will be dynamically populated -->
+                        <tr>
+                            <td>John Doe</td>
+                            <td>123, ABC Street, New Delhi, 110001</td>
+                            <td>9876543210</td>
+                            <td class="action-buttons">
+                                <button class="edit-btn">Edit</button>
+                                <button class="delete-btn">Delete</button>
+                            </td>
+                        </tr>
+                         <tr>
+                            <td>Jane Smith</td>
+                            <td>456, XYZ Avenue, Mumbai, 400001</td>
+                            <td>1234567890</td>
+                            <td class="action-buttons">
+                                <button class="edit-btn">Edit</button>
+                                <button class="delete-btn">Delete</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <footer id="contact">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>Working Hours</h4>
+                <ul>
+                    <li>Monday: 9:00 AM - 8:00 PM</li>
+                    <li>Tuesday: Closed</li>
+                    <li>Wednesday: 9:00 AM - 8:00 PM</li>
+                    <li>Thursday: 9:00 AM - 8:00 PM</li>
+                    <li>Friday: 9:00 AM - 8:00 PM</li>
+                    <li>Saturday: 9:00 AM - 8:00 PM</li>
+                    <li>Sunday: 9:00 AM - 8:00 PM</li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact Us</h4>
+                <ul>
+                    <li><i class="fas fa-phone"></i> 7310542113</li>
+                    <li><i class="fas fa-envelope"></i> lalamotors1@gmail.com</li>
+                    <li><i class="fab fa-instagram"></i> @lalamotors1</li>
+                    <li><a href="https://www.google.com/maps/place/Lala+Motors/@27.1674164,78.0161954,17z/data=!4m6!3m5!1s0x397477aa18fdfe99:0xcfb37df5b30ed1a6!8m2!3d27.1676738!4d78.0159854!16s%2Fg%2F11vl7kctdh?entry=ttu&g_ep=EgoyMDI1MDYyMy4yIKXMDSoASAFQAw%3D%3D" target="_blank"><i class="fas fa-location-dot"></i> 4/143 Ahmedia Market Baluganj Agra</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Follow Us</h4>
+                <div class="social-links">
+                    <a href="https://instagram.com/lalamotors1" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="mailto:lalamotors1@gmail.com" target="_blank"><i class="fas fa-envelope"></i></a>
+                    <a href="tel:+917310542113" target="_blank"><i class="fas fa-phone"></i></a>
+                    <a href="https://www.google.com/maps/place/Lala+Motors/@27.1674164,78.0161954,17z/data=!4m6!3m5!1s0x397477aa18fdfe99:0xcfb37df5b30ed1a6!8m2!3d27.1676738!4d78.0159854!16s%2Fg%2F11vl7kctdh?entry=ttu&g_ep=EgoyMDI1MDYyMy4yIKXMDSoASAFQAw%3D%3D" target="_blank"><i class="fas fa-location-dot"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 LALA MOTORS. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="../script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const addNewAddressBtn = document.getElementById('add-new-address-btn');
+            const addressFormContainer = document.getElementById('add-address-form-container');
+            const addressList = document.querySelector('.address-list');
+            const cancelBtn = document.getElementById('cancel-add-address');
+            const addAddressBox = document.querySelector('.add-address-box');
+
+            addNewAddressBtn.addEventListener('click', () => {
+                addressList.style.display = 'none';
+                addAddressBox.style.display = 'none';
+                addressFormContainer.style.display = 'block';
+            });
+
+            cancelBtn.addEventListener('click', () => {
+                addressList.style.display = 'block';
+                addAddressBox.style.display = 'block';
+                addressFormContainer.style.display = 'none';
+            });
+
+            // Optional: Handle form submission
+            const addAddressForm = document.getElementById('add-address-form');
+            addAddressForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                // Logic to save the address would go here
+                console.log('Form submitted');
+                
+                // After saving, hide form and show list
+                addressList.style.display = 'block';
+                addAddressBox.style.display = 'block';
+                addressFormContainer.style.display = 'none';
+                addAddressForm.reset(); // Reset form fields
+            });
+        });
+    </script>
+</body>
+</html> 

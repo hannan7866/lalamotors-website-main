@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency Services | LALA MOTORS</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        .emergency-main {
+            max-width: 480px;
+            margin: 2.5rem auto;
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(43,75,140,0.08);
+            padding: 2.5rem 1.5rem 2rem 1.5rem;
+            text-align: center;
+        }
+        .emergency-main h1 {
+            color: #e23e3d;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            letter-spacing: 1px;
+        }
+        .emergency-main .icon-circle {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .emergency-btn-row {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin: 1.5rem 0 1rem 0;
+        }
+        .emergency-main .service-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.08em;
+            font-weight: 700;
+            border-radius: 32px;
+            padding: 0.9rem 0.5rem;
+            min-width: 0;
+            width: 100%;
+            box-shadow: 0 2px 8px rgba(43,75,140,0.10);
+            border: none;
+            margin: 0 auto;
+            transition: background 0.18s, box-shadow 0.18s, transform 0.12s;
+            letter-spacing: 0.5px;
+        }
+        .emergency-main .service-btn:active {
+            transform: scale(0.97);
+            box-shadow: 0 1px 4px rgba(43,75,140,0.08);
+        }
+        .emergency-main .call-btn {
+            background: #e23e3d;
+            color: #fff;
+        }
+        .emergency-main .call-btn:hover {
+            background: #c8231a;
+        }
+        .emergency-main .whatsapp-btn {
+            background: #25D366;
+            color: #fff;
+        }
+        .emergency-main .whatsapp-btn:hover {
+            background: #1ebe5d;
+        }
+        .emergency-main .service-btn i {
+            margin-right: 0.7em;
+            font-size: 1.2em;
+        }
+        .emergency-main .note {
+            margin-top: 0.7rem;
+            color: #e23e3d;
+            font-weight: 500;
+            font-size: 0.98em;
+            opacity: 0.85;
+        }
+        .emergency-main .location-btn {
+            background: #2B4B8C;
+            color: #fff;
+            margin-top: 1.2rem;
+            border-radius: 24px;
+            font-size: 1em;
+            padding: 0.7rem 1.5rem;
+            border: none;
+            box-shadow: 0 2px 8px rgba(43,75,140,0.08);
+            cursor: pointer;
+            transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+        }
+        .emergency-main .location-btn:hover {
+            background: #1E3A7B;
+        }
+        .emergency-main .location-link {
+            display: block;
+            margin: 0.5rem 0 0 0;
+            font-size: 0.98em;
+            color: #2B4B8C;
+            word-break: break-all;
+        }
+        @media (max-width: 600px) {
+            .emergency-btn-row {
+                gap: 0.7rem;
+            }
+            .emergency-main .service-btn {
+                font-size: 1em;
+                padding: 0.7rem 0.3rem;
+                border-radius: 24px;
+            }
+        }
+        @media (max-width: 768px) {
+            .emergency-main {
+                padding: 1.2rem 0.5rem 1rem 0.5rem;
+                font-size: 0.92rem;
+                border-radius: 12px;
+            }
+            .emergency-main h1 {
+                font-size: 1.1rem;
+            }
+            .emergency-main .service-btn, .emergency-main .location-btn {
+                font-size: 0.7rem !important;
+                padding: 0.3rem 0.2rem !important;
+                border-radius: 7px !important;
+                min-width: 0 !important;
+                width: 100% !important;
+                height: 32px !important;
+                line-height: 1.05 !important;
+                letter-spacing: 0.5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER/NAV START -->
+    <div id="notification" class="notification"></div>
+    <div id="cart-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeCartModal()">&times;</span>
+            <h2>Shopping Cart</h2>
+            <div id="cart-items"></div>
+            <div class="cart-total">
+                <strong>Total: ₹</strong>
+                <span id="cart-total">0</span>
+            </div>
+            <button onclick="checkoutCart()" class="checkout-btn">Proceed to Checkout</button>
+        </div>
+    </div>
+    <div id="sidebar-overlay" class="sidebar-overlay" style="display:none;"></div>
+    <nav id="sidebar-menu" class="sidebar-menu" style="display:none;">
+      <div class="sidebar-header">
+        <button id="close-sidebar" class="close-sidebar" title="Close">&times;</button>
+      </div>
+      <div class="sidebar-profile-section">
+        <div class="sidebar-profile-info">
+          <i class="fa-regular fa-user sidebar-profile-icon"></i>
+          <div>
+            <span class="sidebar-profile-greeting">Hello,</span>
+            <span class="sidebar-profile-name" id="sidebar-profile-name">Guest</span>
+          </div>
+        </div>
+      </div>
+      <div class="sidebar-section-title">Account Settings</div>
+      <ul class="sidebar-list">
+        <li><a href="#" id="sidebar-profile-info"><i class="fa-solid fa-user-pen"></i> Profile information</a></li>
+        <li><a href="#" id="sidebar-manage-address"><i class="fa-solid fa-location-dot"></i> Manage Address</a></li>
+        <li><a href="#" id="sidebar-orders"><i class="fa-solid fa-box"></i> My Orders</a></li>
+        <li><a href="cart.html" id="sidebar-cart"><i class="fa-solid fa-cart-shopping"></i> Cart</a></li>
+        <li><a href="#" id="sidebar-subscriptions"><i class="fa-solid fa-id-badge"></i> Subscriptions</a></li>
+      </ul>
+      <div class="sidebar-section-title">Payment Setting</div>
+      <ul class="sidebar-list">
+        <li><a href="#" id="sidebar-upi-saved"><i class="fa-brands fa-google-pay"></i> UPI Saved</a></li>
+        <li><a href="#" id="sidebar-add-payment"><i class="fa-solid fa-credit-card"></i> Add New Payment</a></li>
+      </ul>
+      <div class="sidebar-section-title">MY STUFF</div>
+      <ul class="sidebar-list">
+        <li><a href="#" id="sidebar-last-service"><i class="fa-solid fa-clock-rotate-left"></i> Last services booked</a></li>
+        <li><a href="#" id="sidebar-invoices"><i class="fa-solid fa-file-invoice"></i> Invoices</a></li>
+      </ul>
+      <ul class="sidebar-list">
+        <li><a href="#" id="sidebar-support"><i class="fa-solid fa-headset"></i> Customer Care</a></li>
+        <li id="sidebar-logout-li" style=""><a href="#" id="sidebar-logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
+      </ul>
+    </nav>
+    <header>
+        <div class="top-bar">
+            <div class="contact-info">
+                <a href="tel:+917310542113"><i class="fas fa-phone"></i> 7310542113</a>
+                <a href="mailto:lalamotors1@gmail.com"><i class="fas fa-envelope"></i> lalamotors1@gmail.com</a>
+                <a href="https://instagram.com/lalamotors1" target="_blank"><i class="fab fa-instagram"></i> @lalamotors1</a>
+                <a href="https://www.google.com/maps/place/Lala+Motors/@27.1674164,78.0161954,17z/data=!4m6!3m5!1s0x397477aa18fdfe99:0xcfb37df5b30ed1a6!8m2!3d27.1676738!4d78.0159854!16s%2Fg%2F11vl7kctdh?entry=ttu&amp;g_ep=EgoyMDI1MDYyMy4yIKXMDSoASAFQAw%3D%3D" target="_blank"><i class="fas fa-location-dot"></i> 4/143 Ahmedia Market Baluganj Agra</a>
+            </div>
+        </div>
+        <nav>
+            <button id="sidebar-hamburger" class="sidebar-hamburger" title="Menu" aria-label="Open menu">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect y="7" width="32" height="3" rx="1.5" fill="#FFD700"/>
+                    <rect y="14.5" width="32" height="3" rx="1.5" fill="#FFD700"/>
+                    <rect y="22" width="32" height="3" rx="1.5" fill="#FFD700"/>
+                </svg>
+            </button>
+            <div class="logo">
+                <img src="../images/logoo neww.png" alt="LALA MOTORS Logo" class="main-logo">
+            </div>
+            <ul class="nav-links">
+                <li><a href="../index.html#home">Home</a></li>
+                <li><a href="../index.html#services">Services</a></li>
+                <li><a href="../index.html#booking">Booking</a></li>
+                <li><a href="../index.html#contact">Contact</a></li>
+                <li><a href="about.html">About Us</a></li>
+                <li>
+                  <div class="cart-icon-container">
+                    <a href="cart.html" class="cart-icon" title="Cart">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span id="cart-count" class="cart-item-count">0</span>
+                    </a>
+                  </div>
+                </li>
+            </ul>
+            <a href="login.html" class="login-btn" title="Login">
+              <i class="fa-regular fa-user"></i>
+            </a>
+        </nav>
+    </header>
+    <!-- HEADER/NAV END -->
+    <main>
+        <div class="emergency-main" style="margin-top: 120px;">
+            <div class="icon-circle">🚨</div>
+            <h1>EMERGENCY SERVICES</h1>
+            <p>If your bike breaks down within <b>5 km</b>, our mechanic will reach you.<br>Extra charges apply beyond 5 km.</p>
+            <div class="emergency-btn-row">
+                <a href="tel:7310542113" class="service-btn call-btn"><i class="fas fa-phone"></i> Call Now</a>
+                <a href="https://wa.me/917310542113?text=My%20bike%20has%20broken%20down%2C%20please%20help!%20Here%20is%20my%20location%3A%20" class="service-btn whatsapp-btn" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp Us</a>
+            </div>
+            <div class="note">Share your live location on WhatsApp for faster assistance.</div>
+            <button class="service-btn location-btn" id="get-location"><i class="fas fa-map-marker-alt"></i> Copy My Location</button>
+            <span class="location-link" id="location-link"></span>
+        </div>
+    </main>
+    <div class="subscription-promo" style="max-width: 700px; margin: 40px auto 0 auto; background: linear-gradient(135deg, #2B4B8C 80%, #224080 100%); border-radius: 16px; padding: 28px 24px 32px 24px; color: #fff; text-align: center; box-shadow: 0 2px 12px rgba(43,75,140,0.08);">
+        <div style="font-size: 1.35em; font-weight: bold; color: #FFD700; margin-bottom: 10px;">Want Better Deals? Join Our Subscription Plans!</div>
+        <div style="font-size: 1.08em; color: #fff; margin-bottom: 18px;">Get exclusive benefits including:</div>
+        <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 18px; margin-bottom: 18px;">
+            <div style="min-width: 220px; text-align: left;">
+                <span style="color: #FFD700; font-size: 1.2em;">✔</span> Priority Service Booking<br>
+                <span style="color: #FFD700; font-size: 1.2em;">✔</span> Special Member Discounts
+            </div>
+            <div style="min-width: 220px; text-align: left;">
+                <span style="color: #FFD700; font-size: 1.2em;">✔</span> Free Pickup & Drop<br>
+                <span style="color: #FFD700; font-size: 1.2em;">✔</span> Seasonal Offers
+            </div>
+        </div>
+        <a href="subscription.html" style="display: inline-block; background: #FFD700; color: #2B4B8C; font-weight: bold; letter-spacing: 0.12em; border-radius: 6px; padding: 14px 0; width: 100%; max-width: 420px; font-size: 1.1em; text-decoration: none; margin-top: 10px; box-shadow: 0 2px 6px rgba(43,75,140,0.08);">VIEW SUBSCRIPTION PLANS</a>
+    </div>
+    <div class="universal-note" style="max-width: 700px; margin: 40px auto 0 auto; background: #f9f9f9; border-left: 4px solid #FFD700; border-radius: 8px; padding: 18px 24px; color: #2B4B8C; font-size: 1.08em;">
+        <!-- Note removed as requested -->
+    </div>
+    <script>
+    document.getElementById('get-location').onclick = function() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(pos) {
+                var lat = pos.coords.latitude;
+                var lng = pos.coords.longitude;
+                var link = `https://maps.google.com/?q=${lat},${lng}`;
+                var locSpan = document.getElementById('location-link');
+                locSpan.innerHTML = `<a href='${link}' target='_blank'>${link}</a>`;
+                navigator.clipboard.writeText(link);
+            }, function() {
+                alert('Unable to fetch your location. Please enable location services.');
+            });
+        } else {
+            alert('Geolocation is not supported by your browser.');
+        }
+    };
+    </script>
+    <!-- Ensure script.js is included before </body> -->
+    <script src="../script.js"></script>
+</body>
+</html> 

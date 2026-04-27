@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Supabase Connection Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+    <h1>Supabase Connection Test</h1>
+    <div id="results"></div>
+    <button id="createBucket" style="display:none; margin-top: 20px; padding: 10px;">Create Bikes Bucket</button>
+    <button id="setupPolicies" style="display:none; margin-top: 20px; padding: 10px;">Setup Storage Policies</button>
+
+    <script>
+        let supabase;
+
+        async function setupStoragePolicies() {
+            try {
+                log('Setting up storage policies...');
+
+                // Enable RLS for the bikes bucket
+                const { data: enableRls, error: rlsError } = await supabase.rpc('enable_rls_for_bucket', {
+                    bucket_name: 'bikes'
+                });
+
+                if (rlsError) {
+                    throw new Error(`Failed to enable RLS: ${rlsError.message}`);
+                }
+
+                // Create policies for public read access and authenticated write access
+                const { data: policies, error: policiesError } = await supabase.rpc('setup_storage_policies', {
+                    bucket_name: 'bikes',
+                    read_policy_name: 'Public Read Access',
+                    write_policy_name: 'Authenticated Write Access'
+                });
+
+                if (policiesError) {
+                    throw new Error(`Failed to create policies: ${policiesError.message}`);
+                }
+
+                log('✓ Storage policies set up successfully!');
+                document.getElementById('setupPolicies').style.display = 'none';
+                // Rerun the tests
+                await runTests();
+            } catch (error) {
+                log(`❌ Failed to set up policies: ${error.message}`, true);
+                console.error('Policy setup error:', error);
+            }
+        }
+
+        async function createBikesBucket() {
+            try {
+                const { data, error } = await supabase.storage.createBucket('bikes', {
+                    public: true,
+                    fileSizeLimit: 5242880, // 5MB in bytes
+                    allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp']
+                });
+
+                if (error) {
+                    throw error;
+                }
+
+                log('✓ Bikes bucket created successfully!');
+                document.getElementById('createBucket').style.display = 'none';
+                // Show setup policies button
+                document.getElementById('setupPolicies').style.display = 'block';
+            } catch (error) {
+                log(`❌ Failed to create bucket: ${error.message}`, true);
+                console.error('Bucket creation error:', error);
+            }
+        }
+
+        async function runTests() {
+            const results = document.getElementById('results');
+            results.innerHTML = ''; // Clear previous results
+            const createBucketBtn = document.getElementById('createBucket');
+            const setupPoliciesBtn = document.getElementById('setupPolicies');
+            createBucketBtn.style.display = 'none';
+            setupPoliciesBtn.style.display = 'none';
+
+            function log(message, isError = false) {
+                const div = document.createElement('div');
+                div.style.color = isError ? 'red' : 'black';
+                div.textContent = message;
+                results.appendChild(div);
+                console.log(message);
+            }
+
+            try {
+                log('Starting Supabase tests...');
+
+                // 1. Check if Supabase client is loaded
+                if (!window.supabase) {
+                    throw new Error('Supabase client not loaded');
+                }
+                log('✓ Supabase client loaded');
+
+                // 2. Initialize client
+                const supabaseUrl = 'https://fjhlglaivlbrowsuxres.supabase.co';
+                const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqaGxnbGFpdmxicm93c3V4cmVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA1OTUwNDYsImV4cCI6MjA2NjE3MTA0Nn0.0p7afOyJ_Q67d0k7ZTQWnxYIJ6eseuNx_7yjupT6eWo';
+                supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+                log('✓ Supabase client initialized');
+
+                // 3. Test storage
+                log('Testing storage...');
+                const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
+                if (bucketsError) {
+                    throw new Error(`Storage error: ${bucketsError.message}`);
+                }
+                log(`✓ Storage accessible. Found buckets: ${buckets.map(b => b.name).join(', ') || 'none'}`);
+
+                // 4. Test bikes bucket
+                const bikesBucket = buckets.find(b => b.name === 'bikes');
+                if (!bikesBucket) {
+                    log('⚠️ Bikes bucket not found');
+                    createBucketBtn.style.display = 'block';
+                    createBucketBtn.onclick = createBikesBucket;
+                    return;
+                }
+                log('✓ Bikes bucket exists');
+
+                // 5. Test bucket permissions
+                log('Testing bucket permissions...');
+                const testFile = new Blob(['test'], { type: 'text/plain' });
+                const { data: uploadTest, error: uploadError } = await supabase.storage
+                    .from('bikes')
+                    .upload('test.txt', testFile);
+                
+                if (uploadError) {
+                    if (uploadError.message.includes('storage/401')) {
+                        log('⚠️ Storage policies not set up correctly');
+                        setupPoliciesBtn.style.display = 'block';
+                        setupPoliciesBtn.onclick = setupStoragePolicies;
+                        return;
+                    } else if (!uploadError.message.includes('already exists')) {
+                        throw new Error(`Upload test failed: ${uploadError.message}`);
+                    }
+                }
+                log('✓ Bucket is writable');
+
+                // 6. Test database
+                log('Testing database...');
+                const { data: bikes, error: dbError } = await supabase
+                    .from('bikes')
+                    .select('count')
+                    .limit(1);
+                if (dbError) {
+                    throw new Error(`Database error: ${dbError.message}`);
+                }
+                log('✓ Database accessible');
+
+                // Clean up test file
+                await supabase.storage.from('bikes').remove(['test.txt']);
+                log('All tests passed successfully!');
+
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, true);
+                console.error('Full error:', error);
+            }
+        }
+
+        // Run tests when page loads
+        runTests();
+    </script>
+</body>
+</html> 

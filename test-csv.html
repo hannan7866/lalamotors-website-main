@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV Test</title>
+</head>
+<body>
+    <h1>CSV Accessibility Test</h1>
+    <div id="results"></div>
+    
+    <script>
+        const csvPaths = [
+            '/public/files/Complete_Motorcycle_Spare_Parts_List.csv',
+            '/files/Complete_Motorcycle_Spare_Parts_List.csv',
+            'Complete_Motorcycle_Spare_Parts_List.csv',
+            '../public/files/Complete_Motorcycle_Spare_Parts_List.csv',
+            '/public/files/Complete_Motorcycle_Spare_Parts_List new.csv',
+            '/files/Complete_Motorcycle_Spare_Parts_List new.csv',
+            'Complete_Motorcycle_Spare_Parts_List new.csv',
+            '../Complete_Motorcycle_Spare_Parts_List new.csv'
+        ];
+        
+        async function testCSVPaths() {
+            const resultsDiv = document.getElementById('results');
+            
+            for (const path of csvPaths) {
+                try {
+                    console.log('Testing path:', path);
+                    const response = await fetch(path);
+                    const status = response.status;
+                    const success = response.ok;
+                    
+                    const result = document.createElement('div');
+                    result.style.padding = '10px';
+                    result.style.margin = '5px';
+                    result.style.border = '1px solid #ccc';
+                    result.style.backgroundColor = success ? '#d4edda' : '#f8d7da';
+                    result.style.color = success ? '#155724' : '#721c24';
+                    
+                    result.innerHTML = `
+                        <strong>Path:</strong> ${path}<br>
+                        <strong>Status:</strong> ${status}<br>
+                        <strong>Success:</strong> ${success ? '✅' : '❌'}
+                    `;
+                    
+                    resultsDiv.appendChild(result);
+                    
+                    if (success) {
+                        console.log('✅ SUCCESS:', path);
+                        break;
+                    }
+                } catch (error) {
+                    console.error('❌ ERROR:', path, error);
+                    
+                    const result = document.createElement('div');
+                    result.style.padding = '10px';
+                    result.style.margin = '5px';
+                    result.style.border = '1px solid #ccc';
+                    result.style.backgroundColor = '#f8d7da';
+                    result.style.color = '#721c24';
+                    
+                    result.innerHTML = `
+                        <strong>Path:</strong> ${path}<br>
+                        <strong>Error:</strong> ${error.message}<br>
+                        <strong>Success:</strong> ❌
+                    `;
+                    
+                    resultsDiv.appendChild(result);
+                }
+            }
+        }
+        
+        testCSVPaths();
+    </script>
+</body>
+</html> 

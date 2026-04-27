@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bike Wash | LALA MOTORS</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        .painting-section {
+            margin-top: 120px;
+        }
+        .paint-jobs-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            max-width: 900px;
+            margin: 0 auto 2rem auto;
+        }
+        @media (max-width: 900px) {
+            .paint-jobs-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (max-width: 768px) {
+            .painting-section {
+                margin-top: 90px;
+            }
+            .paint-jobs-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 1rem;
+            }
+            .service-card {
+                padding: 0.7rem 0.3rem;
+                font-size: 0.92rem;
+                border-radius: 12px;
+            }
+            .service-card h3 {
+                font-size: 0.98rem;
+                margin-bottom: 0.3rem;
+            }
+            .service-card i {
+                font-size: 1.2rem;
+                margin-bottom: 0.4rem;
+            }
+            .service-card .primary-button {
+                font-size: 0.7rem !important;
+                height: 32px !important;
+                padding: 0.3rem 0.2rem !important;
+                line-height: 1.05 !important;
+                border-radius: 7px !important;
+                min-width: 0 !important;
+                width: 100% !important;
+                letter-spacing: 0.5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER/NAV START -->
+    <div id="notification" class="notification"></div>
+    <div id="cart-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeCartModal()">&times;</span>
+            <h2>Shopping Cart</h2>
+            <div id="cart-items"></div>
+            <div class="cart-total">
+                <strong>Total: ₹</strong>
+                <span id="cart-total">0</span>
+            </div>
+            <button onclick="checkoutCart()" class="checkout-btn">Proceed to Checkout</button>
+        </div>
+    </div>
+    <div id="sidebar-overlay" class="sidebar-overlay" style="display:none;"></div>
+    <nav id="sidebar-menu" class="sidebar-menu" style="display:none;">
+      <div class="sidebar-header">
+        <button id="close-sidebar" class="close-sidebar" title="Close">&times;</button>
+      </div>
+      <div class="sidebar-profile-section">
+        <div class="sidebar-profile-info">
+          <i class="fa-regular fa-user sidebar-profile-icon"></i>
+          <div>
+            <span class="sidebar-profile-greeting">Hello,</span>
+            <span class="sidebar-profile-name" id="sidebar-profile-name">Guest</span>
+          </div>
+        </div>
+      </div>
+      <div class="sidebar-section-title">Account Settings</div>
+      <ul class="sidebar-list">
+        <li><a href="#" id="sidebar-profile-info"><i class="fa-solid fa-user-pen"></i> Profile information</a></li>
+        <li><a href="#" id="sidebar-manage-address"><i class="fa-solid fa-location-dot"></i> Manage Address</a></li>
+        <li><a href="#" id="sidebar-orders"><i class="fa-solid fa-box"></i> My Orders</a></li>
+        <li><a href="cart.html" id="sidebar-cart"><i class="fa-solid fa-cart-shopping"></i> Cart</a></li>
+        <li><a href="#" id="sidebar-subscriptions"><i class="fa-solid fa-id-badge"></i> Subscriptions</a></li>
+      </ul>
+      <div class="sidebar-section-title">Payment Setting</div>
+      <ul class="sidebar-list">
+        <li><a href="#" id="sidebar-upi-saved"><i class="fa-brands fa-google-pay"></i> UPI Saved</a></li>
+        <li><a href="#" id="sidebar-add-payment"><i class="fa-solid fa-credit-card"></i> Add New Payment</a></li>
+      </ul>
+      <div class="sidebar-section-title">MY STUFF</div>
+      <ul class="sidebar-list">
+        <li><a href="#" id="sidebar-last-service"><i class="fa-solid fa-clock-rotate-left"></i> Last services booked</a></li>
+        <li><a href="#" id="sidebar-invoices"><i class="fa-solid fa-file-invoice"></i> Invoices</a></li>
+      </ul>
+      <ul class="sidebar-list">
+        <li><a href="#" id="sidebar-support"><i class="fa-solid fa-headset"></i> Customer Care</a></li>
+        <li id="sidebar-logout-li" style=""><a href="#" id="sidebar-logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
+      </ul>
+    </nav>
+    <header>
+        <div class="top-bar">
+            <div class="contact-info">
+                <a href="tel:+917310542113"><i class="fas fa-phone"></i> 7310542113</a>
+                <a href="mailto:lalamotors1@gmail.com"><i class="fas fa-envelope"></i> lalamotors1@gmail.com</a>
+                <a href="https://instagram.com/lalamotors1" target="_blank"><i class="fab fa-instagram"></i> @lalamotors1</a>
+                <a href="https://www.google.com/maps/place/Lala+Motors/@27.1674164,78.0161954,17z/data=!4m6!3m5!1s0x397477aa18fdfe99:0xcfb37df5b30ed1a6!8m2!3d27.1676738!4d78.0159854!16s%2Fg%2F11vl7kctdh?entry=ttu&amp;g_ep=EgoyMDI1MDYyMy4yIKXMDSoASAFQAw%3D%3D" target="_blank"><i class="fas fa-location-dot"></i> 4/143 Ahmedia Market Baluganj Agra</a>
+            </div>
+        </div>
+        <nav>
+            <button id="sidebar-hamburger" class="sidebar-hamburger" title="Menu" aria-label="Open menu">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect y="7" width="32" height="3" rx="1.5" fill="#FFD700"/>
+                    <rect y="14.5" width="32" height="3" rx="1.5" fill="#FFD700"/>
+                    <rect y="22" width="32" height="3" rx="1.5" fill="#FFD700"/>
+                </svg>
+            </button>
+            <div class="logo">
+                <img src="../images/logoo neww.png" alt="LALA MOTORS Logo" class="main-logo">
+            </div>
+            <ul class="nav-links">
+                <li><a href="../index.html#home">Home</a></li>
+                <li><a href="../index.html#services">Services</a></li>
+                <li><a href="../index.html#booking">Booking</a></li>
+                <li><a href="../index.html#contact">Contact</a></li>
+                <li><a href="about.html">About Us</a></li>
+                <li>
+                  <div class="cart-icon-container">
+                    <a href="cart.html" class="cart-icon" title="Cart">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span id="cart-count" class="cart-item-count">0</span>
+                    </a>
+                  </div>
+                </li>
+            </ul>
+            <a href="login.html" class="login-btn" title="Login">
+              <i class="fa-regular fa-user"></i>
+            </a>
+        </nav>
+    </header>
+    <!-- HEADER/NAV END -->
+    <main>
+        <section class="painting-section">
+            <h2 class="section-title">Bike Wash Types</h2>
+            <div class="paint-jobs-grid">
+                <div class="service-card">
+                    <i class="fas fa-soap"></i>
+                    <h3>Foam Wash</h3>
+                    <p>Deep cleaning with foam for a spotless, shiny finish.</p>
+                    <div class="package-meta"><span>₹120 – ₹200</span></div>
+                    <a class="primary-button" href="#" style="margin-bottom: 10px;" onclick="openWashModal('foam')">View Details</a>
+                    <a class="primary-button" href="../index.html#booking">Book Service</a>
+                </div>
+                <div class="service-card">
+                    <i class="fas fa-bath"></i>
+                    <h3>Shampoo Wash</h3>
+                    <p>Gentle shampoo wash to remove dirt and grime.</p>
+                    <div class="package-meta"><span>₹50 – ₹100</span></div>
+                    <a class="primary-button" href="#" style="margin-bottom: 10px;" onclick="openWashModal('shampoo')">View Details</a>
+                    <a class="primary-button" href="../index.html#booking">Book Service</a>
+                </div>
+                <div class="service-card">
+                    <i class="fas fa-spray-can"></i>
+                    <h3>Polishing</h3>
+                    <p>Enhance shine and protect paint with professional polish.</p>
+                    <div class="package-meta"><span>₹20 – ₹200</span></div>
+                    <a class="primary-button" href="#" style="margin-bottom: 10px;" onclick="openWashModal('polish')">View Details</a>
+                    <a class="primary-button" href="../index.html#booking">Book Service</a>
+                </div>
+                <div class="service-card">
+                    <i class="fas fa-burn"></i>
+                    <h3>Rubbing Polish</h3>
+                    <p>Removes scratches and restores gloss with rubbing polish.</p>
+                    <div class="package-meta"><span>₹250 – ₹1,000</span></div>
+                    <a class="primary-button" href="#" style="margin-bottom: 10px;" onclick="openWashModal('rubbing')">View Details</a>
+                    <a class="primary-button" href="../index.html#booking">Book Service</a>
+                </div>
+                <div class="service-card">
+                    <i class="fas fa-link"></i>
+                    <h3>Chain Cleaning & Lubrication</h3>
+                    <p>Thorough cleaning and lubrication for smooth chain performance.</p>
+                    <div class="package-meta"><span>₹250 – ₹500</span></div>
+                    <a class="primary-button" href="#" style="margin-bottom: 10px;" onclick="openWashModal('chain')">View Details</a>
+                    <a class="primary-button" href="../index.html#booking">Book Service</a>
+                </div>
+            </div>
+        </section>
+    </main>
+    <div class="universal-note" style="max-width: 700px; margin: 40px auto 0 auto; background: #f9f9f9; border-left: 4px solid #FFD700; border-radius: 8px; padding: 18px 24px; color: #2B4B8C; font-size: 1.08em;">
+        <strong>Note:</strong> Listed prices are labor charges only. Parts cost will be additional. Final charges may vary based on bike model and work complexity.
+    </div>
+    <!-- Bike Wash Modals -->
+    <div id="wash-modal-foam" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close-modal close" onclick="closeWashModal('foam')">&times;</span>
+            <h2 style="font-weight:700; color:#2B4B8C; margin-bottom:0.5rem;">Foam Wash Details:</h2>
+            <div style="height:4px; background:#FFD700; width:100%; margin-bottom:1.2rem;"></div>
+            <div style="margin-bottom:1.2rem;">
+                <div style="font-weight:600; color:#2B4B8C; margin-bottom:0.5rem;">What We Do:</div>
+                <ul style="margin-left:1.2rem; margin-bottom:0.7rem; list-style-type: disc; color: #FFD700;">
+                    <li style="color:#333;">Deep cleaning with thick foam</li>
+                    <li style="color:#333;">Removes stubborn dirt and grime</li>
+                    <li style="color:#333;">Gentle on paint and surfaces</li>
+                    <li style="color:#333;">Leaves a spotless, shiny finish</li>
+                </ul>
+            </div>
+            <hr style="margin:1.2rem 0; border:0; border-top:1px solid #eee;">
+            <div style="font-weight:600; color:#2B4B8C; margin-bottom:0.5rem;">Price Range:</div>
+            <div style="margin-bottom:1.2rem;">₹120 – ₹200</div>
+            <div class="note" style="margin-top: 20px;">
+                <strong>Note:</strong> Best for regular cleaning and shine. Price depends on bike size.
+            </div>
+            <div class="modal-buttons" style="margin-top:1.5rem;">
+                <button class="primary-button" onclick="closeWashModal('foam')">Close</button>
+                <a class="primary-button" href="../index.html#booking">Book Now</a>
+            </div>
+        </div>
+    </div>
+    <div id="wash-modal-shampoo" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close-modal close" onclick="closeWashModal('shampoo')">&times;</span>
+            <h2 style="font-weight:700; color:#2B4B8C; margin-bottom:0.5rem;">Shampoo Wash Details:</h2>
+            <div style="height:4px; background:#FFD700; width:100%; margin-bottom:1.2rem;"></div>
+            <div style="margin-bottom:1.2rem;">
+                <div style="font-weight:600; color:#2B4B8C; margin-bottom:0.5rem;">What We Do:</div>
+                <ul style="margin-left:1.2rem; margin-bottom:0.7rem; list-style-type: disc; color: #FFD700;">
+                    <li style="color:#333;">Gentle shampoo wash for all surfaces</li>
+                    <li style="color:#333;">Removes dust, mud, and light stains</li>
+                    <li style="color:#333;">Safe for paint and chrome</li>
+                    <li style="color:#333;">Quick and effective cleaning</li>
+                </ul>
+            </div>
+            <hr style="margin:1.2rem 0; border:0; border-top:1px solid #eee;">
+            <div style="font-weight:600; color:#2B4B8C; margin-bottom:0.5rem;">Price Range:</div>
+            <div style="margin-bottom:1.2rem;">₹50 – ₹100</div>
+            <div class="note" style="margin-top: 20px;">
+                <strong>Note:</strong> Ideal for light cleaning and maintenance. Price depends on bike size.
+            </div>
+            <div class="modal-buttons" style="margin-top:1.5rem;">
+                <button class="primary-button" onclick="closeWashModal('shampoo')">Close</button>
+                <a class="primary-button" href="../index.html#booking">Book Now</a>
+            </div>
+        </div>
+    </div>
+    <div id="wash-modal-polish" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close-modal close" onclick="closeWashModal('polish')">&times;</span>
+            <h2 style="font-weight:700; color:#2B4B8C; margin-bottom:0.5rem;">Polishing Details:</h2>
+            <div style="height:4px; background:#FFD700; width:100%; margin-bottom:1.2rem;"></div>
+            <div style="margin-bottom:1.2rem;">
+                <div style="font-weight:600; color:#2B4B8C; margin-bottom:0.5rem;">What We Do:</div>
+                <ul style="margin-left:1.2rem; margin-bottom:0.7rem; list-style-type: disc; color: #FFD700;">
+                    <li style="color:#333;">Professional polish application</li>
+                    <li style="color:#333;">Enhances shine and gloss</li>
+                    <li style="color:#333;">Protects paint from dust and UV</li>
+                    <li style="color:#333;">Smooth, mirror-like finish</li>
+                </ul>
+            </div>
+            <hr style="margin:1.2rem 0; border:0; border-top:1px solid #eee;">
+            <div style="font-weight:600; color:#2B4B8C; margin-bottom:0.5rem;">Price Range:</div>
+            <div style="margin-bottom:1.2rem;">₹20 – ₹200</div>
+            <div class="note" style="margin-top: 20px;">
+                <strong>Note:</strong> For extra shine and protection. Price depends on bike size and polish type.
+            </div>
+            <div class="modal-buttons" style="margin-top:1.5rem;">
+                <button class="primary-button" onclick="closeWashModal('polish')">Close</button>
+                <a class="primary-button" href="../index.html#booking">Book Now</a>
+            </div>
+        </div>
+    </div>
+    <div id="wash-modal-rubbing" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close-modal close" onclick="closeWashModal('rubbing')">&times;</span>
+            <h2 style="font-weight:700; color:#2B4B8C; margin-bottom:0.5rem;">Rubbing Polish Details:</h2>
+            <div style="height:4px; background:#FFD700; width:100%; margin-bottom:1.2rem;"></div>
+            <div style="margin-bottom:1.2rem;">
+                <div style="font-weight:600; color:#2B4B8C; margin-bottom:0.5rem;">What We Do:</div>
+                <ul style="margin-left:1.2rem; margin-bottom:0.7rem; list-style-type: disc; color: #FFD700;">
+                    <li style="color:#333;">Removes scratches and swirl marks</li>
+                    <li style="color:#333;">Restores gloss and smoothness</li>
+                    <li style="color:#333;">Professional-grade rubbing compounds</li>
+                    <li style="color:#333;">Brings back original paint luster</li>
+                </ul>
+            </div>
+            <hr style="margin:1.2rem 0; border:0; border-top:1px solid #eee;">
+            <div style="font-weight:600; color:#2B4B8C; margin-bottom:0.5rem;">Price Range:</div>
+            <div style="margin-bottom:1.2rem;">₹250 – ₹1,000</div>
+            <div class="note" style="margin-top: 20px;">
+                <strong>Note:</strong> For bikes with scratches or dull paint. Price depends on extent of work.
+            </div>
+            <div class="modal-buttons" style="margin-top:1.5rem;">
+                <button class="primary-button" onclick="closeWashModal('rubbing')">Close</button>
+                <a class="primary-button" href="../index.html#booking">Book Now</a>
+            </div>
+        </div>
+    </div>
+    <div id="wash-modal-chain" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close-modal close" onclick="closeWashModal('chain')">&times;</span>
+            <h2 style="font-weight:700; color:#2B4B8C; margin-bottom:0.5rem;">Chain Cleaning & Lubrication Details:</h2>
+            <div style="height:4px; background:#FFD700; width:100%; margin-bottom:1.2rem;"></div>
+            <div style="margin-bottom:1.2rem;">
+                <div style="font-weight:600; color:#2B4B8C; margin-bottom:0.5rem;">What We Do:</div>
+                <ul style="margin-left:1.2rem; margin-bottom:0.7rem; list-style-type: disc; color: #FFD700;">
+                    <li style="color:#333;">Thorough chain cleaning</li>
+                    <li style="color:#333;">Professional lubrication</li>
+                    <li style="color:#333;">Improves chain life and performance</li>
+                    <li style="color:#333;">Reduces noise and wear</li>
+                </ul>
+            </div>
+            <hr style="margin:1.2rem 0; border:0; border-top:1px solid #eee;">
+            <div style="font-weight:600; color:#2B4B8C; margin-bottom:0.5rem;">Price Range:</div>
+            <div style="margin-bottom:1.2rem;">₹250 – ₹500</div>
+            <div class="note" style="margin-top: 20px;">
+                <strong>Note:</strong> Essential for smooth riding. Price depends on bike type and chain condition.
+            </div>
+            <div class="modal-buttons" style="margin-top:1.5rem;">
+                <button class="primary-button" onclick="closeWashModal('chain')">Close</button>
+                <a class="primary-button" href="../index.html#booking">Book Now</a>
+            </div>
+        </div>
+    </div>
+    <script src="../script.js"></script>
+    <script>
+    function hideHeader() {
+        var header = document.querySelector('header');
+        if (header) header.style.display = 'none';
+    }
+    function showHeader() {
+        var header = document.querySelector('header');
+        if (header) header.style.display = '';
+    }
+    function openWashModal(type) {
+        document.getElementById('wash-modal-' + type).style.display = 'block';
+        document.body.style.overflow = 'hidden';
+        hideHeader();
+    }
+    function closeWashModal(type) {
+        document.getElementById('wash-modal-' + type).style.display = 'none';
+        document.body.style.overflow = 'auto';
+        showHeader();
+    }
+    window.onclick = function(event) {
+        ['foam','shampoo','polish','rubbing','chain'].forEach(function(type) {
+            var modal = document.getElementById('wash-modal-' + type);
+            if (event.target == modal) {
+                closeWashModal(type);
+            }
+        });
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        const params = new URLSearchParams(window.location.search);
+        const open = params.get('open');
+        if (open) {
+            const map = {
+                foam: { btn: 'view-details-foam', fn: function() { openWashModal('foam'); } },
+                shampoo: { btn: 'view-details-shampoo', fn: function() { openWashModal('shampoo'); } },
+                polish: { btn: 'view-details-polish', fn: function() { openWashModal('polish'); } },
+                rubbing: { btn: 'view-details-rubbing', fn: function() { openWashModal('rubbing'); } },
+                chain: { btn: 'view-details-chain', fn: function() { openWashModal('chain'); } }
+            };
+            if (map[open]) {
+                const btn = document.getElementById(map[open].btn);
+                if (btn) {
+                    btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    setTimeout(() => map[open].fn(), 400);
+                }
+            }
+        }
+    });
+    </script>
+</body>
+</html> 

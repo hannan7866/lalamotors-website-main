@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Submit Your Bike for Sale | Lala Motors</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>List Your Bike for Sale</h1>
+  <form id="bikeSubmissionForm" enctype="multipart/form-data">
+    <label>Name: <input type="text" name="customer_name" required></label><br>
+    <label>Phone Number: <input type="text" name="phone_number" required></label><br>
+    <label>Email: <input type="email" name="email" required></label><br>
+    <label>Bike Brand: <input type="text" name="bike_brand" required></label><br>
+    <label>Bike Model: <input type="text" name="bike_model" required></label><br>
+    <label>Year: <input type="number" name="year" min="1900" max="2100" required></label><br>
+    <label>Kilometers Run: <input type="number" name="kms_run" required></label><br>
+    <label>Condition:
+      <select name="condition" required>
+        <option value="Excellent">Excellent</option>
+        <option value="Good">Good</option>
+        <option value="Needs work">Needs work</option>
+      </select>
+    </label><br>
+    <label>Asking Price (INR): <input type="number" name="asking_price" required></label><br>
+    <label>Bike Image: <input type="file" name="bike_image" accept="image/*" required></label><br>
+    <button type="submit">Submit</button>
+  </form>
+  <div id="submissionResult"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script src="script.js"></script>
+</body>
+</html> 

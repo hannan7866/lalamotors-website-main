@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>LALA MOTORS – Revving Up Reliability</title>
+    <link rel="icon" type="image/x-icon" href="images/logoo neww.png">
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <!-- Add notification div -->
+    <div id="notification" class="notification"></div>
+
+    <!-- Add cart modal -->
+    <div id="cart-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeCartModal()">&times;</span>
+            <h2>Shopping Cart</h2>
+            <div id="cart-items"></div>
+            <div class="cart-total">
+                <strong>Total: ₹</strong>
+                <span id="cart-total">0</span>
+            </div>
+            <button onclick="checkoutCart()" class="checkout-btn">Proceed to Checkout</button>
+        </div>
+    </div>
+
+    <!-- Sidebar overlay and menu -->
+    <div id="sidebar-overlay" class="sidebar-overlay" style="display:none;"></div>
+    <nav id="sidebar-menu" class="sidebar-menu" style="display:none;">
+      <div class="sidebar-header">
+        <button id="close-sidebar" class="close-sidebar" title="Close">&times;</button>
+      </div>
+      <div class="sidebar-profile-section">
+        <div class="sidebar-profile-info">
+          <i class="fa-regular fa-user sidebar-profile-icon"></i>
+          <div>
+            <span class="sidebar-profile-greeting">Hello,</span>
+            <span class="sidebar-profile-name" id="sidebar-profile-name">Guest</span>
+            <span class="sidebar-profile-email" id="sidebar-profile-email"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-section-title">Account Settings</div>
+      <ul class="sidebar-list">
+        <li><a href="#" id="sidebar-profile-info"><i class="fa-solid fa-user-pen"></i> Profile information</a></li>
+        <li><a href="#" id="sidebar-manage-address"><i class="fa-solid fa-location-dot"></i> Manage Address</a></li>
+        <li><a href="#" id="sidebar-orders"><i class="fa-solid fa-box"></i> My Orders</a></li>
+        <li><a href="services/cart.html" id="sidebar-cart"><i class="fa-solid fa-cart-shopping"></i> Cart</a></li>
+        <li><a href="#" id="sidebar-subscriptions"><i class="fa-solid fa-id-badge"></i> Subscriptions</a></li>
+      </ul>
+
+      <div class="sidebar-section-title">Payment Setting</div>
+      <ul class="sidebar-list">
+        <li><a href="#" id="sidebar-upi-saved"><i class="fa-brands fa-google-pay"></i> UPI Saved</a></li>
+        <li><a href="#" id="sidebar-add-payment"><i class="fa-solid fa-credit-card"></i> Add New Payment</a></li>
+      </ul>
+
+      <div class="sidebar-section-title">MY STUFF</div>
+      <ul class="sidebar-list">
+        <li><a href="#" id="sidebar-last-service"><i class="fa-solid fa-clock-rotate-left"></i> Last services booked</a></li>
+        <li><a href="#" id="sidebar-invoices"><i class="fa-solid fa-file-invoice"></i> Invoices</a></li>
+      </ul>
+
+      <ul class="sidebar-list">
+        <li><a href="#" id="sidebar-support"><i class="fa-solid fa-headset"></i> Customer Care</a></li>
+        <li id="sidebar-logout-li" style=""><a href="#" id="sidebar-logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
+      </ul>
+    </nav>
+
+    <header>
+        <div class="top-bar">
+            <div class="contact-info">
+                <a href="tel:+917310542113"><i class="fas fa-phone"></i> 7310542113</a>
+                <a href="mailto:lalamotors1@gmail.com"><i class="fas fa-envelope"></i> lalamotors1@gmail.com</a>
+                <a href="https://instagram.com/lalamotors1" target="_blank"><i class="fab fa-instagram"></i> @lalamotors1</a>
+                <a href="https://www.google.com/maps/place/Lala+Motors/@27.1674164,78.0161954,17z/data=!4m6!3m5!1s0x397477aa18fdfe99:0xcfb37df5b30ed1a6!8m2!3d27.1676738!4d78.0159854!16s%2Fg%2F11vl7kctdh?entry=ttu&amp;g_ep=EgoyMDI1MDYyMy4yIKXMDSoASAFQAw%3D%3D" target="_blank"><i class="fas fa-location-dot"></i> 4/143 Ahmedia Market Baluganj Agra</a>
+            </div>
+        </div>
+        <nav>
+            <button id="sidebar-hamburger" class="sidebar-hamburger" title="Menu" aria-label="Open menu">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect y="7" width="32" height="3" rx="1.5" fill="#FFD700"/>
+                    <rect y="14.5" width="32" height="3" rx="1.5" fill="#FFD700"/>
+                    <rect y="22" width="32" height="3" rx="1.5" fill="#FFD700"/>
+                </svg>
+            </button>
+            <div class="logo">
+                <img src="images/logoo neww.png" alt="LALA MOTORS Logo" class="main-logo">
+            </div>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#services">Services</a></li>
+                <li><a href="#booking">Booking</a></li>
+                <li><a href="#contact">Contact</a></li>
+                <li><a href="services/about.html">About Us</a></li>
+                <li>
+                  <div class="cart-icon-container">
+                    <a href="services/cart.html" class="cart-icon" title="Cart">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span id="cart-count" class="cart-item-count">0</span>
+                    </a>
+                  </div>
+                </li>
+            </ul>
+            <a href="services/login.html" class="login-btn" title="Login">
+              <i class="fa-regular fa-user"></i>
+            </a>
+        </nav>
+    </header>
+
+    <main>
+        <section id="home" class="hero">
+            <div class="hero-content">
+                <h2>Professional Bike Service & Repair</h2>
+                <p>Your trusted partner for all motorcycle needs</p>
+                <a href="#booking" class="cta-button">Book Service Now</a>
+            </div>
+        </section>
+
+        <section id="services" class="services-landing">
+            <h2 class="section-title">Our Services</h2>
+            <div class="services-grid">
+                <a class="service-card" href="services/autoparts.html">
+                    <i class="fas fa-cogs"></i>
+                    <h3>Autoparts</h3>
+                    <p>Genuine parts for all major brands</p>
+                </a>
+                <a class="service-card" href="services/servicing.html">
+                    <i class="fas fa-tools"></i>
+                    <h3>Servicing</h3>
+                    <p>Expert maintenance & tune-ups</p>
+                </a>
+                <a class="service-card" href="services/repairing.html">
+                    <i class="fas fa-wrench"></i>
+                    <h3>Repairing</h3>
+                    <p>All types of bike repairs</p>
+                </a>
+                <a class="service-card" href="services/restoring.html">
+                    <i class="fas fa-motorcycle"></i>
+                    <h3>Restoring</h3>
+                    <p>Classic bike restoration</p>
+                </a>
+                <a class="service-card" href="services/painting.html">
+                    <i class="fas fa-spray-can"></i>
+                    <h3>Painting</h3>
+                    <p>Custom paint & graphics</p>
+                </a>
+                <a class="service-card" href="services/modify.html">
+                    <i class="fas fa-wrench"></i>
+                    <h3>Modify</h3>
+                    <p>Custom modifications & upgrades</p>
+                </a>
+                <a class="service-card" href="services/bikewash.html">
+                    <i class="fas fa-water"></i>
+                    <h3>Bike Wash</h3>
+                    <p>Professional bike cleaning & detailing</p>
+                </a>
+                <a class="service-card" href="services/sale.html">
+                    <i class="fas fa-handshake"></i>
+                    <h3>Sale & Purchase</h3>
+                    <p>Buy & sell pre-owned bikes</p>
+                </a>
+                <a class="service-card" href="services/servicing.html#home-services-jobcard">
+                    <i class="fas fa-house-user"></i>
+                    <h3>Home Services</h3>
+                    <p>Normal servicing & minor part replacement at your doorstep</p>
+                </a>
+                <a class="service-card" href="services/servicing.html#pickup-drop">
+                    <i class="fas fa-truck"></i>
+                    <h3>Pickup & Drop</h3>
+                    <p>Convenient bike pickup and drop at your doorstep</p>
+                </a>
+                <a class="service-card" href="services/subscription.html">
+                    <i class="fas fa-id-card-alt"></i>
+                    <h3>Subscription Plans</h3>
+                    <p>Yearly plans for all bike categories. Silver, Gold, Platinum & Delivery Partner options.</p>
+                </a>
+                <a class="service-card emergency-service-card" href="services/emergency.html">
+                    <div class="icon-circle" style="font-size:2rem;color:#e23e3d;">🚨</div>
+                    <h3 style="color:#e23e3d;">EMERGENCY SERVICES</h3>
+                    <p>Bike breakdown? Click for help options.</p>
+                </a>
+            </div>
+        </section>
+
+        <section id="brands" class="brands-section">
+            <h2 class="section-title">Brands and Bikes We Deal With</h2>
+            <div class="brands-grid">
+                <a href="#hero-card" class="brand-logo-card animated fadeInUp" style="animation-delay:0.05s"><img src="images/logos/hero-removebg-preview.png" alt="Hero"></a>
+                <a href="#honda-card" class="brand-logo-card animated fadeInUp" style="animation-delay:0.10s"><img src="images/logos/honda-removebg-preview.png" alt="Honda"></a>
+                <a href="#tvs-card" class="brand-logo-card animated fadeInUp" style="animation-delay:0.15s"><img src="images/logos/tvs-removebg-preview.png" alt="TVS"></a>
+                <a href="#bajaj-card" class="brand-logo-card animated fadeInUp" style="animation-delay:0.20s"><img src="images/logos/bajaj-removebg-preview.png" alt="Bajaj"></a>
+                <a href="#suzuki-card" class="brand-logo-card animated fadeInUp" style="animation-delay:0.25s"><img src="images/logos/suzuki.jp-removebg-preview.png" alt="Suzuki"></a>
+                <a href="#enfield-card" class="brand-logo-card animated fadeInUp" style="animation-delay:0.30s"><img src="images/logos/royalenfield-removebg-preview.png" alt="Royal Enfield"></a>
+                <a href="#yamaha-card" class="brand-logo-card animated fadeInUp" style="animation-delay:0.35s"><img src="images/logos/yamaha-removebg-preview.png" alt="Yamaha"></a>
+                <a href="#ktm-card" class="brand-logo-card animated fadeInUp" style="animation-delay:0.40s"><img src="images/logos/ktm-removebg-preview.png" alt="KTM"></a>
+                <!-- Coming Soon Brands -->
+                <div class="brand-logo-card coming-soon"><img src="images/logos/jawa-removebg-preview.png" alt="Jawa / Yezdi"><span class="coming-soon-label">Coming Soon</span></div>
+                <div class="brand-logo-card coming-soon"><img src="images/logos/kawasaki-removebg-preview.png" alt="Kawasaki"><span class="coming-soon-label">Coming Soon</span></div>
+                <div class="brand-logo-card coming-soon"><img src="images/logos/binilli-removebg-preview.png" alt="Benelli"><span class="coming-soon-label">Coming Soon</span></div>
+                <div class="brand-logo-card coming-soon"><img src="images/logos/aprilia-removebg-preview.png" alt="Aprilia"><span class="coming-soon-label">Coming Soon</span></div>
+                <div class="brand-logo-card coming-soon"><img src="images/logos/harley-removebg-preview.png" alt="Harley-Davidson"><span class="coming-soon-label">Coming Soon</span></div>
+                <div class="brand-logo-card coming-soon"><img src="images/logos/bmw-removebg-preview.png" alt="BMW"><span class="coming-soon-label">Coming Soon</span></div>
+                <div class="brand-logo-card coming-soon"><img src="images/logos/ducati-removebg-preview.png" alt="Ducati"><span class="coming-soon-label">Coming Soon</span></div>
+                <div class="brand-logo-card coming-soon"><img src="images/logos/Triumph-removebg-preview.png" alt="Triumph"><span class="coming-soon-label">Coming Soon</span></div>
+            </div>
+        </section>
+
+        <section class="bike-cards-section">
+            <div class="bike-cards-container">
+                <!-- Hero -->
+                <div class="bike-card hero-brand" id="hero-card">
+                    <div class="bike-card-col-left">
+                        <div class="bike-card-brand">
+                            <img src="images/logos/hero-removebg-preview.png" alt="Hero">
+                        </div>
+                        <div class="bike-models-scroll scrolling-text-hero">
+                            <div class="scrolling-text">
+                                <div>Splendor Plus</div>
+                                <div>HF Deluxe</div>
+                                <div>Passion Pro / Passion Plus</div>
+                                <div>Super Splendor</div>
+                                <div>Glamour</div>
+                                <div>Xtreme 160R</div>
+                                <div>Xpulse 200</div>
+                                <div>Karizma XMR</div>
+                                <div>Xtreme 200S</div>
+                                <div>Xtreme 125R</div>
+                                <div>Xtreme 200T</div>
+                                <div>CBZ Xtreme</div>
+                                <div>Hunk</div>
+                                <div>Achiever</div>
+                                <div>Ignitor</div>
+                                <div>iSmart 110</div>
+                                <div>Splendor NXG</div>
+                                <div>HF 100</div>
+                                <div>Pleasure Plus</div>
+                                <div>Destini 125</div>
+                                <div>Maestro Edge 110</div>
+                                <div>Maestro Edge 125</div>
+                                <!-- duplicate for smooth scroll -->
+                                <div>Splendor Plus</div>
+                                <div>HF Deluxe</div>
+                                <div>Passion Pro / Passion Plus</div>
+                                <div>Super Splendor</div>
+                                <div>Glamour</div>
+                                <div>Xtreme 160R</div>
+                                <div>Xpulse 200</div>
+                                <div>Karizma XMR</div>
+                                <div>Xtreme 200S</div>
+                                <div>Xtreme 125R</div>
+                                <div>Xtreme 200T</div>
+                                <div>CBZ Xtreme</div>
+                                <div>Hunk</div>
+                                <div>Achiever</div>
+                                <div>Ignitor</div>
+                                <div>iSmart 110</div>
+                                <div>Splendor NXG</div>
+                                <div>HF 100</div>
+                                <div>Pleasure Plus</div>
+                                <div>Destini 125</div>
+                                <div>Maestro Edge 110</div>
+                                <div>Maestro Edge 125</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bike-card-col-right">
+                        <div class="bike-image-container hero-slider-container">
+                            <img class="hero-slider-img" src="images/hero/pleasureimage.webp" alt="Hero Pleasure" style="display:block;">
+                            <img class="hero-slider-img" src="images/hero/mavrick440image.webp" alt="Hero Mavrick 440" style="display:none;">
+                            <img class="hero-slider-img" src="images/hero/karizmaxmrimage.webp" alt="Hero Karizma XMR" style="display:none;">
+                            <img class="hero-slider-img" src="images/hero/xtreme160r4vimage.webp" alt="Hero Xtreme 160R 4V" style="display:none;">
+                            <img class="hero-slider-img" src="images/hero/xtreme160rimage.webp" alt="Hero Xtreme 160R" style="display:none;">
+                            <img class="hero-slider-img" src="images/hero/xpulse210image.webp" alt="Hero Xpulse 210" style="display:none;">
+                            <img class="hero-slider-img" src="images/hero/xtreme250rimage.webp" alt="Hero Xtreme 250R" style="display:none;">
+                            <img class="hero-slider-img" src="images/hero/xtreme125rimage-removebg-preview.png" alt="Hero Xtreme 125R" style="display:none;">
+                            <img class="hero-slider-img" src="images/hero/Bike_03_13.png.webp" alt="Hero Bike 03 13" style="display:none;">
+                            <img class="hero-slider-img" src="images/hero/passionplusimage.webp" alt="Hero Passion Plus" style="display:none;">
+                            <img class="hero-slider-img" src="images/hero/hfdeluxehfdeluxerightsideview.webp" alt="Hero HF Deluxe" style="display:none;">
+                            <img class="hero-slider-img" src="images/hero/splendorplusimage (1).webp" alt="Hero Splendor Plus" style="display:none;">
+                        </div>
+                        <div class="bike-image-dots hero-slider-dots">
+                            <span class="dot active"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                        </div>
+                        <a class="add-button" href="services/servicing.html" style="width:100%;margin-top:1rem;display:inline-block;text-align:center;">ADD</a>
+                    </div>
+                </div>
+                <!-- Bajaj -->
+                <div class="bike-card bajaj" id="bajaj-card">
+                    <div class="bike-card-col-left">
+                        <div class="bike-card-brand">
+                            <img src="images/logos/bajaj-removebg-preview.png" alt="Bajaj">
+                        </div>
+                        <div class="bike-models-scroll scrolling-text-bajaj">
+                            <div class="scrolling-text">
+                                <div>Pulsar 125</div>
+                                <div>Pulsar 150</div>
+                                <div>Pulsar NS200</div>
+                                <div>Pulsar NS160</div>
+                                <div>Pulsar N160</div>
+                                <div>Pulsar N250</div>
+                                <div>Pulsar RS200</div>
+                                <div>Dominar 250</div>
+                                <div>Dominar 400</div>
+                                <div>Avenger 160</div>
+                                <div>Avenger 220</div>
+                                <div>CT100</div>
+                                <div>CT110</div>
+                                <div>Platina 100</div>
+                                <div>Platina 110</div>
+                                <div>Discover 125</div>
+                                <div>Discover 150</div>
+                                <!-- duplicate for smooth scroll -->
+                                <div>Pulsar 125</div>
+                                <div>Pulsar 150</div>
+                                <div>Pulsar NS200</div>
+                                <div>Pulsar NS160</div>
+                                <div>Pulsar N160</div>
+                                <div>Pulsar N250</div>
+                                <div>Pulsar RS200</div>
+                                <div>Dominar 250</div>
+                                <div>Dominar 400</div>
+                                <div>Avenger 160</div>
+                                <div>Avenger 220</div>
+                                <div>CT100</div>
+                                <div>CT110</div>
+                                <div>Platina 100</div>
+                                <div>Platina 110</div>
+                                <div>Discover 125</div>
+                                <div>Discover 150</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bike-card-col-right">
+                        <div class="bike-image-container bajaj-slider-container">
+                            <img class="bajaj-slider-img" src="images/bajaj/platina110image.webp" alt="Bajaj Platina 110" style="display:block;">
+                            <img class="bajaj-slider-img" src="images/bajaj/avengerstreet220image (1).webp" alt="Bajaj Avenger Street 220 (1)" style="display:none;">
+                            <img class="bajaj-slider-img" src="images/bajaj/avengerstreet220image.webp" alt="Bajaj Avenger Street 220" style="display:none;">
+                            <img class="bajaj-slider-img" src="images/bajaj/pulsar220fimage.webp" alt="Bajaj Pulsar 220F" style="display:none;">
+                            <img class="bajaj-slider-img" src="images/bajaj/pulsarrs200image.webp" alt="Bajaj Pulsar RS200" style="display:none;">
+                            <img class="bajaj-slider-img" src="images/bajaj/dominar400image.webp" alt="Bajaj Dominar 400" style="display:none;">
+                            <img class="bajaj-slider-img" src="images/bajaj/pulsarns400zimage.webp" alt="Bajaj Pulsar NS400Z" style="display:none;">
+                            <img class="bajaj-slider-img" src="images/bajaj/pulsarns200image.webp" alt="Bajaj Pulsar NS200" style="display:none;">
+                            <img class="bajaj-slider-img" src="images/bajaj/pulsarn160image.webp" alt="Bajaj Pulsar N160" style="display:none;">
+                        </div>
+                        <div class="bike-image-dots bajaj-slider-dots">
+                            <span class="dot active"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                        </div>
+                        <a class="add-button" href="services/servicing.html" style="width:100%;margin-top:1rem;display:inline-block;text-align:center;">ADD</a>
+                    </div>
+                </div>
+                <!-- Honda -->
+                <div class="bike-card honda" id="honda-card">
+                    <div class="bike-card-col-left">
+                        <div class="bike-card-brand">
+                            <img src="images/logos/honda-removebg-preview.png" alt="Honda">
+                        </div>
+                        <div class="bike-models-scroll scrolling-text-honda">
+                            <div class="scrolling-text">
+                                <div>Shine 100</div>
+                                <div>Shine 125</div>
+                                <div>SP 125</div>
+                                <div>Unicorn</div>
+                                <div>XBlade</div>
+                                <div>Hornet 2.0</div>
+                                <div>CB200X</div>
+                                <div>CB300F</div>
+                                <div>CB350 H'ness</div>
+                                <div>CB350 RS</div>
+                                <div>Activa 6G</div>
+                                <div>Activa 125</div>
+                                <div>Dio</div>
+                                <div>Dio 125</div>
+                                <!-- duplicate for smooth scroll -->
+                                <div>Shine 100</div>
+                                <div>Shine 125</div>
+                                <div>SP 125</div>
+                                <div>Unicorn</div>
+                                <div>XBlade</div>
+                                <div>Hornet 2.0</div>
+                                <div>CB200X</div>
+                                <div>CB300F</div>
+                                <div>CB350 H'ness</div>
+                                <div>CB350 RS</div>
+                                <div>Activa 6G</div>
+                                <div>Activa 125</div>
+                                <div>Dio</div>
+                                <div>Dio 125</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bike-card-col-right">
+                        <div class="bike-image-container honda-slider-container">
+                            <img class="honda-slider-img" src="images/honda/activa125image.webp" alt="Honda Activa 125" style="display:block;">
+                            <img class="honda-slider-img" src="images/honda/activaimage.webp" alt="Honda Activa" style="display:none;">
+                            <img class="honda-slider-img" src="images/honda/cb200ximage (1).webp" alt="Honda CB200X" style="display:none;">
+                            <img class="honda-slider-img" src="images/honda/shineimage.webp" alt="Honda Shine" style="display:none;">
+                            <img class="honda-slider-img" src="images/honda/sp125sprightsideview.webp" alt="Honda SP 125" style="display:none;">
+                        </div>
+                        <div class="bike-image-dots honda-slider-dots">
+                            <span class="dot active"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                        </div>
+                        <a class="add-button" href="services/servicing.html" style="width:100%;margin-top:1rem;display:inline-block;text-align:center;">ADD</a>
+                    </div>
+                </div>
+                <!-- TVS -->
+                <div class="bike-card tvs" id="tvs-card">
+                    <div class="bike-card-col-left">
+                        <div class="bike-card-brand">
+                            <img src="images/logos/tvs-removebg-preview.png" alt="TVS">
+                        </div>
+                        <div class="bike-models-scroll scrolling-text-tvs">
+                            <div class="scrolling-text">
+                                <div>Sport</div>
+                                <div>Star City Plus</div>
+                                <div>Radeon</div>
+                                <div>Apache RTR 160</div>
+                                <div>Apache RTR 160 4V</div>
+                                <div>Apache RTR 180</div>
+                                <div>Apache RTR 200 4V</div>
+                                <div>Apache RR 310</div>
+                                <div>Raider 125</div>
+                                <div>Ronin</div>
+                                <div>XL100</div>
+                                <div>Scooty Pep+</div>
+                                <div>Zest 110</div>
+                                <div>Jupiter 110</div>
+                                <div>Jupiter 125</div>
+                                <div>NTorq 125</div>
+                                <!-- duplicate for smooth scroll -->
+                                <div>Sport</div>
+                                <div>Star City Plus</div>
+                                <div>Radeon</div>
+                                <div>Apache RTR 160</div>
+                                <div>Apache RTR 160 4V</div>
+                                <div>Apache RTR 180</div>
+                                <div>Apache RTR 200 4V</div>
+                                <div>Apache RR 310</div>
+                                <div>Raider 125</div>
+                                <div>Ronin</div>
+                                <div>XL100</div>
+                                <div>Scooty Pep+</div>
+                                <div>Zest 110</div>
+                                <div>Jupiter 110</div>
+                                <div>Jupiter 125</div>
+                                <div>NTorq 125</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bike-card-col-right">
+                        <div class="bike-image-container tvs-slider-container">
+                            <img class="tvs-slider-img" src="images/tvs/raider125image.webp" alt="TVS Raider 125" style="display:block;">
+                            <img class="tvs-slider-img" src="images/tvs/apachertr310image.webp" alt="TVS Apache RTR 310" style="display:none;">
+                            <img class="tvs-slider-img" src="images/tvs/apachertr2004vimage.webp" alt="TVS Apache RTR 200 4V" style="display:none;">
+                            <img class="tvs-slider-img" src="images/tvs/ntorq125image.webp" alt="TVS NTorq 125" style="display:none;">
+                            <img class="tvs-slider-img" src="images/tvs/jupiterimage.webp" alt="TVS Jupiter" style="display:none;">
+                            <img class="tvs-slider-img" src="images/tvs/apachertr160image.webp" alt="TVS Apache RTR 160" style="display:none;">
+                            <img class="tvs-slider-img" src="images/tvs/apacherr310image.webp" alt="TVS Apache RR 310" style="display:none;">
+                        </div>
+                        <div class="bike-image-dots tvs-slider-dots">
+                            <span class="dot active"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                        </div>
+                        <a class="add-button" href="services/servicing.html" style="width:100%;margin-top:1rem;display:inline-block;text-align:center;">ADD</a>
+                    </div>
+                </div>
+                <!-- Suzuki -->
+                <div class="bike-card suzuki" id="suzuki-card">
+                    <div class="bike-card-col-left">
+                        <div class="bike-card-brand">
+                            <img src="images/logos/suzuki.jp-removebg-preview.png" alt="Suzuki">
+                        </div>
+                        <div class="bike-models-scroll scrolling-text-suzuki">
+                            <div class="scrolling-text">
+                                <div>Gixxer</div>
+                                <div>Gixxer SF</div>
+                                <div>Gixxer 250</div>
+                                <div>Gixxer SF 250</div>
+                                <div>Intruder 150</div>
+                                <div>Access 125</div>
+                                <div>Burgman Street 125</div>
+                                <div>Avenis 125</div>
+                                <!-- duplicate for smooth scroll -->
+                                <div>Gixxer</div>
+                                <div>Gixxer SF</div>
+                                <div>Gixxer 250</div>
+                                <div>Gixxer SF 250</div>
+                                <div>Intruder 150</div>
+                                <div>Access 125</div>
+                                <div>Burgman Street 125</div>
+                                <div>Avenis 125</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bike-card-col-right">
+                        <div class="bike-image-container suzuki-slider-container">
+                            <img class="suzuki-slider-img" src="images/suzuki/gixxersf250flexfuelimage.webp" alt="Suzuki Gixxer SF 250 Flex Fuel" style="display:block;">
+                            <img class="suzuki-slider-img" src="images/suzuki/gixxerimage.webp" alt="Suzuki Gixxer" style="display:none;">
+                            <img class="suzuki-slider-img" src="images/suzuki/avenis125image.webp" alt="Suzuki Avenis 125" style="display:none;">
+                            <img class="suzuki-slider-img" src="images/suzuki/vstromsximage.webp" alt="Suzuki V-Strom SX" style="display:none;">
+                            <img class="suzuki-slider-img" src="images/suzuki/burgmanstreet125image.webp" alt="Suzuki Burgman Street 125" style="display:none;">
+                            <img class="suzuki-slider-img" src="images/suzuki/access125image.webp" alt="Suzuki Access 125" style="display:none;">
+                            <img class="suzuki-slider-img" src="images/suzuki/gixxersfimage.webp" alt="Suzuki Gixxer SF" style="display:none;">
+                        </div>
+                        <div class="bike-image-dots suzuki-slider-dots">
+                            <span class="dot active"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                        </div>
+                        <a class="add-button" href="services/servicing.html" style="width:100%;margin-top:1rem;display:inline-block;text-align:center;">ADD</a>
+                    </div>
+                </div>
+                <!-- Royal Enfield -->
+                <div class="bike-card enfield" id="enfield-card">
+                    <div class="bike-card-col-left">
+                        <div class="bike-card-brand">
+                            <img src="images/logos/royalenfield-removebg-preview.png" alt="Royal Enfield">
+                        </div>
+                        <div class="bike-models-scroll scrolling-text-enfield">
+                            <div class="scrolling-text">
+                                <div>Bullet 350</div>
+                                <div>Classic 350</div>
+                                <div>Hunter 350</div>
+                                <div>Meteor 350</div>
+                                <div>Scram 411</div>
+                                <div>Himalayan 450</div>
+                                <div>Interceptor 650</div>
+                                <div>Continental GT 650</div>
+                                <!-- duplicate for smooth scroll -->
+                                <div>Bullet 350</div>
+                                <div>Classic 350</div>
+                                <div>Hunter 350</div>
+                                <div>Meteor 350</div>
+                                <div>Scram 411</div>
+                                <div>Himalayan 450</div>
+                                <div>Interceptor 650</div>
+                                <div>Continental GT 650</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bike-card-col-right">
+                        <div class="bike-image-container enfield-slider-container">
+                            <img class="enfield-slider-img" src="images/royal enfield/goanclassic350image.webp" alt="RE Goan Classic 350" style="display:block;">
+                            <img class="enfield-slider-img" src="images/royal enfield/shotgun650image.webp" alt="RE Shotgun 650" style="display:none;">
+                            <img class="enfield-slider-img" src="images/royal enfield/guerrilla450image.webp" alt="RE Guerrilla 450" style="display:none;">
+                            <img class="enfield-slider-img" src="images/royal enfield/himalayan450image.webp" alt="RE Himalayan 450" style="display:none;">
+                            <img class="enfield-slider-img" src="images/royal enfield/meteor350image.webp" alt="RE Meteor 350" style="display:none;">
+                            <img class="enfield-slider-img" src="images/royal enfield/bullet350image.webp" alt="RE Bullet 350" style="display:none;">
+                            <img class="enfield-slider-img" src="images/royal enfield/continentalgt650image.webp" alt="RE Continental GT 650" style="display:none;">
+                            <img class="enfield-slider-img" src="images/royal enfield/hunter350image.webp" alt="RE Hunter 350" style="display:none;">
+                            <img class="enfield-slider-img" src="images/royal enfield/classic350image.webp" alt="RE Classic 350" style="display:none;">
+                        </div>
+                        <div class="bike-image-dots enfield-slider-dots">
+                            <span class="dot active"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                        </div>
+                        <a class="add-button" href="services/servicing.html" style="width:100%;margin-top:1rem;display:inline-block;text-align:center;">ADD</a>
+                    </div>
+                </div>
+                <!-- Yamaha -->
+                <div class="bike-card yamaha" id="yamaha-card">
+                    <div class="bike-card-col-left">
+                        <div class="bike-card-brand">
+                            <img src="images/logos/yamaha-removebg-preview.png" alt="Yamaha">
+                        </div>
+                        <div class="bike-models-scroll scrolling-text-yamaha">
+                            <div class="scrolling-text">
+                                <div>FZ V3</div>
+                                <div>FZ-S FI V4</div>
+                                <div>FZ-X</div>
+                                <div>R15 V4</div>
+                                <div>R15M</div>
+                                <div>MT-15 V2</div>
+                                <div>FZ25</div>
+                                <div>FZS25</div>
+                                <div>Fascino 125</div>
+                                <div>RayZR 125</div>
+                                <!-- duplicate for smooth scroll -->
+                                <div>FZ V3</div>
+                                <div>FZ-S FI V4</div>
+                                <div>FZ-X</div>
+                                <div>R15 V4</div>
+                                <div>R15M</div>
+                                <div>MT-15 V2</div>
+                                <div>FZ25</div>
+                                <div>FZS25</div>
+                                <div>Fascino 125</div>
+                                <div>RayZR 125</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bike-card-col-right">
+                        <div class="bike-image-container yamaha-slider-container">
+                            <img class="yamaha-slider-img" src="images/yamaha/r15simage.webp" alt="Yamaha R15S" style="display:block;">
+                            <img class="yamaha-slider-img" src="images/yamaha/rayzr125image.webp" alt="Yamaha RayZR 125" style="display:none;">
+                            <img class="yamaha-slider-img" src="images/yamaha/fzsfiv4yamahafzsfiv4rightsideview.webp" alt="Yamaha FZS FI V4" style="display:none;">
+                            <img class="yamaha-slider-img" src="images/yamaha/mt15v2image.webp" alt="Yamaha MT-15 V2" style="display:none;">
+                            <img class="yamaha-slider-img" src="images/yamaha/r15v4image.webp" alt="Yamaha R15 V4" style="display:none;">
+                        </div>
+                        <div class="bike-image-dots yamaha-slider-dots">
+                            <span class="dot active"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                        </div>
+                        <a class="add-button" href="services/servicing.html" style="width:100%;margin-top:1rem;display:inline-block;text-align:center;">ADD</a>
+                    </div>
+                </div>
+                <!-- KTM -->
+                <div class="bike-card ktm" id="ktm-card">
+                    <div class="bike-card-col-left">
+                        <div class="bike-card-brand">
+                            <img src="images/logos/ktm-removebg-preview.png" alt="KTM">
+                        </div>
+                        <div class="bike-models-scroll scrolling-text-ktm">
+                            <div class="scrolling-text">
+                                <div>Duke 125</div>
+                                <div>Duke 200</div>
+                                <div>Duke 250</div>
+                                <div>Duke 390</div>
+                                <div>RC 125</div>
+                                <div>RC 200</div>
+                                <div>RC 390</div>
+                                <div>390 Adventure</div>
+                                <div>390 Adventure X</div>
+                                <!-- duplicate for smooth scroll -->
+                                <div>Duke 125</div>
+                                <div>Duke 200</div>
+                                <div>Duke 250</div>
+                                <div>Duke 390</div>
+                                <div>RC 125</div>
+                                <div>RC 200</div>
+                                <div>RC 390</div>
+                                <div>390 Adventure</div>
+                                <div>390 Adventure X</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bike-card-col-right">
+                        <div class="bike-image-container ktm-slider-container">
+                            <img class="ktm-slider-img" src="images/ktm/250dukeimage.webp" alt="KTM 250 Duke" style="display:block;">
+                            <img class="ktm-slider-img" src="images/ktm/rc200image.webp" alt="KTM RC 200" style="display:none;">
+                            <img class="ktm-slider-img" src="images/ktm/390adventureimage.webp" alt="KTM 390 Adventure" style="display:none;">
+                            <img class="ktm-slider-img" src="images/ktm/390dukeimage.webp" alt="KTM 390 Duke" style="display:none;">
+                            <img class="ktm-slider-img" src="images/ktm/200dukedukerightsideview.webp" alt="KTM 200 Duke" style="display:none;">
+                        </div>
+                        <div class="bike-image-dots ktm-slider-dots">
+                            <span class="dot active"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                        </div>
+                        <a class="add-button" href="services/servicing.html" style="width:100%;margin-top:1rem;display:inline-block;text-align:center;">ADD</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Supabase Booking Form (Direct to Supabase) -->
+        <section id="booking" class="booking">
+          <style>
+            #booking {
+              background: linear-gradient(rgba(30,58,138,0.96), rgba(30,58,138,0.96)), url('images/logoo neww.png') center center no-repeat;
+              background-size: 420px;
+              padding: 3rem 2rem;
+              margin: 0;
+              min-height: 100vh;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+            }
+            
+            #booking h2 {
+  color: #fff;
+  font-size: 2.8rem;
+  margin-bottom: 2rem;
+  text-align: center;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow:
+    0 0 12px #fff,
+    0 0 2px #FFD700;
+}
+            
+            #booking .booking-form-container {
+              background: #fff;
+              border-radius: 12px;
+              box-shadow: 0 2px 12px rgba(43,75,140,0.07);
+              max-width: 600px;
+              width: 100%;
+              padding: 2.5rem 2rem 2rem 2rem;
+              font-family: inherit;
+            }
+            #booking h2 {
+              color: #2B4B8C;
+              font-size: 1.5rem;
+              margin-bottom: 1.5rem;
+              text-align: center;
+            }
+            #booking form label {
+              display: block;
+              margin-top: 1.2rem;
+              margin-bottom: 0.3rem;
+              font-weight: 600;
+              color: #2B4B8C;
+              letter-spacing: 0.01em;
+            }
+            #booking input[type="text"],
+            #booking input[type="url"],
+            #booking input[type="date"],
+            #booking input[type="time"],
+            #booking select {
+              width: 100%;
+              padding: 0.7rem 1rem;
+              border: 1px solid #d1d5db;
+              border-radius: 6px;
+              font-size: 1rem;
+              background: #f9fafb;
+              color: #222;
+              margin-bottom: 0.2rem;
+              transition: border 0.2s;
+            }
+            #booking input:focus,
+            #booking select:focus {
+              border-color: #2B4B8C;
+              outline: none;
+            }
+            #booking button[type="submit"] {
+              background: #FFD700;
+              color: #2B4B8C;
+              font-weight: 700;
+              border: none;
+              border-radius: 6px;
+              padding: 0.9rem 2.2rem;
+              font-size: 1.1rem;
+              margin-top: 2rem;
+              cursor: pointer;
+              box-shadow: 0 2px 8px rgba(43,75,140,0.07);
+              transition: background 0.2s, color 0.2s;
+              display: block;
+              width: 100%;
+            }
+            #booking button[type="submit"]:hover {
+              background: #2B4B8C;
+              color: #FFD700;
+            }
+            #booking .note {
+              background: #fffbe6;
+              color: #b59f00;
+              border-left: 4px solid #FFD700;
+              padding: 0.7rem 1rem;
+              margin: 1rem 0 0.5rem 0;
+              border-radius: 4px;
+              font-size: 0.98rem;
+            }
+            #booking .sub-options {
+              margin-left: 2.2rem;
+              margin-top: 0.5rem;
+              margin-bottom: 0.7rem;
+              padding: 0.7rem 1.2rem 0.7rem 1.2rem;
+              background: #f6f8fa;
+              border-radius: 6px;
+              border-left: 3px solid #2B4B8C;
+              box-shadow: 0 1px 4px rgba(43,75,140,0.04);
+            }
+            #booking .category-row {
+              display: flex;
+              align-items: center;
+              margin-bottom: 0.2rem;
+              margin-top: 0.7rem;
+              gap: 0.5em;
+            }
+            #booking input[type="checkbox"],
+            #booking input[type="radio"] {
+              margin-right: 0.5em;
+              accent-color: #2B4B8C;
+              width: 1.1em;
+              height: 1.1em;
+              vertical-align: middle;
+              cursor: pointer;
+              transition: box-shadow 0.2s;
+            }
+            #booking input[type="checkbox"]:hover,
+            #booking input[type="radio"]:hover {
+              box-shadow: 0 0 0 2px #FFD70044;
+            }
+            #booking label[for^="main-"] {
+              font-weight: 600;
+              color: #2B4B8C;
+              margin-bottom: 0.2rem;
+              display: inline-block;
+              font-size: 1.08em;
+              cursor: pointer;
+              letter-spacing: 0.01em;
+              transition: color 0.2s;
+            }
+            #booking label[for^="main-"]:hover {
+              color: #FFD700;
+            }
+            #booking .sub-options label {
+              font-weight: 500;
+              color: #2B4B8C;
+              margin-right: 1.5em;
+              margin-bottom: 0.2em;
+              font-size: 1em;
+              cursor: pointer;
+              transition: color 0.2s;
+            }
+            #booking .sub-options label:hover {
+              color: #FFD700;
+            }
+            /* Always hide sub-options by default */
+            /* removed job card field */
+            .alt-booking-note {
+              margin-top: 1.5rem;
+              text-align: center;
+            }
+            .alt-booking-btn {
+              display: flex;
+              align-items: center;
+              gap: 0.6em;
+              padding: 0.95rem 2.2rem;
+              border-radius: 8px;
+              font-size: 1.15rem;
+              font-weight: 700;
+              text-decoration: none;
+              border: none;
+              outline: none;
+              box-shadow: 0 2px 12px rgba(43,75,140,0.08);
+              transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.15s;
+              cursor: pointer;
+              margin: 0 0.2em;
+            }
+            .call-btn {
+              background: linear-gradient(90deg, #2B4B8C 80%, #3b5998 100%);
+              color: #fff;
+            }
+            .call-btn:hover {
+              background: linear-gradient(90deg, #FFD700 80%, #ffe066 100%);
+              color: #2B4B8C;
+              box-shadow: 0 4px 24px #FFD70044;
+              transform: translateY(-2px) scale(1.04);
+            }
+            .whatsapp-btn {
+              background: #25D366;
+              color: #fff;
+            }
+            .whatsapp-btn:hover {
+              background: #128C7E;
+              color: #fff;
+              box-shadow: 0 4px 24px #25D36644;
+              transform: translateY(-2px) scale(1.04);
+            }
+            .alt-booking-btn i {
+              font-size: 1.25em;
+              margin-right: 0.3em;
+              display: inline-block;
+            }
+          </style>
+          <h2>BOOK YOUR SERVICE</h2>
+          <div class="booking-form-container">
+            <h3 style="color: #2B4B8C; font-size: 1.5rem; margin-bottom: 1.5rem; text-align: center;">🛠️ Lala Motors Booking Form</h3>
+            <form id="bookingForm">
+            <label>Booking Type</label>
+            <select id="bookingType" name="booking_type" required>
+              <option value="">-- Select --</option>
+              <option value="Appointment">Appointment for Visit</option>
+              <option value="Doorstep">Doorstep Services</option>
+              <option value="PickupDrop">Pickup & Drop Services</option>
+            </select>
+
+            <div id="categorySection" style="display:none;">
+              <label>Service Categories</label>
+              <div id="serviceOptions"></div>
+            </div>
+
+            <label>Bike Brand</label>
+            <input type="text" name="bike_brand" required />
+
+            <label>Bike Model</label>
+            <input type="text" name="bike_model" required />
+
+            
+
+            <label>Preferred Date</label>
+            <input type="date" name="preferred_date" required />
+
+            <label>Preferred Time</label>
+            <input type="time" name="preferred_time" required />
+
+            <div id="noteBox" class="note" style="margin-left:1rem; display:none;">
+              ⚠️ Inform us about your bike issues earlier for parts and tools availability
+            </div>
+
+            <button type="submit" style="margin-top: 2rem;">📩 Submit Booking</button>
+            <div class="alt-booking-note">
+              <span style="display:block;margin-bottom:0.7rem;color:#2B4B8C;font-weight:500;">You can also book your service directly by call or WhatsApp.</span>
+              <div style="display:flex;gap:1rem;justify-content:center;">
+                <a href="tel:+917310542113" class="alt-booking-btn call-btn"><i class="fa-solid fa-phone"></i> Call Now</a>
+                <a href="https://wa.me/917310542113?text=I%20need%20to%20book%20a%20service" target="_blank" class="alt-booking-btn whatsapp-btn"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>
+              </div>
+            </div>
+          </form>
+            </div>
+        </section>
+        <script>
+        // Only run this script for the Supabase booking form
+        // Avoid duplicate supabase library loads (already loaded in <head>)
+        const SUPABASE_URL = 'https://fjhlglaivlbrowsuxres.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqaGxnbGFpdmxicm93c3V4cmVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA1OTUwNDYsImV4cCI6MjA2NjE3MTA0Nn0.0p7afOyJ_Q67d0k7ZTQWnxYIJ6eseuNx_7yjupT6eWo';
+        const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+        const form = document.getElementById('bookingForm');
+        const bookingType = document.getElementById('bookingType');
+        const categorySection = document.getElementById('categorySection');
+        const serviceOptions = document.getElementById('serviceOptions');
+        const noteBox = document.getElementById('noteBox');
+
+        const singleChoiceCategories = {
+          Servicing: true,
+          Restoring: true,
+          Painting: true
+        };
+
+        const categories = {
+          Appointment: {
+            Servicing: ['Basic Service', 'Premium Service'],
+            Repairing: ['Electrical', 'Mechanical', 'Accidental Damage', 'Brake/Clutch', 'Suspension', 'Tyres'],
+            Restoring: ['Frame Restoration', 'Engine Restoration', 'Paint Restoration', 'Full Classic Restoration'],
+            Painting: ['Standard', 'Dual Tone', 'Metallic', 'Custom Graphics'],
+            Modify: ['Retro Look', 'Full Body', 'Customer Choice Custom', 'Touring', 'Street/Naked', 'Scrambler/Off-Road'],
+            BikeWash: ['Foam Wash', 'Shampoo Wash', 'Polishing', 'Rubbing Polish', 'Chain Cleaning & Lubrication']
+          },
+          Doorstep: {
+            Servicing: ['Basic Service', 'Premium Service'],
+            BikeWash: ['Foam Wash', 'Shampoo Wash', 'Polishing', 'Rubbing Polish', 'Chain Cleaning & Lubrication']
+          },
+          PickupDrop: {
+            Servicing: ['Basic Service', 'Premium Service'],
+            Repairing: ['Electrical', 'Mechanical', 'Accidental Damage', 'Brake/Clutch', 'Suspension', 'Tyres'],
+            Restoring: ['Frame Restoration', 'Engine Restoration', 'Paint Restoration', 'Full Classic Restoration'],
+            Painting: ['Standard', 'Dual Tone', 'Metallic', 'Custom Graphics'],
+            Modify: ['Retro Look', 'Full Body', 'Customer Choice Custom', 'Touring', 'Street/Naked', 'Scrambler/Off-Road']
+          }
+        };
+
+        bookingType.addEventListener('change', () => {
+          const selected = bookingType.value;
+          serviceOptions.innerHTML = '';
+          categorySection.style.display = selected ? 'block' : 'none';
+          noteBox.style.display = selected === 'Doorstep' ? 'block' : 'none';
+
+          if (selected && categories[selected]) {
+            for (const category in categories[selected]) {
+               const wrapper = document.createElement('div');
+               wrapper.className = 'category-row';
+               const mainCheckbox = document.createElement('input');
+               mainCheckbox.type = 'checkbox';
+               mainCheckbox.name = 'category';
+               mainCheckbox.value = category;
+               mainCheckbox.id = `main-${category}`;
+
+               const label = document.createElement('label');
+               label.htmlFor = mainCheckbox.id;
+               label.textContent = category;
+
+               const subDiv = document.createElement('div');
+               subDiv.className = 'sub-options';
+
+               categories[selected][category].forEach((sub, idx) => {
+                 const subInput = document.createElement('input');
+                 const inputType = (singleChoiceCategories[category]) ? 'radio' : 'checkbox';
+                 subInput.type = inputType;
+                 subInput.name = inputType === 'radio' ? `sub_service_${category}` : 'sub_service';
+                 subInput.value = sub;
+                 subInput.id = `${category}-${idx}`;
+
+                 const subLabel = document.createElement('label');
+                 subLabel.htmlFor = subInput.id;
+                 subLabel.textContent = sub;
+
+                 subDiv.appendChild(subInput);
+                 subDiv.appendChild(subLabel);
+               });
+
+               mainCheckbox.addEventListener('change', () => {
+                 subDiv.style.display = mainCheckbox.checked ? 'block' : 'none';
+               });
+
+               wrapper.appendChild(mainCheckbox);
+               wrapper.appendChild(label);
+               // Always hide sub-options by default when created
+               subDiv.style.display = 'none';
+               wrapper.appendChild(subDiv);
+               serviceOptions.appendChild(wrapper);
+            }
+          }
+        });
+
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+
+          const formData = new FormData(form);
+          const categoryCheckboxes = form.querySelectorAll('input[name="category"]:checked');
+
+          const subServices = [];
+          const allInputs = serviceOptions.querySelectorAll('input');
+
+          allInputs.forEach(input => {
+            if ((input.type === 'checkbox' || input.type === 'radio') && input.checked) {
+              subServices.push(input.value);
+            }
+          });
+
+          // Get the authenticated user's email
+          let userEmail = null;
+          try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+              alert('You must be logged in to book a service.');
+              return;
+            }
+            userEmail = user.email;
+          } catch (e) {
+            alert('Could not get user info. Please log in again.');
+            return;
+          }
+
+          const data = {
+            booking_type: formData.get('booking_type'),
+            bike_brand: formData.get('bike_brand'),
+            bike_model: formData.get('bike_model'),
+            preferred_date: formData.get('preferred_date'),
+            preferred_time: formData.get('preferred_time'),
+            service_categories: Array.from(categoryCheckboxes).map(cb => cb.value),
+            sub_services: subServices,
+            notes: noteBox.style.display === 'block' ? noteBox.textContent : '',
+            email: userEmail
+          };
+
+          if (!supabase) {
+            alert('Supabase client not initialized.');
+            return;
+          }
+
+          const { error } = await supabase.from('bookings').insert([data]);
+
+          if (error) {
+            alert('❌ Booking failed: ' + error.message);
+          } else {
+            alert('✅ Booking submitted successfully!');
+            // Send confirmation email
+            try {
+                                  await fetch('/api/send-confirmation', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  to: userEmail,
+                  subject: 'Lala Motors Booking Confirmation',
+                  text: `Thank you for booking your service with Lala Motors!\n\nBooking Details:\nService: ${data.service_categories.join(', ')}\nModel: ${data.bike_model}\nDate: ${data.preferred_date}`,
+                  html: `<h2>Thank you for booking!</h2>
+                         <p>Your booking for <b>${data.bike_brand} ${data.bike_model}</b> on <b>${data.preferred_date}</b> has been received.</p>
+                         <p>Service: <b>${data.service_categories.join(', ')}</b></p>
+                         <p>We look forward to serving you!</p>`
+                })
+              });
+            } catch (e) {
+              alert('Booking saved, but failed to send confirmation email.');
+            }
+            form.reset();
+            serviceOptions.innerHTML = '';
+            categorySection.style.display = 'none';
+            noteBox.style.display = 'none';
+          }
+        });
+        </script>
+    </main>
+
+    <footer id="contact">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>Working Hours</h4>
+                <ul>
+                    <li>Monday: 9:00 AM - 8:00 PM</li>
+                    <li>Tuesday: Closed</li>
+                    <li>Wednesday: 9:00 AM - 8:00 PM</li>
+                    <li>Thursday: 9:00 AM - 8:00 PM</li>
+                    <li>Friday: 9:00 AM - 8:00 PM</li>
+                    <li>Saturday: 9:00 AM - 8:00 PM</li>
+                    <li>Sunday: 9:00 AM - 8:00 PM</li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact Us</h4>
+                <ul>
+                    <li><a href="tel:7310542113" style="color:inherit;text-decoration:none;"><i class="fas fa-phone"></i> 7310542113</a></li>
+                    <li><a href="mailto:lalamotors1@gmail.com" style="color:inherit;text-decoration:none;"><i class="fas fa-envelope"></i> lalamotors1@gmail.com</a></li>
+                    <li><a href="https://instagram.com/lalamotors1" target="_blank" style="color:inherit;text-decoration:none;"><i class="fab fa-instagram"></i> @lalamotors1</a></li>
+                    <li>
+                      <a href="https://wa.me/917310542113" target="_blank" style="color:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:0.5em;">
+                        <i class="fab fa-whatsapp" style="color:#FFD700;"></i>
+                        7310542113
+                      </a>
+                    </li>
+                    <li><a href="https://www.google.com/maps/place/Lala+Motors/@27.1674164,78.0161954,17z/data=!4m6!3m5!1s0x397477aa18fdfe99:0xcfb37df5b30ed1a6!8m2!3d27.1676738!4d78.0159854!16s%2Fg%2F11vl7kctdh?entry=ttu&g_ep=EgoyMDI1MDYyMy4yIKXMDSoASAFQAw%3D%3D" target="_blank"><i class="fas fa-location-dot"></i> 4/143 Ahmedia Market Baluganj Agra</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Follow Us</h4>
+                <div class="social-links">
+                    <a href="https://instagram.com/lalamotors1" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="mailto:lalamotors1@gmail.com" target="_blank"><i class="fas fa-envelope"></i></a>
+                    <a href="tel:+917310542113" target="_blank"><i class="fas fa-phone"></i></a>
+                    <a href="https://www.google.com/maps/place/Lala+Motors/@27.1674164,78.0161954,17z/data=!4m6!3m5!1s0x397477aa18fdfe99:0xcfb37df5b30ed1a6!8m2!3d27.1676738!4d78.0159854!16s%2Fg%2F11vl7kctdh?entry=ttu&g_ep=EgoyMDI1MDYyMy4yIKXMDSoASAFQAw%3D%3D" target="_blank"><i class="fas fa-location-dot"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 LALA MOTORS. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="script.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var btn = document.getElementById('show-mod-modal');
+      var modal = document.getElementById('mod-modal');
+      var closeBtn = document.getElementById('close-mod-modal');
+      if(btn && modal && closeBtn) {
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          modal.style.display = 'flex';
+        });
+        closeBtn.addEventListener('click', function() {
+          modal.style.display = 'none';
+        });
+        window.addEventListener('click', function(e) {
+          if(e.target === modal) modal.style.display = 'none';
+        });
+      }
+    });
+
+    // Smooth scroll and highlight for brand cards
+    var brandLogoCards = document.querySelectorAll('.brand-logo-card');
+    if (brandLogoCards && brandLogoCards.length > 0) {
+      brandLogoCards.forEach(link => {
+        link.addEventListener('click', function(e) {
+          const targetId = this.getAttribute('href').replace('#', '');
+          const card = document.getElementById(targetId);
+          if(card) {
+            e.preventDefault();
+            // Get header height (sticky header)
+            const header = document.querySelector('header');
+            const headerHeight = header ? header.offsetHeight : 100;
+            const cardRect = card.getBoundingClientRect();
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            // Scroll so card top is just below header
+            const cardTop = cardRect.top + scrollTop;
+            const offset = 24; // extra margin below header
+            window.scrollTo({ top: cardTop - headerHeight - offset, behavior: 'smooth' });
+            card.classList.add('highlight-card');
+            setTimeout(() => card.classList.remove('highlight-card'), 1200);
+          }
+        });
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      var emergencyCard = document.getElementById('emergency-service-card');
+      if (!emergencyCard) return;
+      var actions = emergencyCard.querySelector('.emergency-actions');
+      if (!actions) return;
+      emergencyCard.addEventListener('click', function(e) {
+        // Prevent toggling if a button/link inside is clicked
+        if(e.target.tagName === 'A') return;
+        actions.style.display = actions.style.display === 'none' ? 'block' : 'none';
+      });
+      // Optional: Hide actions if click outside the card
+      document.addEventListener('click', function(e) {
+        if (!emergencyCard.contains(e.target)) {
+          actions.style.display = 'none';
+        }
+      });
+    });
+    </script>
+</body>
+</html>

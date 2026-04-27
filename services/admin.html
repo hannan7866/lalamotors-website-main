@@ -1,0 +1,941 @@
+<!-- admin.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel | Lala Motors</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    /* Mobile-first responsive design */
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f5f5;
+      line-height: 1.6;
+    }
+
+    .admin-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+
+    .admin-header {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .admin-header h1 {
+      margin: 0;
+      color: var(--primary-blue, #0066cc);
+      font-size: 1.5rem;
+      text-align: center;
+    }
+
+    .admin-user-info {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .admin-user-info span {
+      font-size: 0.9rem;
+      color: #666;
+      word-break: break-all;
+    }
+
+    .auth-message {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    .auth-message i {
+      color: #2e7d32;
+      font-size: 1.1rem;
+    }
+
+    .error-message {
+      background-color: #ffebee;
+      color: #c62828;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      border: 1px solid #ef5350;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    .error-message.show {
+      display: flex;
+    }
+
+    .form-section {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      margin-bottom: 1.5rem;
+    }
+
+    .form-section h2 {
+      color: var(--primary-blue, #0066cc);
+      margin-bottom: 1.5rem;
+      font-size: 1.3rem;
+      text-align: center;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #333;
+      font-size: 0.95rem;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 0.875rem;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+      background: #fafafa;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--primary-blue, #0066cc);
+      background: white;
+    }
+
+    .form-group textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .full-width {
+      grid-column: 1 / -1;
+    }
+
+    .upload-btn {
+      background: var(--primary-blue, #0066cc);
+      color: white;
+      padding: 1rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.3s ease;
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .upload-btn:hover {
+      background: var(--primary-blue-dark, #0052a3);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .upload-btn:active {
+      transform: translateY(0);
+    }
+
+    .status-indicator {
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .status-in-stock {
+      background: #e6f4ea;
+      color: #1e7e34;
+    }
+
+    .status-out-of-stock {
+      background: #fbe9e7;
+      color: #d32f2f;
+    }
+
+    .file-upload {
+      border: 2px dashed #ddd;
+      padding: 1.5rem;
+      text-align: center;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      min-height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fafafa;
+    }
+
+    .file-upload:hover {
+      border-color: var(--primary-blue, #0066cc);
+      background: #f0f8ff;
+    }
+
+    .file-upload:active {
+      transform: scale(0.98);
+    }
+
+    .file-upload input[type="file"] {
+      display: none;
+    }
+
+    .file-upload-label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+      width: 100%;
+      padding: 1rem;
+    }
+
+    .file-upload-icon {
+      font-size: 2.5rem;
+      color: #666;
+    }
+
+    .upload-label-text {
+      font-size: 0.9rem;
+      color: #666;
+      font-weight: 500;
+    }
+
+    .file-preview {
+      max-width: 100%;
+      max-height: 200px;
+      margin-top: 1rem;
+      display: none;
+      border-radius: 4px;
+    }
+
+    .file-name {
+      margin-top: 0.5rem;
+      font-size: 0.875rem;
+      color: #666;
+    }
+
+    .preview-container {
+      width: 100%;
+      text-align: center;
+    }
+
+    .remove-image {
+      background: #dc3545;
+      color: white;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+      display: none;
+      border: none;
+    }
+
+    .remove-image:hover {
+      background: #c82333;
+    }
+
+    .logout-btn {
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+      min-width: 100px;
+    }
+
+    .logout-btn:hover {
+      background: #c82333;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .logout-btn:active {
+      transform: translateY(0);
+    }
+
+    .error-message {
+      background-color: #fee2e2;
+      color: #dc2626;
+      padding: 0.75rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      display: none;
+    }
+
+    #loginSection {
+      max-width: 400px;
+      margin: 1rem auto;
+      background: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    #loginSection h2 {
+      color: var(--primary-blue, #0066cc);
+      margin-bottom: 1.5rem;
+      font-size: 1.5rem;
+      text-align: center;
+    }
+
+    #dashboardSection {
+      display: none;
+    }
+
+    #dashboardSection.active {
+      display: block;
+    }
+
+    /* Mobile-specific enhancements */
+    @media (max-width: 768px) {
+      .admin-container {
+        padding: 0.5rem;
+      }
+
+      .form-section {
+        padding: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .form-section h2 {
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+      }
+
+      .admin-header {
+        padding: 0.75rem;
+        margin-bottom: 1rem;
+      }
+
+      .admin-header h1 {
+        font-size: 1.3rem;
+      }
+
+      .auth-message,
+      .error-message {
+        padding: 0.75rem;
+        font-size: 0.85rem;
+        margin-bottom: 1rem;
+      }
+
+      .form-group input,
+      .form-group select,
+      .form-group textarea {
+        padding: 0.75rem;
+        font-size: 16px; /* Prevents zoom on iOS */
+        -webkit-appearance: none;
+        border-radius: 8px;
+      }
+
+      .form-group select {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.5rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
+        padding-right: 2.5rem;
+      }
+
+      .upload-btn {
+        padding: 0.875rem 1rem;
+        font-size: 0.95rem;
+        min-height: 44px;
+        gap: 0.5rem;
+      }
+
+      .upload-btn i {
+        font-size: 1rem;
+      }
+
+      .file-upload {
+        min-height: 100px;
+        padding: 1rem;
+      }
+
+      .file-upload-icon {
+        font-size: 2rem;
+      }
+
+      .upload-label-text {
+        font-size: 0.85rem;
+      }
+
+      .logout-btn {
+        padding: 0.625rem 1.25rem;
+        font-size: 0.85rem;
+        min-width: 80px;
+        gap: 0.5rem;
+      }
+
+      .logout-btn i {
+        font-size: 0.9rem;
+      }
+
+      #loginSection {
+        margin: 0.5rem auto;
+        padding: 1.25rem;
+      }
+
+      #loginSection h2 {
+        font-size: 1.3rem;
+      }
+
+      /* Touch-friendly improvements */
+      .form-group input:focus,
+      .form-group select:focus,
+      .form-group textarea:focus {
+        border-width: 2px;
+        box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+      }
+
+      .upload-btn:active,
+      .logout-btn:active {
+        transform: scale(0.98);
+      }
+
+      .file-upload:active {
+        transform: scale(0.95);
+      }
+    }
+
+    /* Tablet enhancements */
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .form-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .admin-header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .admin-user-info {
+        flex-direction: row;
+      }
+    }
+
+    /* Desktop enhancements */
+    @media (min-width: 1025px) {
+      .form-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .admin-header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .admin-user-info {
+        flex-direction: row;
+      }
+
+      .admin-container {
+        padding: 2rem;
+      }
+
+      .form-section {
+        padding: 2rem;
+        margin-bottom: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- Login Section -->
+    <section id="loginSection">
+      <h2>Admin Login</h2>
+      <div id="loginError" class="error-message"></div>
+      <form id="loginForm" class="form-grid">
+        <div class="form-group full-width">
+          <label for="loginEmail">Email</label>
+          <input type="email" id="loginEmail" required>
+        </div>
+        <div class="form-group full-width">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" required>
+        </div>
+        <div class="form-group full-width">
+          <button type="submit" class="upload-btn">
+            <i class="fas fa-sign-in-alt"></i>
+            <span>Login</span>
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Dashboard Section -->
+    <div id="dashboardSection" class="admin-container" style="display: none;">
+      <header class="admin-header">
+        <h1>Admin Panel - LALA MOTORS</h1>
+        <div class="admin-user-info">
+          <span id="userEmail"></span>
+          <button id="logoutBtn" class="logout-btn" type="button">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+          </button>
+        </div>
+      </header>
+
+      <div id="auth-message" class="auth-message">
+        <i class="fas fa-check-circle"></i>
+        Authenticated as admin
+      </div>
+
+      <div id="admin-error-message" class="error-message"></div>
+
+      <main class="admin-main">
+        <div class="form-section">
+          <h2>Add Pre-Owned Bike</h2>
+          <form id="addBikeForm">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="bikeBrand">Brand</label>
+                <input type="text" id="bikeBrand" name="brand" required>
+              </div>
+              <div class="form-group">
+                <label for="bikeModel">Model</label>
+                <input type="text" id="bikeModel" name="model" required>
+              </div>
+              <div class="form-group">
+                <label for="bikeYear">Year</label>
+                <input type="number" id="bikeYear" name="year" required>
+              </div>
+              <div class="form-group">
+                <label for="bikePrice">Price</label>
+                <input type="number" id="bikePrice" name="price" required>
+              </div>
+              <div class="form-group full-width">
+                <label for="bikeDescription">Description</label>
+                <textarea id="bikeDescription" name="description"></textarea>
+              </div>
+              <div class="form-group full-width">
+                <label for="bikeImage">Bike Image</label>
+                <div id="bikeImageUpload" class="file-upload">
+                  <label class="file-upload-label">
+                    <span class="file-upload-icon">📁</span>
+                    <span class="upload-label-text">Click to upload image</span>
+                    <input type="file" id="bikeImage" name="image" accept="image/*">
+                    <div class="preview-container">
+                      <img class="file-preview" alt="Preview">
+                      <button type="button" class="remove-image">Remove Image</button>
+                    </div>
+                  </label>
+                </div>
+              </div>
+              <div class="form-group full-width">
+                <button type="submit" class="upload-btn">
+                  <i class="fas fa-motorcycle"></i>
+                  <span>Upload Bike</span>
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="form-section">
+          <h2>Add Spare Part</h2>
+          <form id="autoPartForm">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="partBrand">Brand</label>
+                <select id="partBrand" name="brand" required>
+                  <option value="">Select Brand</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="partModel">Model</label>
+                <select id="partModel" name="model" required>
+                  <option value="">Select Model</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="partCategory">Category</label>
+                <select id="partCategory" name="category" required>
+                  <option value="">Select Category</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="partName">Part Name</label>
+                <select id="partName" name="name" required>
+                  <option value="">Select Part</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="partPrice">Price (₹)</label>
+                <input type="number" id="partPrice" name="price" min="0" step="0.01" required>
+              </div>
+              <div class="form-group">
+                <label for="partQuantity">Quantity</label>
+                <input type="number" id="partQuantity" name="quantity" min="0" required>
+              </div>
+              <div class="form-group full-width">
+                <label for="partImage">Part Image</label>
+                <div id="partImageUpload" class="file-upload">
+                  <label class="file-upload-label">
+                    <span class="file-upload-icon">📁</span>
+                    <span class="upload-label-text">Click to upload image</span>
+                    <input type="file" id="partImage" name="image" accept="image/*">
+                    <div class="preview-container">
+                      <img class="file-preview" alt="Preview">
+                      <button type="button" class="remove-image">Remove Image</button>
+                    </div>
+                  </label>
+                </div>
+              </div>
+              <div class="form-group full-width">
+                <button type="submit" class="upload-btn">
+                  <i class="fas fa-cog"></i>
+                  <span>Upload Part</span>
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    // Wait for DOM to be fully loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize Supabase client
+      const supabaseUrl = 'https://fjhlglaivlbrowsuxres.supabase.co';
+      const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqaGxnbGFpdmxicm93c3V4cmVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA1OTUwNDYsImV4cCI6MjA2NjE3MTA0Nn0.0p7afOyJ_Q67d0k7ZTQWnxYIJ6eseuNx_7yjupT6eWo';
+      
+      // Create Supabase client using the global supabaseClient
+      const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+      // Cache DOM elements
+      const elements = {
+        app: document.getElementById('app'),
+        loginSection: document.getElementById('loginSection'),
+        dashboardSection: document.getElementById('dashboardSection'),
+        loginForm: document.getElementById('loginForm'),
+        loginError: document.getElementById('loginError'),
+        userEmail: document.getElementById('userEmail'),
+        logoutBtn: document.getElementById('logoutBtn'),
+        adminError: document.getElementById('admin-error-message'),
+        bikeForm: document.getElementById('addBikeForm'),
+        partForm: document.getElementById('autoPartForm')
+      };
+
+      // Show error message
+      function showError(message, isLoginError = false) {
+        const errorElement = isLoginError ? elements.loginError : elements.adminError;
+        if (errorElement) {
+          errorElement.textContent = message;
+          errorElement.style.display = 'block';
+        }
+      }
+
+      // Hide error message
+      function hideError(isLoginError = false) {
+        const errorElement = isLoginError ? elements.loginError : elements.adminError;
+        if (errorElement) {
+          errorElement.style.display = 'none';
+        }
+      }
+
+      // Upload image to Supabase Storage
+      // bucketName allows using different buckets for bikes vs parts
+      async function uploadImage(file, bucketName, folder) {
+        try {
+          if (!file) return null;
+
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${Math.random().toString(36).substring(2)}_${Date.now()}.${fileExt}`;
+          const filePath = `${folder}/${fileName}`;
+
+          const { data, error } = await supabaseClient.storage
+            .from(bucketName)
+            .upload(filePath, file);
+
+          if (error) throw error;
+
+          // Get public URL
+          const { data: { publicUrl } } = supabaseClient.storage
+            .from(bucketName)
+            .getPublicUrl(filePath);
+
+          return publicUrl;
+        } catch (error) {
+          console.error('Error uploading image:', error);
+          throw error;
+        }
+      }
+
+      // Handle bike form submission
+      async function handleBikeSubmit(event) {
+        event.preventDefault();
+        try {
+          const formData = new FormData(event.target);
+          const bikeData = Object.fromEntries(formData.entries());
+          const imageFile = document.getElementById('bikeImage').files[0];
+
+          // Upload image if selected
+          if (imageFile) {
+            const imageUrl = await uploadImage(imageFile, 'bikes', 'bikes');
+            bikeData.image_url = imageUrl;
+          }
+
+          // Remove 'image' property if present
+          delete bikeData.image;
+
+          // Insert bike data into database
+          const { data, error } = await supabaseClient
+            .from('bikes')
+            .insert([bikeData]);
+
+          if (error) throw error;
+
+          alert('Bike added successfully!');
+          event.target.reset();
+          document.querySelector('#bikeImageUpload .remove-image').click();
+
+        } catch (error) {
+          console.error('Error adding bike:', error);
+          showError('Failed to add bike: ' + error.message);
+        }
+      }
+
+      // Handle part form submission
+      async function handlePartSubmit(event) {
+        event.preventDefault();
+        try {
+          const formData = new FormData(event.target);
+          const partData = {
+            brand: formData.get('brand'),
+            model: formData.get('model'),
+            category: formData.get('category'),
+            name: formData.get('name'),
+            price: parseFloat(formData.get('price')),
+            quantity: parseInt(formData.get('quantity')),
+          };
+
+          // Upload image if selected
+          const imageFile = document.getElementById('partImage').files[0];
+          if (imageFile) {
+            // Store part images in a dedicated bucket
+            const imageUrl = await uploadImage(imageFile, 'autoparts-images', 'parts');
+            partData.image_url = imageUrl;
+          }
+
+          console.log('Sending part data:', partData);
+
+          // Insert part data into the normalized parts table
+          const { data, error } = await supabaseClient
+            .from('parts')
+            .insert([partData])
+            .select();
+
+          if (error) {
+            console.error('Supabase error:', error);
+            throw error;
+          }
+
+          alert('Part added successfully!');
+          event.target.reset();
+          document.querySelector('#partImageUpload .remove-image').click();
+          
+        } catch (error) {
+          console.error('Error adding part:', error);
+          showError('Failed to add part: ' + (error.message || JSON.stringify(error)));
+        }
+      }
+
+      // Update auth status
+      function updateAuthStatus(session) {
+        if (!elements.loginSection || !elements.dashboardSection) return;
+
+        if (session) {
+          elements.loginSection.style.display = 'none';
+          elements.dashboardSection.style.display = 'block';
+          if (elements.userEmail) {
+            elements.userEmail.textContent = session.user.email;
+          }
+        } else {
+          elements.loginSection.style.display = 'block';
+          elements.dashboardSection.style.display = 'none';
+          if (elements.userEmail) {
+            elements.userEmail.textContent = '';
+          }
+        }
+      }
+
+      // Check session
+      async function checkSession() {
+        try {
+          const { data: { session }, error } = await supabaseClient.auth.getSession();
+          if (error) throw error;
+          updateAuthStatus(session);
+        } catch (error) {
+          console.error('Session check failed:', error);
+          showError('Session check failed: ' + error.message);
+        }
+      }
+
+      // Initialize event listeners
+      function initializeEventListeners() {
+        // Login form handler
+        if (elements.loginForm) {
+          elements.loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideError(true);
+
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+              const { data, error } = await supabaseClient.auth.signInWithPassword({
+                email,
+                password
+              });
+
+              if (error) throw error;
+              updateAuthStatus(data.session);
+            } catch (error) {
+              showError(error.message, true);
+            }
+          });
+        }
+
+        // Logout handler
+        if (elements.logoutBtn) {
+          elements.logoutBtn.addEventListener('click', async () => {
+            try {
+              const { error } = await supabaseClient.auth.signOut();
+              if (error) throw error;
+              updateAuthStatus(null);
+            } catch (error) {
+              showError('Logout failed: ' + error.message);
+            }
+          });
+        }
+
+        // Form submit handlers
+        if (elements.bikeForm) {
+          elements.bikeForm.addEventListener('submit', handleBikeSubmit);
+        }
+
+        if (elements.partForm) {
+          elements.partForm.addEventListener('submit', handlePartSubmit);
+        }
+      }
+
+      // Initialize auth state change listener
+      supabaseClient.auth.onAuthStateChange((event, session) => {
+        updateAuthStatus(session);
+      });
+
+      // File Upload Handling
+      function handleFileUpload(inputId, previewId) {
+        const input = document.getElementById(inputId);
+        const previewContainer = document.querySelector(`#${previewId} .preview-container`);
+        const preview = document.querySelector(`#${previewId} .file-preview`);
+        const removeBtn = document.querySelector(`#${previewId} .remove-image`);
+        const uploadLabel = document.querySelector(`#${previewId} .upload-label-text`);
+
+        input.addEventListener('change', function(e) {
+          const file = e.target.files[0];
+          if (file) {
+            if (!file.type.startsWith('image/')) {
+              alert('Please select an image file');
+              input.value = '';
+              return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+              preview.src = e.target.result;
+              preview.style.display = 'block';
+              removeBtn.style.display = 'inline-block';
+              uploadLabel.style.display = 'none';
+            }
+            reader.readAsDataURL(file);
+          }
+        });
+
+        removeBtn.addEventListener('click', function() {
+          input.value = '';
+          preview.src = '';
+          preview.style.display = 'none';
+          removeBtn.style.display = 'none';
+          uploadLabel.style.display = 'block';
+        });
+      }
+
+      // Initialize the admin panel
+      function init() {
+        initializeEventListeners();
+        checkSession();
+      }
+
+      // Start the application
+      init();
+
+      // Initialize file upload handlers
+      handleFileUpload('bikeImage', 'bikeImageUpload');
+      handleFileUpload('partImage', 'partImageUpload');
+    });
+  </script>
+  <script src="../autoparts-data.js"></script>
+</body>
+</html>

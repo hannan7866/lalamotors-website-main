@@ -1,0 +1,129 @@
+{
+  "version": 2,
+  "builds": [
+    
+    {
+      "src": "**/*.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "**/*.css",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "*.js",
+      "use": "@vercel/static"
+    },
+        {
+      "src": "api/**/*.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "images/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "services/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/send-confirmation",
+      "dest": "/api/send-confirmation.js"
+    },
+    {
+      "src": "/api/booking",
+      "dest": "/api/booking.js"
+    },
+    {
+      "src": "/services/admin",
+      "dest": "/services/admin.html"
+    },
+    {
+      "src": "/services/.*\\.html",
+      "headers": { "cache-control": "public, max-age=0, must-revalidate" },
+      "continue": true
+    },
+    {
+      "src": "/style\\.css",
+      "headers": {
+        "cache-control": "public, max-age=31536000, immutable",
+        "content-type": "text/css"
+      },
+      "continue": true
+    },
+    {
+      "src": "/script\\.js",
+      "headers": {
+        "cache-control": "public, max-age=31536000, immutable",
+        "content-type": "application/javascript"
+      },
+      "continue": true
+    },
+    {
+      "src": "/images/(.*)",
+      "headers": {
+        "cache-control": "public, max-age=31536000, immutable"
+      },
+      "dest": "/images/$1"
+    },
+    {
+      "src": "/public/(.*)",
+      "headers": {
+        "cache-control": "public, max-age=31536000, immutable"
+      },
+      "dest": "/public/$1"
+    },
+    {
+      "src": "/files/(.*)",
+      "headers": {
+        "cache-control": "public, max-age=31536000, immutable"
+      },
+      "dest": "/public/files/$1"
+    },
+    {
+      "src": "/Complete_Motorcycle_Spare_Parts_List.csv",
+      "headers": {
+        "cache-control": "public, max-age=31536000, immutable",
+        "content-type": "text/csv"
+      },
+      "dest": "/public/files/Complete_Motorcycle_Spare_Parts_List.csv"
+    },
+    {
+      "src": "/Complete_Motorcycle_Spare_Parts_List new.csv",
+      "headers": {
+        "cache-control": "public, max-age=31536000, immutable",
+        "content-type": "text/csv"
+      },
+      "dest": "/Complete_Motorcycle_Spare_Parts_List new.csv"
+    },
+    {
+      "src": "/services/(.*\\.css)",
+      "headers": {
+        "cache-control": "public, max-age=31536000, immutable",
+        "content-type": "text/css"
+      },
+      "dest": "/services/$1"
+    },
+    {
+      "src": "/services/(.*\\.js)",
+      "headers": {
+        "cache-control": "public, max-age=31536000, immutable",
+        "content-type": "application/javascript"
+      },
+      "dest": "/services/$1"
+    },
+    {
+      "src": "/services/(.*)",
+      "dest": "/services/$1"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/server.js"
+    }
+  ]
+}

@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Servicing | LALA MOTORS</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 20px;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 15px;
+            position: relative;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-content h2 {
+            color: #2B4B8C;
+            border-bottom: 3px solid #FFD700;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .close-modal {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #2B4B8C;
+        }
+
+        .maintenance-list {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+
+        .maintenance-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+            color: #333;
+            position: relative;
+            padding-left: 25px;
+        }
+
+        .maintenance-list li:before {
+            content: "•";
+            color: #FFD700;
+            font-size: 20px;
+            position: absolute;
+            left: 5px;
+        }
+
+        .starting-price {
+            background: #2B4B8C;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: inline-block;
+        }
+
+        .price-amount {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .original-price {
+            text-decoration: line-through;
+            color: #ccc;
+            margin-left: 10px;
+        }
+
+        .discount-tag {
+            background: #FFD700;
+            color: #2B4B8C;
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin-left: 10px;
+            font-weight: bold;
+        }
+
+        .engine-oils {
+            margin-top: 30px;
+        }
+
+        .engine-oils h3 {
+            color: #2B4B8C;
+            border-bottom: 2px solid #FFD700;
+            padding-bottom: 8px;
+            display: inline-block;
+        }
+
+        .oils-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .oil-card {
+            text-align: center;
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 10px;
+            transition: transform 0.2s;
+        }
+
+        .oil-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(43, 75, 140, 0.1);
+        }
+
+        .oil-card img {
+            max-width: 100px;
+            height: auto;
+            margin-bottom: 10px;
+        }
+
+        .oil-price {
+            font-weight: bold;
+            color: #2B4B8C;
+            margin-top: 10px;
+        }
+
+        .note {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            font-style: italic;
+            color: #666;
+            border-left: 4px solid #FFD700;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+            gap: 10px;
+        }
+
+        .modal-buttons .primary-button {
+            padding: 10px 20px;
+            background: #2B4B8C;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .modal-buttons .primary-button:hover {
+            background: #1a3366;
+        }
+
+        .repair-link {
+            color: #2B4B8C;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Add notification div -->
+    <div id="notification" class="notification"></div>
+
+    <!-- Add cart modal -->
+    <div id="cart-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeCartModal()">&times;</span>
+            <h2>Shopping Cart</h2>
+            <div id="cart-items"></div>
+            <div class="cart-total">
+                <strong>Total: ₹</strong>
+                <span id="cart-total">0</span>
+            </div>
+            <button onclick="checkoutCart()" class="checkout-btn">Proceed to Checkout</button>
+        </div>
+    </div>
+
+    <!-- Sidebar overlay and menu -->
+    <div id="sidebar-overlay" class="sidebar-overlay" style="display:none;"></div>
+    <nav id="sidebar-menu" class="sidebar-menu" style="display:none;">
+      <div class="sidebar-header">
+        <button id="close-sidebar" class="close-sidebar" title="Close">&times;</button>
+      </div>
+      <div class="sidebar-profile-section">
+        <div class="sidebar-profile-info">
+          <i class="fa-regular fa-user sidebar-profile-icon"></i>
+          <div>
+            <span class="sidebar-profile-greeting">Hello,</span>
+            <span class="sidebar-profile-name" id="sidebar-profile-name">Guest</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-section-title">Account Settings</div>
+      <ul class="sidebar-list">
+        <li><a href="#" id="sidebar-profile-info"><i class="fa-solid fa-user-pen"></i> Profile information</a></li>
+        <li><a href="#" id="sidebar-manage-address"><i class="fa-solid fa-location-dot"></i> Manage Address</a></li>
+        <li><a href="#" id="sidebar-orders"><i class="fa-solid fa-box"></i> My Orders</a></li>
+        <li><a href="cart.html" id="sidebar-cart"><i class="fa-solid fa-cart-shopping"></i> Cart</a></li>
+        <li><a href="#" id="sidebar-subscriptions"><i class="fa-solid fa-id-badge"></i> Subscriptions</a></li>
+      </ul>
+
+      <div class="sidebar-section-title">Payment Setting</div>
+      <ul class="sidebar-list">
+        <li><a href="#" id="sidebar-upi-saved"><i class="fa-brands fa-google-pay"></i> UPI Saved</a></li>
+        <li><a href="#" id="sidebar-add-payment"><i class="fa-solid fa-credit-card"></i> Add New Payment</a></li>
+      </ul>
+
+      <div class="sidebar-section-title">MY STUFF</div>
+      <ul class="sidebar-list">
+        <li><a href="#" id="sidebar-last-service"><i class="fa-solid fa-clock-rotate-left"></i> Last services booked</a></li>
+        <li><a href="#" id="sidebar-invoices"><i class="fa-solid fa-file-invoice"></i> Invoices</a></li>
+      </ul>
+
+      <ul class="sidebar-list">
+        <li><a href="#" id="sidebar-support"><i class="fa-solid fa-headset"></i> Customer Care</a></li>
+        <li id="sidebar-logout-li" style=""><a href="#" id="sidebar-logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
+      </ul>
+    </nav>
+
+    <header>
+        <div class="top-bar">
+            <div class="contact-info">
+                <a href="tel:+917310542113"><i class="fas fa-phone"></i> 7310542113</a>
+                <a href="mailto:lalamotors1@gmail.com"><i class="fas fa-envelope"></i> lalamotors1@gmail.com</a>
+                <a href="https://instagram.com/lalamotors1" target="_blank"><i class="fab fa-instagram"></i> @lalamotors1</a>
+                <a href="https://www.google.com/maps/place/Lala+Motors/@27.1674164,78.0161954,17z/data=!4m6!3m5!1s0x397477aa18fdfe99:0xcfb37df5b30ed1a6!8m2!3d27.1676738!4d78.0159854!16s%2Fg%2F11vl7kctdh?entry=ttu&amp;g_ep=EgoyMDI1MDYyMy4yIKXMDSoASAFQAw%3D%3D" target="_blank"><i class="fas fa-location-dot"></i> 4/143 Ahmedia Market Baluganj Agra</a>
+            </div>
+        </div>
+        <nav>
+            <button id="sidebar-hamburger" class="sidebar-hamburger" title="Menu" aria-label="Open menu">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect y="7" width="32" height="3" rx="1.5" fill="#FFD700"/>
+                    <rect y="14.5" width="32" height="3" rx="1.5" fill="#FFD700"/>
+                    <rect y="22" width="32" height="3" rx="1.5" fill="#FFD700"/>
+                </svg>
+            </button>
+            <div class="logo">
+                <img src="../images/logoo neww.png" alt="LALA MOTORS Logo" class="main-logo">
+            </div>
+            <ul class="nav-links">
+                <li><a href="../index.html#home">Home</a></li>
+                <li><a href="../index.html#services" class="active">Services</a></li>
+                <li><a href="../index.html#booking">Booking</a></li>
+                <li><a href="../index.html#contact">Contact</a></li>
+                <li><a href="about.html">About Us</a></li>
+                <li>
+                  <div class="cart-icon-container">
+                    <a href="cart.html" class="cart-icon" title="Cart">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span id="cart-count" class="cart-item-count">0</span>
+                    </a>
+                  </div>
+                </li>
+            </ul>
+            <a href="login.html" class="login-btn" title="Login">
+              <i class="fa-regular fa-user"></i>
+            </a>
+        </nav>
+    </header>
+    <main>
+        <section class="servicing-section" style="margin-top: 120px;">
+            <h2 class="section-title">Service Packages</h2>
+            <div class="service-cards-grid">
+                <div class="service-card">
+                    <i class="fas fa-tools"></i>
+                    <h3>Basic Service</h3>
+                    <p>Essential maintenance: oil change, filter cleaning, safety checks.</p>
+                    <div class="package-meta"><span>₹249 – ₹899</span> <span>1–2 hours</span></div>
+                    <button class="primary-button" id="view-details-basic" onclick="showServiceDetails()">View Details</button>
+                    <a class="primary-button" href="../index.html#booking" style="margin-top: 10px;">Book Service</a>
+                </div>
+                <div class="service-card">
+                    <i class="fas fa-star"></i>
+                    <h3>Premium Service</h3>
+                    <p>All-inclusive: premium fluids, detailing, priority delivery.</p>
+                    <div class="package-meta"><span>₹349 – ₹1999</span> <span>4–6 hours</span></div>
+                    <button class="primary-button" id="view-details-premium" onclick="showPremiumServiceDetails()">View Details</button>
+                    <a class="primary-button" href="../index.html#booking" style="margin-top: 10px;">Book Service</a>
+                </div>
+                <div class="service-card">
+                    <i class="fas fa-truck"></i>
+                    <h3>Pickup & Drop</h3>
+                    <p>Convenient pickup and drop for your bike anywhere in Agra.</p>
+                    <div class="package-meta"><span>Free upto 4km</span> <span>₹20/km after</span></div>
+                    <button class="primary-button" onclick="showPickupDetails()">View Details</button>
+                    <a class="primary-button" href="../index.html?prefill=pickup#booking" style="margin-top: 10px;">Book Service</a>
+                </div>
+                <div class="service-card">
+                    <i class="fas fa-home"></i>
+                    <h3>Doorstep Service</h3>
+                    <p>Home Services: Normal servicing and replacement of parts (cables, brake shoes, etc.). Please describe your bike's issues in advance for part availability.</p>
+                    <div class="package-meta"><span>₹249 – ₹1999</span> <span>2–3 hours</span></div>
+                    <button class="primary-button" onclick="showDoorstepDetails()">View Details</button>
+                    <a class="primary-button" href="../index.html?prefill=homeservice#booking" style="margin-top: 10px;">Book Now</a>
+                </div>
+            </div>
+        </section>
+        <section class="home-services-jobcard" id="home-services-jobcard" style="display:none;max-width:600px;margin:2rem auto 0 auto;background:#fff;padding:2rem;border-radius:10px;box-shadow:0 2px 8px rgba(43,75,140,0.08);">
+            <h3 style="color:var(--primary-blue);margin-bottom:1rem;">Home Services Job Card</h3>
+            <p style="margin-bottom:1rem;">Tell us the problems you are facing with your bike (e.g., cable replacement, brake shoe, etc.). This helps us ensure part availability for your doorstep service.</p>
+            <form id="jobcard-form">
+                <div class="form-group">
+                    <label for="jobcard-name">Your Name</label>
+                    <input type="text" id="jobcard-name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="jobcard-phone">Phone Number</label>
+                    <input type="tel" id="jobcard-phone" name="phone" required>
+                </div>
+                <div class="form-group">
+                    <label for="jobcard-vehicle">Vehicle Model</label>
+                    <input type="text" id="jobcard-vehicle" name="vehicle" required>
+                </div>
+                <div class="form-group">
+                    <label for="jobcard-problems">Describe Problems / Services Needed</label>
+                    <textarea id="jobcard-problems" name="problems" rows="4" required placeholder="E.g., clutch cable replacement, brake shoe issue, general service..."></textarea>
+                </div>
+                <button type="submit" class="primary-button">Submit Job Card</button>
+            </form>
+            <div id="jobcard-success" style="display:none;color:var(--primary-blue);margin-top:1rem;">Thank you! Your job card has been submitted.</div>
+        </section>
+        <div id="servicing-booking-modal" style="display:none;"></div>
+
+        <!-- Service Details Modal -->
+        <div id="serviceDetailsModal" class="modal">
+            <div class="modal-content">
+                <span class="close-modal" onclick="closeModal()">&times;</span>
+                <h2>Basic Service includes:</h2>
+                
+                <div class="starting-price">
+                    Starting Service Charge: 
+                    <span class="price-amount">₹ 249</span>
+                    <span class="original-price">₹ 399</span>
+                    <span class="discount-tag">38% off</span>
+                </div>
+
+                <ul class="maintenance-list">
+                    <li>Oil & Filter Changes</li>
+                    <li>Air Filter Cleaning/Replacement</li>
+                    <li>Cable Lubrication/Replacement</li>
+                    <li>Battery Inspection/Replacement</li>
+                    <li>Free Bike Wash</li>
+                </ul>
+
+                <div class="engine-oils">
+                    <h3>Engine Oils we provide are:</h3>
+                    <div class="oils-grid">
+                        <div class="oil-card">
+                            <img src="../images/oils/castrol activ.png" alt="Castrol Activ">
+                            <h4>Castrol Activ</h4>
+                            <div class="oil-price">₹ 359</div>
+                        </div>
+                        <div class="oil-card">
+                            <img src="../images/oils/castrol power 1.png" alt="Castrol Power1">
+                            <h4>Castrol Power1</h4>
+                            <div class="oil-price">₹ 489</div>
+                        </div>
+                        <div class="oil-card">
+                            <img src="../images/oils/motul 4t.png" alt="Motul 4T Plus">
+                            <h4>Motul 4T Plus</h4>
+                            <div class="oil-price">₹ 349</div>
+                        </div>
+                    </div>
+                    <p style="color: #666; font-size: 0.9em; margin-top: 15px; font-style: italic;">* You can also choose your preferred engine oil of your choice</p>
+                </div>
+
+                <div class="note">
+                    **Note: Genuine Parts & Recommended Oils | We use only manufacturer-approved genuine parts and engine oils to service your vehicle, ensuring optimal performance and warranty compliance.
+                </div>
+
+                <div class="modal-buttons">
+                    <button class="primary-button" onclick="closeModal()">Close</button>
+                    <a class="primary-button" href="../index.html#booking">Book Now</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Premium Service Details Modal -->
+        <div id="premiumServiceDetailsModal" class="modal">
+            <div class="modal-content">
+                <span class="close-modal" onclick="closePremiumModal()">&times;</span>
+                <h2>Premium Service includes:</h2>
+                
+                <div class="starting-price">
+                    Starting Service Charge: 
+                    <span class="price-amount">₹ 349</span>
+                    <span class="original-price">₹ 499</span>
+                    <span class="discount-tag">30% off</span>
+                </div>
+
+                <ul class="maintenance-list">
+                    <li>Complete Engine Oil & Filter Change</li>
+                    <li>Air Filter Deep Cleaning/Replacement</li>
+                    <li>Premium Cable Lubrication/Replacement</li>
+                    <li>Thorough Battery Health Check/Replacement</li>
+                    <li>Professional Chain Cleaning & Lubrication</li>
+                    <li>Complete Bike Deep Cleaning</li>
+                    <li>Free Premium Polishing</li>
+                    <li>Comprehensive Electrical System Check</li>
+                    <li>Complete Brake System Inspection</li>
+                    <li>Tire Pressure & Health Check</li>
+                    <li>Full Engine Performance Analysis</li>
+                    <li>Priority Service & Delivery</li>
+                </ul>
+
+                <div class="engine-oils">
+                    <h3>Premium Engine Oils we provide are:</h3>
+                    <div class="oils-grid">
+                        <div class="oil-card">
+                            <img src="../images/premium oils/motul 7100.png" alt="Motul 7100">
+                            <h4>Motul 7100 (1L)</h4>
+                            <div class="oil-price">₹ 699</div>
+                        </div>
+                        <div class="oil-card">
+                            <img src="../images/premium oils/castrol power 1 ultimate.png" alt="Castrol Power1 Ultimate">
+                            <h4>Castrol Power1 Ultimate (1L)</h4>
+                            <div class="oil-price">₹ 549</div>
+                        </div>
+                        <div class="oil-card">
+                            <img src="../images/premium oils/motul 300v.png" alt="Motul 300V">
+                            <h4>Motul 300V (1L)</h4>
+                            <div class="oil-price">₹ 919</div>
+                        </div>
+                    </div>
+                    <p style="color: #666; font-size: 0.9em; margin-top: 15px; font-style: italic;">* You can also choose your preferred engine oil of your choice</p>
+                </div>
+
+                <div class="note">
+                    **Note: Premium Service includes all basic service features plus additional premium care. We use only manufacturer-approved genuine parts and premium engine oils to ensure maximum performance and extended engine life.
+                </div>
+
+                <div class="modal-buttons">
+                    <button class="primary-button" onclick="closePremiumModal()">Close</button>
+                    <a class="primary-button" href="../index.html#booking">Book Now</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pickup & Drop Details Modal -->
+        <div id="pickupDetailsModal" class="modal">
+            <div class="modal-content">
+                <span class="close-modal" onclick="closePickupModal()">&times;</span>
+                <h2>Pickup & Drop Service includes:</h2>
+
+                <div class="starting-price">
+                    <div style="margin-bottom: 10px;">
+                        <span style="color: #2B4B8C; font-weight: bold;">No charges upto 4km</span>
+                    </div>
+                    <div style="background: #2B4B8C; color: white; padding: 10px 15px; border-radius: 8px;">
+                        Beyond 4km: <span class="price-amount">₹20</span> per km <span style="font-size: 0.9em; color: #FFD700;">(Max ₹299)</span>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <h3 style="color: #2B4B8C; border-bottom: 2px solid #FFD700; padding-bottom: 8px; margin-bottom: 15px;">Available for all services:</h3>
+                    
+                    <div class="maintenance-list" style="margin-bottom: 30px;">
+                        <li><strong>Servicing:</strong>
+                            <ul style="margin-left: 20px; margin-top: 5px; list-style-type: circle;">
+                                <li><a href="../services/servicing.html?open=basic" class="repair-link">Basic Service (₹249 – ₹899)</a></li>
+                                <li><a href="../services/servicing.html?open=premium" class="repair-link">Premium Service (₹349 – ₹1999)</a></li>
+                            </ul>
+                        </li>
+                        <li><strong>Repairing:</strong>
+                            <ul style="margin-left: 20px; margin-top: 5px; list-style-type: circle;">
+                                <li><a href="../services/repairing.html?open=electrical" class="repair-link">Electrical (₹49 – ₹2999)</a></li>
+                                <li><a href="../services/repairing.html?open=mechanical" class="repair-link">Mechanical (₹199 – ₹9999)</a></li>
+                                <li><a href="../services/repairing.html?open=accidental" class="repair-link">Accidental Damage (₹199 – ₹19999)</a></li>
+                                <li><a href="../services/repairing.html?open=brake" class="repair-link">Brake/Clutch (₹199 – ₹9999)</a></li>
+                                <li><a href="../services/repairing.html?open=suspension" class="repair-link">Suspension (₹49 – ₹2999)</a></li>
+                                <li><a href="../services/repairing.html?open=tyre" class="repair-link">Tyres (₹99 – ₹4999)</a></li>
+                            </ul>
+                        </li>
+                        <li><strong>Restoration:</strong>
+                            <ul style="margin-left: 20px; margin-top: 5px; list-style-type: circle;">
+                                <li><a href="../services/restoring.html?open=frame" class="repair-link">Frame Restoration (₹1,999 – ₹8,999)</a></li>
+                                <li><a href="../services/restoring.html?open=engine" class="repair-link">Engine Restoration (₹999 – ₹11,999)</a></li>
+                                <li><a href="../services/restoring.html?open=paint" class="repair-link">Paint Restoration (₹2,499 – ₹9,999)</a></li>
+                                <li><a href="../services/restoring.html?open=full" class="repair-link">Full Classic Restoration (₹4,999 – ₹29,999)</a></li>
+                            </ul>
+                        </li>
+                        <li><strong>Paint Jobs:</strong>
+                            <ul style="margin-left: 20px; margin-top: 5px; list-style-type: circle;">
+                                <li><a href="../services/painting.html?open=standard" class="repair-link">Standard (₹2,499 – ₹4,999, 6–7 days)</a></li>
+                                <li><a href="../services/painting.html?open=dual" class="repair-link">Dual-Tone (₹3,499 – ₹9,999, 8–9 days)</a></li>
+                                <li><a href="../services/painting.html?open=metallic" class="repair-link">Metallic (₹4,999 – ₹12,999, 9–10 days)</a></li>
+                                <li><a href="../services/painting.html?open=custom" class="repair-link">Custom Graphics (₹12,999+)</a></li>
+                            </ul>
+                        </li>
+                        <li><strong>Modifications:</strong>
+                            <ul style="margin-left: 20px; margin-top: 5px; list-style-type: circle;">
+                                <li><a href="../services/modify.html?open=retro" class="repair-link">Retro Look (₹7,999 – ₹17,999)</a></li>
+                                <li><a href="../services/modify.html?open=fullbody" class="repair-link">Full Body Modification (₹14,999 – ₹39,999)</a></li>
+                                <li><a href="../services/modify.html?open=custom" class="repair-link">Custom Look (₹9,999+)</a></li>
+                                <li><a href="../services/modify.html?open=touring" class="repair-link">Touring Modification (₹6,999 – ₹24,999)</a></li>
+                                <li><a href="../services/modify.html?open=street" class="repair-link">Street/Naked Look (₹5,999 – ₹14,999)</a></li>
+                                <li><a href="../services/modify.html?open=scrambler" class="repair-link">Scrambler/Off-Road Mod (₹11,999 – ₹29,999)</a></li>
+                                <li><a href="../services/modify.html?open=paint" class="repair-link">Paint & Wraps (₹4,999 – ₹19,999)</a></li>
+                            </ul>
+                        </li>
+                    </div>
+                </div>
+
+                <div class="note">
+                    <strong>Note:</strong> These prices may differ according to the parts used. Our pickup & drop service ensures safe transportation of your vehicle. Distance is calculated from our workshop at 4/143 Ahmedia Market Baluganj Agra. Free pickup & drop within 4km radius, ₹20/km charge applies beyond 4km (max ₹299).
+                </div>
+
+                <div class="modal-buttons">
+                    <button class="primary-button" onclick="closePickupModal()">Close</button>
+                    <a class="primary-button" href="../index.html?prefill=pickup#booking">Book Now</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Doorstep Service Details Modal -->
+        <div id="doorstepServiceModal" class="modal">
+            <div class="modal-content">
+                <span class="close-modal" onclick="closeDoorstepModal()">&times;</span>
+                <h2>Doorstep Service includes:</h2>
+                
+                <div class="starting-price">
+                    Starting Service Charge: 
+                    <span class="price-amount">₹ 249</span>
+                    <span class="original-price">₹ 399</span>
+                    <span class="discount-tag">38% off</span>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <h3 style="color: #2B4B8C; border-bottom: 2px solid #FFD700; padding-bottom: 8px; margin-bottom: 15px;">Services available at your doorstep:</h3>
+                    
+                    <div class="maintenance-list" style="margin-bottom: 30px;">
+                        <li>Basic Servicing
+                            <ul style="margin-left: 20px; margin-top: 5px; list-style-type: circle;">
+                                <li><a href="../services/servicing.html?open=basic" class="repair-link">Oil & Filter Changes</a></li>
+                                <li><a href="../services/servicing.html?open=basic" class="repair-link">Air Filter Cleaning</a></li>
+                                <li><a href="../services/servicing.html?open=basic" class="repair-link">Chain Cleaning & Lubrication</a></li>
+                                <li><a href="../services/servicing.html?open=basic" class="repair-link">Basic Inspection</a></li>
+                            </ul>
+                        </li>
+                        <li>Parts Replacement
+                            <ul style="margin-left: 20px; margin-top: 5px; list-style-type: circle;">
+                                <li>Cable Replacement</li>
+                                <li>Brake Shoe Replacement</li>
+                                <li>Chain & Sprocket Set</li>
+                                <li>Battery Replacement</li>
+                            </ul>
+                        </li>
+                        <li>Minor Repairs
+                            <ul style="margin-left: 20px; margin-top: 5px; list-style-type: circle;">
+                                <li>Basic Electrical Issues</li>
+                                <li>Minor Adjustments</li>
+                                <li>Basic Tune-ups</li>
+                            </ul>
+                        </li>
+                        <li>Bike Wash
+                            <ul style="margin-left: 20px; margin-top: 5px; list-style-type: circle;">
+                                <li><a href="../services/bikewash.html?open=foam" class="repair-link"><strong>Foam Wash</strong> – Deep cleaning with foam for a spotless, shiny finish. <span style='color:#888;'>(₹120 – ₹200)</span></a></li>
+                                <li><a href="../services/bikewash.html?open=shampoo" class="repair-link"><strong>Shampoo Wash</strong> – Gentle shampoo wash to remove dirt and grime. <span style='color:#888;'>(₹50 – ₹100)</span></a></li>
+                                <li><a href="../services/bikewash.html?open=polish" class="repair-link"><strong>Polishing</strong> – Enhance shine and protect paint with professional polish. <span style='color:#888;'>(₹20 – ₹200)</span></a></li>
+                                <li><a href="../services/bikewash.html?open=rubbing" class="repair-link"><strong>Rubbing Polish</strong> – Removes scratches and restores gloss with rubbing polish. <span style='color:#888;'>(₹250 – ₹1,000)</span></a></li>
+                                <li><a href="../services/bikewash.html?open=chain" class="repair-link"><strong>Chain Cleaning & Lubrication</strong> – Thorough cleaning and lubrication for smooth chain performance. <span style='color:#888;'>(₹250 – ₹500)</span></a></li>
+                            </ul>
+                        </li>
+                    </div>
+
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                        <h4 style="color: #2B4B8C; margin-bottom: 10px;">Important Information:</h4>
+                        <ul style="list-style-type: none; padding-left: 0;">
+                            <li style="margin-bottom: 8px;">• Service time: 2-3 hours (may vary based on work)</li>
+                            <li style="margin-bottom: 8px;">• Please describe your bike's issues in advance</li>
+                            <li style="margin-bottom: 8px;">• Part availability needs to be confirmed</li>
+                            <li>• Major repairs may require workshop visit</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="note">
+                    **Note: Service charges may vary based on the complexity of work and parts required. Our technician will provide an estimate after inspection.
+                </div>
+
+                <div class="modal-buttons">
+                    <button class="primary-button" onclick="closeDoorstepModal()">Close</button>
+                    <a class="primary-button" href="../index.html?prefill=homeservice#booking">Book Now</a>
+                </div>
+            </div>
+        </div>
+    </main>
+    <div class="subscription-promo" style="max-width: 700px; margin: 40px auto 0 auto; background: linear-gradient(135deg, #2B4B8C 80%, #224080 100%); border-radius: 16px; padding: 28px 24px 32px 24px; color: #fff; text-align: center; box-shadow: 0 2px 12px rgba(43,75,140,0.08);">
+        <div style="font-size: 1.35em; font-weight: bold; color: #FFD700; margin-bottom: 10px;">Want Better Deals? Join Our Subscription Plans!</div>
+        <div style="font-size: 1.08em; color: #fff; margin-bottom: 18px;">Get exclusive benefits including:</div>
+        <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 18px; margin-bottom: 18px;">
+            <div style="min-width: 220px; text-align: left;">
+                <span style="color: #FFD700; font-size: 1.2em;">✔</span> Priority Service Booking<br>
+                <span style="color: #FFD700; font-size: 1.2em;">✔</span> Special Member Discounts
+            </div>
+            <div style="min-width: 220px; text-align: left;">
+                <span style="color: #FFD700; font-size: 1.2em;">✔</span> Free Pickup & Drop<br>
+                <span style="color: #FFD700; font-size: 1.2em;">✔</span> Seasonal Offers
+            </div>
+        </div>
+        <a href="subscription.html" style="display: inline-block; background: #FFD700; color: #2B4B8C; font-weight: bold; letter-spacing: 0.12em; border-radius: 6px; padding: 14px 0; width: 100%; max-width: 420px; font-size: 1.1em; text-decoration: none; margin-top: 10px; box-shadow: 0 2px 6px rgba(43,75,140,0.08);">VIEW SUBSCRIPTION PLANS</a>
+    </div>
+    <div class="universal-note" style="max-width: 700px; margin: 40px auto 0 auto; background: #f9f9f9; border-left: 4px solid #FFD700; border-radius: 8px; padding: 18px 24px; color: #2B4B8C; font-size: 1.08em;">
+        <strong>Note:</strong> Listed prices are labor charges only. Parts cost will be additional. Final charges may vary based on bike model and work complexity.
+    </div>
+    <script src="../script.js"></script>
+    <script>
+    document.getElementById('jobcard-form').onsubmit = function(e) {
+        e.preventDefault();
+        document.getElementById('jobcard-success').style.display = 'block';
+        this.reset();
+    };
+    // Show job card on Book Now click for Doorstep Service
+    var doorstepBtn = Array.from(document.getElementsByClassName('book-now-btn')).find(btn => btn.textContent.includes('Book Now') && btn.parentElement.querySelector('h3')?.textContent.includes('Doorstep Service'));
+    if (doorstepBtn) {
+        doorstepBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            var jobcard = document.getElementById('home-services-jobcard');
+            if (jobcard) {
+                jobcard.style.display = 'block';
+                jobcard.scrollIntoView({behavior: 'smooth'});
+            }
+        });
+    }
+
+    // Modal functions
+    function hideHeader() {
+        var header = document.querySelector('header');
+        if (header) header.style.display = 'none';
+    }
+    function showHeader() {
+        var header = document.querySelector('header');
+        if (header) header.style.display = '';
+    }
+    function showServiceDetails() {
+        document.getElementById('serviceDetailsModal').style.display = 'block';
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        hideHeader();
+    }
+
+    function closeModal() {
+        document.getElementById('serviceDetailsModal').style.display = 'none';
+        document.body.style.overflow = 'auto'; // Restore scrolling
+        showHeader();
+    }
+
+    // Premium Modal functions
+    function showPremiumServiceDetails() {
+        document.getElementById('premiumServiceDetailsModal').style.display = 'block';
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        hideHeader();
+    }
+
+    function closePremiumModal() {
+        document.getElementById('premiumServiceDetailsModal').style.display = 'none';
+        document.body.style.overflow = 'auto'; // Restore scrolling
+        showHeader();
+    }
+
+    // Pickup Modal functions
+    function showPickupDetails() {
+        document.getElementById('pickupDetailsModal').style.display = 'block';
+        document.body.style.overflow = 'hidden';
+        hideHeader();
+    }
+
+    function closePickupModal() {
+        document.getElementById('pickupDetailsModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+        showHeader();
+    }
+
+    // Doorstep Modal functions
+    function showDoorstepDetails() {
+        document.getElementById('doorstepServiceModal').style.display = 'block';
+        document.body.style.overflow = 'hidden';
+        hideHeader();
+    }
+
+    function closeDoorstepModal() {
+        document.getElementById('doorstepServiceModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+        showHeader();
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        const basicModal = document.getElementById('serviceDetailsModal');
+        const premiumModal = document.getElementById('premiumServiceDetailsModal');
+        const pickupModal = document.getElementById('pickupDetailsModal');
+        const doorstepModal = document.getElementById('doorstepServiceModal');
+        
+        if (event.target == basicModal) {
+            closeModal();
+        }
+        if (event.target == premiumModal) {
+            closePremiumModal();
+        }
+        if (event.target == pickupModal) {
+            closePickupModal();
+        }
+        if (event.target == doorstepModal) {
+            closeDoorstepModal();
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const params = new URLSearchParams(window.location.search);
+        const open = params.get('open');
+        if (open) {
+            const map = {
+                basic: { btn: 'view-details-basic', fn: showServiceDetails },
+                premium: { btn: 'view-details-premium', fn: showPremiumServiceDetails }
+            };
+            if (map[open]) {
+                const btn = document.getElementById(map[open].btn);
+                if (btn) {
+                    btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    setTimeout(() => map[open].fn(), 400);
+                }
+            }
+        }
+    });
+    </script>
+</body>
+</html> 

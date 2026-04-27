@@ -1,0 +1,7 @@
+tunnel: your-tunnel-id-here
+credentials-file: /path/to/your/credentials.json
+
+ingress:
+  - hostname: your-domain.com
+    service: http://localhost:3001
+  - service: http_status:404 

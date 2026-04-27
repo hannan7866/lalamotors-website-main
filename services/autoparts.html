@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buy Bike Parts & Accessories | LALA MOTORS</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../script.js"></script>
+    <style>
+        :root {
+            --bg-light: #f8f9fa;
+            --border-color: #dee2e6;
+            --card-shadow: 0 4px 6px rgba(43,75,140,0.05);
+            --card-shadow-hover: 0 8px 15px rgba(43,75,140,0.1);
+        }
+
+        body {
+            background-color: var(--bg-light);
+        }
+
+        /* Navigation and Header Styles */
+        .autoparts-section {
+            margin-top: 120px;
+        }
+
+        @media (max-width: 768px) {
+            .autoparts-section {
+                margin-top: 90px;
+            }
+        }
+
+        header, .top-bar {
+            position: sticky !important;
+            top: 0 !important;
+            z-index: 1200 !important;
+        }
+        
+        main {
+            padding: 2rem 1rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.2rem;
+            color: var(--primary-blue);
+            margin-bottom: 2rem;
+            font-weight: 700;
+        }
+
+        /* Brands Section */
+        .brands-section {
+            padding: 2rem 0;
+        }
+
+        .brands-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .brand-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-color);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .brand-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        .brand-logo {
+            width: 120px;
+            height: 80px;
+            object-fit: contain;
+            margin-bottom: 1rem;
+            background: #fff;
+            border-radius: 6px;
+            padding: 4px;
+        }
+
+        .brand-name {
+            color: var(--primary-blue);
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin: 0;
+        }
+
+        .brand-card.coming-soon {
+            position: relative;
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .brand-card.coming-soon .coming-soon-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        /* Parts Section */
+        .parts-section {
+            display: none; /* Hidden by default */
+        }
+        
+        .breadcrumb {
+            margin-bottom: 2rem;
+            font-size: 1rem;
+        }
+
+        .breadcrumb a {
+            color: var(--primary-blue);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .breadcrumb span {
+            color: #6c757d;
+        }
+        
+        .parts-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 2rem;
+            align-items: flex-start;
+        }
+
+        /* Filters Sidebar */
+        .filters-sidebar {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-color);
+            position: sticky;
+            top: 100px;
+        }
+
+        .filter-group {
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1.5rem;
+        }
+        
+        .filter-group:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .filter-group h3 {
+            color: var(--primary-blue);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .filter-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .filter-option {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #495057;
+            cursor: pointer;
+        }
+
+        .filter-option input[type="radio"], .filter-option input[type="checkbox"] {
+            accent-color: var(--primary-blue);
+        }
+
+        /* Parts Container */
+        .parts-container {
+            min-width: 0;
+        }
+
+        .parts-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .parts-header h2 {
+            font-size: 1.8rem;
+            color: var(--primary-blue);
+            margin: 0;
+        }
+        
+        #sort-select {
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: white;
+            font-size: 1rem;
+        }
+        
+        /* Parts Grid */
+        .parts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .part-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-color);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .part-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        .part-image-container {
+            background: #fff;
+            padding: 1rem;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .part-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .part-info {
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .part-name {
+            color: var(--primary-blue);
+            margin: 0 0 0.5rem 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            flex-grow: 1;
+        }
+
+        .part-brand, .part-category {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin: 0 0 0.25rem 0;
+        }
+
+        .part-price {
+            color: var(--primary-blue);
+            font-weight: 700;
+            font-size: 1.4rem;
+            margin: 0.5rem 0 1rem 0;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: auto;
+        }
+        
+        .primary-button, .secondary-button {
+            flex: 1;
+            padding: 0.7rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .primary-button {
+            background: var(--primary-blue);
+            color: white;
+            border: 1px solid var(--primary-blue);
+        }
+
+        .secondary-button {
+            background: white;
+            color: var(--primary-blue);
+            border: 1px solid var(--primary-blue);
+        }
+        
+        /* Mobile Specific Styles */
+        @media (max-width: 992px) {
+            .parts-layout {
+                grid-template-columns: 1fr;
+            }
+            .filters-sidebar {
+                display: none;
+                position: fixed;
+                left: 0;
+                top: 0;
+                width: 85vw;
+                max-width: 320px;
+                height: 100vh;
+                z-index: 2000;
+                overflow-y: auto;
+                box-shadow: 2px 0 16px rgba(43,75,140,0.2);
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .filters-sidebar.show-mobile {
+                display: block;
+                transform: translateX(0);
+            }
+            
+            .mobile-filter-bar {
+                display: flex;
+                gap: 1rem;
+                align-items: center;
+                margin-bottom: 1.5rem;
+            }
+            
+            .filter-toggle-btn {
+                background: white;
+                border: 1px solid var(--border-color);
+                color: var(--primary-blue);
+                padding: 0.6rem 1rem;
+                border-radius: 8px;
+                font-size: 1rem;
+                font-weight: 500;
+            }
+            
+            #mobile-search-input {
+                width: 100%;
+                padding: 0.6rem 1rem;
+                border-radius: 8px;
+                border: 1px solid var(--border-color);
+                font-size: 1rem;
+            }
+            
+            .close-filters-btn {
+                display: block;
+            position: absolute;
+                top: 1rem;
+                right: 1rem;
+            background: none;
+            border: none;
+                font-size: 2rem;
+                color: var(--primary-blue);
+            }
+        }
+        
+        @media (min-width: 993px) {
+            .mobile-filter-bar, .close-filters-btn {
+                display: none;
+            }
+        }
+
+        .out-of-stock {
+            color: #dc3545;
+            font-weight: 600;
+            text-align: center;
+            padding: 0.5rem;
+            background: #fee2e2;
+            border-radius: 4px;
+            margin-top: 0.5rem;
+        }
+
+        .part-image-container {
+            position: relative;
+            overflow: hidden;
+            background: #f8f9fa;
+        }
+
+        .part-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+
+        .part-card:hover .part-image {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER/NAV START -->
+    <div id="notification" class="notification"></div>
+    <div id="cart-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeCartModal()">&times;</span>
+            <h2>Shopping Cart</h2>
+            <div id="cart-items"></div>
+            <div class="cart-total">
+                <strong>Total: ₹</strong>
+                <span id="cart-total">0</span>
+            </div>
+            <button onclick="checkoutCart()" class="checkout-btn">Proceed to Checkout</button>
+        </div>
+    </div>
+    <div id="sidebar-overlay" class="sidebar-overlay" style="display:none;"></div>
+    <nav id="sidebar-menu" class="sidebar-menu" style="display:none;">
+      <div class="sidebar-header">
+        <button id="close-sidebar" class="close-sidebar" title="Close">&times;</button>
+      </div>
+      <div class="sidebar-profile-section">
+        <div class="sidebar-profile-info">
+          <i class="fa-regular fa-user sidebar-profile-icon"></i>
+          <div>
+            <span class="sidebar-profile-greeting">Hello,</span>
+            <span class="sidebar-profile-name" id="sidebar-profile-name">Guest</span>
+          </div>
+        </div>
+      </div>
+      <div class="sidebar-section-title">Account Settings</div>
+      <ul class="sidebar-list">
+        <li><a href="#" id="sidebar-profile-info"><i class="fa-solid fa-user-pen"></i> Profile information</a></li>
+        <li><a href="#" id="sidebar-manage-address"><i class="fa-solid fa-location-dot"></i> Manage Address</a></li>
+        <li><a href="#" id="sidebar-orders"><i class="fa-solid fa-box"></i> My Orders</a></li>
+        <li><a href="cart.html" id="sidebar-cart"><i class="fa-solid fa-cart-shopping"></i> Cart</a></li>
+        <li><a href="#" id="sidebar-subscriptions"><i class="fa-solid fa-id-badge"></i> Subscriptions</a></li>
+      </ul>
+      <div class="sidebar-section-title">Payment Setting</div>
+      <ul class="sidebar-list">
+        <li><a href="#" id="sidebar-upi-saved"><i class="fa-brands fa-google-pay"></i> UPI Saved</a></li>
+        <li><a href="#" id="sidebar-add-payment"><i class="fa-solid fa-credit-card"></i> Add New Payment</a></li>
+      </ul>
+      <div class="sidebar-section-title">MY STUFF</div>
+      <ul class="sidebar-list">
+        <li><a href="#" id="sidebar-last-service"><i class="fa-solid fa-clock-rotate-left"></i> Last services booked</a></li>
+        <li><a href="#" id="sidebar-invoices"><i class="fa-solid fa-file-invoice"></i> Invoices</a></li>
+      </ul>
+      <ul class="sidebar-list">
+        <li><a href="#" id="sidebar-support"><i class="fa-solid fa-headset"></i> Customer Care</a></li>
+        <li id="sidebar-logout-li" style=""><a href="#" id="sidebar-logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
+      </ul>
+    </nav>
+    <header>
+        <div class="top-bar">
+            <div class="contact-info">
+                <a href="tel:+917310542113"><i class="fas fa-phone"></i> 7310542113</a>
+                <a href="mailto:lalamotors1@gmail.com"><i class="fas fa-envelope"></i> lalamotors1@gmail.com</a>
+                <a href="https://instagram.com/lalamotors1" target="_blank"><i class="fab fa-instagram"></i> @lalamotors1</a>
+                <a href="https://www.google.com/maps/place/Lala+Motors/@27.1674164,78.0161954,17z/data=!4m6!3m5!1s0x397477aa18fdfe99:0xcfb37df5b30ed1a6!8m2!3d27.1676738!4d78.0159854!16s%2Fg%2F11vl7kctdh?entry=ttu&amp;g_ep=EgoyMDI1MDYyMy4yIKXMDSoASAFQAw%3D%3D" target="_blank"><i class="fas fa-location-dot"></i> 4/143 Ahmedia Market Baluganj Agra</a>
+            </div>
+        </div>
+        <nav>
+            <button id="sidebar-hamburger" class="sidebar-hamburger" title="Menu" aria-label="Open menu">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect y="7" width="32" height="3" rx="1.5" fill="#FFD700"/>
+                    <rect y="14.5" width="32" height="3" rx="1.5" fill="#FFD700"/>
+                    <rect y="22" width="32" height="3" rx="1.5" fill="#FFD700"/>
+                </svg>
+            </button>
+            <div class="logo">
+                <img src="../images/logoo neww.png" alt="LALA MOTORS Logo" class="main-logo">
+            </div>
+            <ul class="nav-links">
+                <li><a href="../index.html#home">Home</a></li>
+                <li><a href="../index.html#services">Services</a></li>
+                <li><a href="../index.html#booking">Booking</a></li>
+                <li><a href="../index.html#contact">Contact</a></li>
+                <li><a href="about.html">About Us</a></li>
+                <li>
+                  <div class="cart-icon-container">
+                    <a href="cart.html" class="cart-icon" title="Cart">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span id="cart-count" class="cart-item-count">0</span>
+                    </a>
+                  </div>
+                </li>
+            </ul>
+            <a href="login.html" class="login-btn" title="Login">
+              <i class="fa-regular fa-user"></i>
+            </a>
+        </nav>
+    </header>
+    <!-- HEADER/NAV END -->
+
+    <main class="autoparts-section">
+        <section class="brands-section">
+            <h2 class="section-title">Shop by Brand</h2>
+            <div class="brands-grid" id="brands-grid">
+                <!-- Brands will be populated by JavaScript -->
+            </div>
+        </section>
+
+        <section class="parts-section" id="parts-section">
+            <div class="breadcrumb" id="breadcrumb"></div>
+            
+            <div class="parts-layout">
+                <aside class="filters-sidebar" id="filters-sidebar">
+                    <button class="close-filters-btn" onclick="toggleMobileFilters()">&times;</button>
+                    <div class="filter-group">
+                        <h3 style="margin-top: 1rem;">Search</h3>
+                        <input type="text" id="desktop-search-input" placeholder="Search in this brand..." style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 8px;">
+                    </div>
+
+                    <div class="filter-group">
+                        <h3>Bike Models</h3>
+                        <div class="filter-options" id="model-filters"></div>
+                    </div>
+
+                    <div class="filter-group">
+                        <h3>Category</h3>
+                        <div class="filter-options" id="category-filters"></div>
+                    </div>
+
+                    <button onclick="resetFilters()" class="secondary-button" style="width:100%; margin-top: 1rem;">Reset Filters</button>
+                </aside>
+
+                <div class="parts-container">
+                    <div class="mobile-filter-bar">
+                        <button class="filter-toggle-btn" onclick="toggleMobileFilters()"><i class="fas fa-filter"></i> Filters</button>
+                        <input type="text" id="mobile-search-input" placeholder="Search parts...">
+                        </div>
+                
+                    <div class="parts-header">
+                        <h2 id="parts-title">All Parts</h2>
+                        <select id="sort-select">
+                            <option value="featured">Featured</option>
+                            <option value="price-low">Price: Low to High</option>
+                            <option value="price-high">Price: High to Low</option>
+                            <option value="name-asc">Name: A to Z</option>
+                            <option value="name-desc">Name: Z to A</option>
+                        </select>
+                </div>
+
+                        <div class="parts-grid" id="parts-grid">
+                            <!-- Parts will be populated by JavaScript -->
+                                    </div>
+                         <p id="no-results" style="text-align:center; display:none; padding: 2rem; font-size: 1.2rem;">No parts found matching your criteria.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+    <div class="subscription-promo" style="max-width: 700px; margin: 40px auto 0 auto; background: linear-gradient(135deg, #2B4B8C 80%, #224080 100%); border-radius: 16px; padding: 28px 24px 32px 24px; color: #fff; text-align: center; box-shadow: 0 2px 12px rgba(43,75,140,0.08);">
+        <div style="font-size: 1.35em; font-weight: bold; color: #FFD700; margin-bottom: 10px;">Want Better Deals? Join Our Subscription Plans!</div>
+        <div style="font-size: 1.08em; color: #fff; margin-bottom: 18px;">Get exclusive benefits including:</div>
+        <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 18px; margin-bottom: 18px;">
+            <div style="min-width: 220px; text-align: left;">
+                <span style="color: #FFD700; font-size: 1.2em;">✔</span> Priority Service Booking<br>
+                <span style="color: #FFD700; font-size: 1.2em;">✔</span> Special Member Discounts
+            </div>
+            <div style="min-width: 220px; text-align: left;">
+                <span style="color: #FFD700; font-size: 1.2em;">✔</span> Free Pickup & Drop<br>
+                <span style="color: #FFD700; font-size: 1.2em;">✔</span> Seasonal Offers
+            </div>
+        </div>
+        <a href="subscription.html" style="display: inline-block; background: #FFD700; color: #2B4B8C; font-weight: bold; letter-spacing: 0.12em; border-radius: 6px; padding: 14px 0; width: 100%; max-width: 420px; font-size: 1.1em; text-decoration: none; margin-top: 10px; box-shadow: 0 2px 6px rgba(43,75,140,0.08);">VIEW SUBSCRIPTION PLANS</a>
+    </div>
+
+    <!-- Cart Modal and Notification can be reused from the main script if they exist -->
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Initialize Supabase client
+            const supabaseUrl = 'https://fjhlglaivlbrowsuxres.supabase.co';
+            const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqaGxnbGFpdmxicm93c3V4cmVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA1OTUwNDYsImV4cCI6MjA2NjE3MTA0Nn0.0p7afOyJ_Q67d0k7ZTQWnxYIJ6eseuNx_7yjupT6eWo';
+            const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+            const state = {
+                allParts: [],
+                currentBrand: null,
+                filters: {
+                    models: [],
+                    categories: [],
+                    searchTerm: ''
+                },
+                sortBy: 'featured',
+                partsData: null
+            };
+
+            // --- DOM Elements ---
+            const brandsGrid = document.getElementById('brands-grid');
+            const partsGrid = document.getElementById('parts-grid');
+            const brandsSection = document.querySelector('.brands-section');
+            const partsSection = document.getElementById('parts-section');
+            const partsTitle = document.getElementById('parts-title');
+            const breadcrumb = document.getElementById('breadcrumb');
+            const modelFiltersContainer = document.getElementById('model-filters');
+            const categoryFiltersContainer = document.getElementById('category-filters');
+            const sortSelect = document.getElementById('sort-select');
+            const desktopSearchInput = document.getElementById('desktop-search-input');
+            const mobileSearchInput = document.getElementById('mobile-search-input');
+            const noResultsMsg = document.getElementById('no-results');
+
+            // --- Data Loading ---
+            async function loadPartsData() {
+                try {
+                    const { data, error } = await supabaseClient
+                        .from('parts')
+                        .select('*');
+
+                    if (error) throw error;
+
+                    // Get public URLs for images
+                    const partsWithImages = data.map(part => {
+                        if (part.image_url) {
+                            if (part.image_url.startsWith('http')) {
+                                // Already a public URL
+                                return { ...part };
+                            } else {
+                                // Storage path, get public URL from bucket
+                                const { data: { publicUrl } } = supabaseClient.storage
+                                    .from('autoparts-images')
+                                    .getPublicUrl(part.image_url);
+                                return { ...part, image_url: publicUrl };
+                            }
+                        }
+                        return part;
+                    });
+
+                    console.log('Loaded parts data:', partsWithImages.length, 'items');
+                    state.partsData = partsWithImages;
+                    return partsWithImages;
+                } catch (error) {
+                    console.error('Error loading parts:', error);
+                    return [];
+                }
+            }
+
+            // --- Brand Logic ---
+            function populateBrands() {
+                brandsGrid.innerHTML = '';
+                
+                const defaultBrandLogo = '../images/logoo neww.png';
+                const localBrandLogos = {
+                    Hero: '../images/logos/hero-removebg-preview.png',
+                    Honda: '../images/logos/honda-removebg-preview.png',
+                    TVS: '../images/logos/tvs-removebg-preview.png',
+                    Bajaj: '../images/logos/bajaj-removebg-preview.png',
+                    Suzuki: '../images/logos/suzuki.jp-removebg-preview.png',
+                    'Royal Enfield': '../images/logos/royalenfield-removebg-preview.png',
+                    Yamaha: '../images/logos/yamaha-removebg-preview.png',
+                    KTM: '../images/logos/ktm-removebg-preview.png',
+                    Jawa: '../images/logos/jawa-removebg-preview.png',
+                    Kawasaki: '../images/logos/kawasaki-removebg-preview.png',
+                    Benelli: '../images/logos/binilli-removebg-preview.png',
+                    Aprilia: '../images/logos/aprilia-removebg-preview.png',
+                    'Harley-Davidson': '../images/logos/harley-removebg-preview.png',
+                    BMW: '../images/logos/bmw-removebg-preview.png',
+                    Ducati: '../images/logos/ducati-removebg-preview.png',
+                    Triumph: '../images/logos/Triumph-removebg-preview.png'
+                };
+
+                function createBrandBadgeLogo(brandName) {
+                    const safeName = String(brandName).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+                    const svg = `
+                        <svg xmlns="http://www.w3.org/2000/svg" width="220" height="140" viewBox="0 0 220 140">
+                            <rect width="220" height="140" rx="14" fill="#f4f6fb"/>
+                            <rect x="6" y="6" width="208" height="128" rx="10" fill="#ffffff" stroke="#d7deee"/>
+                            <text x="110" y="79" text-anchor="middle" font-size="28" font-family="Arial, sans-serif" font-weight="700" fill="#2b4b8c">${safeName}</text>
+                        </svg>
+                    `;
+                    return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+                }
+
+                // Define all brands exactly as shown in the image
+                const allBrands = [
+                    // Row 1 - Available brands (no "Coming Soon")
+                    { name: 'Hero', logo: localBrandLogos.Hero, comingSoon: false },
+                    { name: 'Honda', logo: localBrandLogos.Honda, comingSoon: false },
+                    { name: 'TVS', logo: localBrandLogos.TVS, comingSoon: false },
+                    { name: 'Bajaj', logo: localBrandLogos.Bajaj, comingSoon: false },
+                    
+                    // Row 2 - Available brands (no "Coming Soon")
+                    { name: 'Suzuki', logo: localBrandLogos.Suzuki, comingSoon: false },
+                    { name: 'Royal Enfield', logo: localBrandLogos['Royal Enfield'], comingSoon: false },
+                    { name: 'Yamaha', logo: localBrandLogos.Yamaha, comingSoon: false },
+                    { name: 'KTM', logo: localBrandLogos.KTM, comingSoon: false },
+                    
+                    // Row 3 - Coming Soon brands (with "Coming Soon" overlay)
+                    { name: 'Jawa', logo: localBrandLogos.Jawa, comingSoon: true },
+                    { name: 'Kawasaki', logo: localBrandLogos.Kawasaki, comingSoon: true },
+                    { name: 'Benelli', logo: localBrandLogos.Benelli, comingSoon: true },
+                    { name: 'Aprilia', logo: localBrandLogos.Aprilia, comingSoon: true },
+                    
+                    // Row 4 - Coming Soon brands (with "Coming Soon" overlay)
+                    { name: 'Harley-Davidson', logo: localBrandLogos['Harley-Davidson'], comingSoon: true },
+                    { name: 'BMW', logo: localBrandLogos.BMW, comingSoon: true },
+                    { name: 'Ducati', logo: localBrandLogos.Ducati, comingSoon: true },
+                    { name: 'Triumph', logo: localBrandLogos.Triumph, comingSoon: true }
+                ];
+
+                // Get unique brands from database to check availability
+                const availableBrands = [...new Set(state.partsData.map(item => item.brand))];
+                console.log('Available brands in database:', availableBrands);
+
+                allBrands.forEach(brand => {
+                    const card = document.createElement('div');
+                    card.className = 'brand-card';
+                    
+                    if (brand.comingSoon) {
+                        // Coming Soon brands - always show as coming soon regardless of database
+                        card.classList.add('coming-soon');
+                        card.innerHTML = `
+                            <img src="${brand.logo}" alt="${brand.name}" class="brand-logo" onerror="this.onerror=null; this.src='${defaultBrandLogo}'">
+                            <h3 class="brand-name">${brand.name}</h3>
+                            <div class="coming-soon-label">Coming Soon</div>
+                        `;
+                    } else {
+                        // Available brands - always make them clickable regardless of database data
+                        card.onclick = () => selectBrand(brand.name);
+                        card.innerHTML = `
+                            <img src="${brand.logo}" alt="${brand.name}" class="brand-logo" onerror="this.onerror=null; this.src='${defaultBrandLogo}'">
+                            <h3 class="brand-name">${brand.name}</h3>
+                        `;
+                    }
+                    brandsGrid.appendChild(card);
+                });
+            }
+
+
+
+            function selectBrand(brandName) {
+                state.currentBrand = brandName;
+                state.allParts = state.partsData.filter(item => item.brand === brandName);
+
+                brandsSection.style.display = 'none';
+                partsSection.style.display = 'block';
+                window.scrollTo(0, 0);
+
+                updateUIForSelectedBrand();
+            }
+
+            function updateUIForSelectedBrand() {
+                partsTitle.textContent = `${state.currentBrand} Parts`;
+                breadcrumb.innerHTML = `
+                    <a href="#" onclick="showAllBrands(); return false;">All Brands</a> 
+                    &gt; 
+                    <span>${state.currentBrand}</span>
+                `;
+                populateFilters();
+                renderParts();
+            }
+            
+            window.showAllBrands = () => {
+                state.currentBrand = null;
+                state.allParts = [];
+                resetFilters();
+                brandsSection.style.display = 'block';
+                partsSection.style.display = 'none';
+            }
+
+            // --- Filter Logic ---
+            function populateFilters() {
+                // Get unique models for current brand
+                const models = [...new Set(state.partsData
+                    .filter(item => item.brand === state.currentBrand)
+                    .map(item => item.model))];
+                
+                // Get unique categories for current brand
+                const categories = [...new Set(state.partsData
+                    .filter(item => item.brand === state.currentBrand)
+                    .map(item => item.category))];
+                
+                // Populate model filters
+                modelFiltersContainer.innerHTML = '';
+                models.forEach(model => {
+                    const option = document.createElement('label');
+                    option.className = 'filter-option';
+                    option.innerHTML = `
+                        <input type="checkbox" name="model" value="${model}"> ${model}
+                    `;
+                    modelFiltersContainer.appendChild(option);
+                });
+                
+                // Populate category filters
+                categoryFiltersContainer.innerHTML = '';
+                categories.forEach(category => {
+                    const option = document.createElement('label');
+                    option.className = 'filter-option';
+                    option.innerHTML = `
+                        <input type="checkbox" name="category" value="${category}"> ${category}
+                    `;
+                    categoryFiltersContainer.appendChild(option);
+                });
+                
+                // Add event listeners to new checkboxes
+                document.querySelectorAll('#filters-sidebar input[type="checkbox"]').forEach(cb => {
+                    cb.addEventListener('change', handleFilterChange);
+                });
+            }
+            
+            function handleFilterChange() {
+                state.filters.models = Array.from(document.querySelectorAll('input[name="model"]:checked')).map(cb => cb.value);
+                state.filters.categories = Array.from(document.querySelectorAll('input[name="category"]:checked')).map(cb => cb.value);
+                renderParts();
+            }
+            
+            window.resetFilters = () => {
+                document.querySelectorAll('#filters-sidebar input[type="checkbox"]').forEach(cb => cb.checked = false);
+                desktopSearchInput.value = '';
+                mobileSearchInput.value = '';
+                state.filters = { models: [], categories: [], searchTerm: '' };
+                state.sortBy = 'featured';
+                sortSelect.value = 'featured';
+                renderParts();
+            }
+
+            // --- Rendering Logic ---
+            function renderParts() {
+                let filteredParts = [...state.allParts];
+
+                // Apply model filter
+                if (state.filters.models.length > 0) {
+                    filteredParts = filteredParts.filter(p => 
+                        state.filters.models.includes(p.model)
+                    );
+                }
+
+                // Apply category filter
+                if (state.filters.categories.length > 0) {
+                    filteredParts = filteredParts.filter(p => 
+                        state.filters.categories.includes(p.category)
+                    );
+                }
+                
+                // Apply search
+                if (state.filters.searchTerm) {
+                    filteredParts = filteredParts.filter(p => 
+                        p.name.toLowerCase().includes(state.filters.searchTerm) ||
+                        p.category.toLowerCase().includes(state.filters.searchTerm) ||
+                        p.model.toLowerCase().includes(state.filters.searchTerm)
+                    );
+                }
+
+                // Apply sorting
+                switch(state.sortBy) {
+                    case 'price-low': filteredParts.sort((a, b) => a.price - b.price); break;
+                    case 'price-high': filteredParts.sort((a, b) => b.price - a.price); break;
+                    case 'name-asc': filteredParts.sort((a, b) => a.name.localeCompare(b.name)); break;
+                    case 'name-desc': filteredParts.sort((a, b) => b.name.localeCompare(a.name)); break;
+                }
+
+                partsGrid.innerHTML = '';
+                if (filteredParts.length === 0) {
+                    noResultsMsg.style.display = 'block';
+                    return;
+                }
+                
+                noResultsMsg.style.display = 'none';
+
+                filteredParts.forEach(part => {
+                    const defaultImage = '../images/image-removebg-preview (1).png';
+                    const imageUrl = part.image_url || defaultImage;
+                    
+                    const card = document.createElement('div');
+                    card.className = 'part-card';
+                    card.innerHTML = `
+                        <div class="part-image-container">
+                            <img src="${imageUrl}" 
+                                 alt="${part.name}" 
+                                 class="part-image"
+                                 onerror="this.onerror=null; this.src='${defaultImage}';">
+                        </div>
+                        <div class="part-info">
+                            <h3 class="part-name">${part.name}</h3>
+                            <p class="part-brand">${part.brand} - ${part.model}</p>
+                            <p class="part-category">${part.category}</p>
+                            <p class="part-price">₹${part.price}</p>
+                            ${part.quantity > 0 ? `
+                                <div class="button-group">
+                                    <button class="secondary-button" onclick='addToCartProxy(${JSON.stringify(part)})'>ADD TO CART</button>
+                                    <button class="primary-button" onclick='buyNowProxy(${JSON.stringify(part)})'>BUY NOW</button>
+                                </div>
+                            ` : `
+                                <p class="out-of-stock">Out of Stock</p>
+                            `}
+                        </div>
+                    `;
+                    partsGrid.appendChild(card);
+                });
+            }
+            
+            // --- Mobile ---
+            window.toggleMobileFilters = () => {
+                document.getElementById('filters-sidebar').classList.toggle('show-mobile');
+            }
+            
+            // --- Global Helpers for Buttons ---
+            window.addToCartProxy = (part) => {
+                if (typeof addToCart === 'function') {
+                    addToCart(part);
+                } else {
+                    console.error('addToCart function not found. Is main script.js loaded?');
+                }
+            };
+
+            window.buyNowProxy = (part) => {
+                const message = `Hello! I would like to purchase:\n\n1x ${part.name} (${part.brand} - ${part.model}) - ₹${part.price}`;
+                const encodedMessage = encodeURIComponent(message);
+                window.open(`https://wa.me/+917310542113?text=${encodedMessage}`, '_blank');
+            };
+
+            // --- Start the App ---
+            async function init() {
+                await loadPartsData();
+                populateBrands();
+                setupEventListeners();
+            }
+
+            init();
+        });
+    </script>
+</body>
+</html> 

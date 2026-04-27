@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sale & Purchase | LALA MOTORS</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../script.js"></script>
+    <style>
+.sale-section {
+    margin-top: 120px;
+}
+.bike-listings-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    max-width: 900px;
+    margin: 0 auto 2rem auto;
+}
+@media (max-width: 900px) {
+    .bike-listings-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+@media (max-width: 768px) {
+    .sale-section {
+        margin-top: 90px;
+    }
+    .bike-listings-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 1rem;
+    }
+    .bike-card {
+        padding: 0.7rem 0.3rem !important;
+        font-size: 0.92rem !important;
+        border-radius: 12px !important;
+    }
+    .bike-card h4 {
+        font-size: 0.98rem !important;
+        margin-bottom: 0.3rem !important;
+    }
+    .primary-button {
+        font-size: 0.7rem !important;
+        height: 32px !important;
+        padding: 0.3rem 0.2rem !important;
+        line-height: 1.05 !important;
+        border-radius: 7px !important;
+        min-width: 0 !important;
+        width: 100% !important;
+        letter-spacing: 0.5px;
+    }
+}
+
+/* Responsive modal for bike details */
+#sale-contact-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 3000;
+  overflow: auto;
+  padding: 1rem;
+}
+.sale-modal {
+  position: relative;
+  background: #fff;
+  width: min(92vw, 900px);
+  margin: 2rem auto;
+  padding: 1.25rem 1rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+@media (min-width: 768px) {
+  .sale-modal { padding: 1.5rem; }
+}
+.sale-modal-close {
+  position: absolute;
+  right: 0.75rem;
+  top: 0.5rem;
+  background: none;
+  border: none;
+  font-size: 1.6rem;
+  cursor: pointer;
+}
+.sale-modal-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+@media (min-width: 768px) {
+  .sale-modal-grid { grid-template-columns: 1.15fr 1fr; }
+}
+.sale-modal-img img {
+  width: 100%;
+  height: 48vh;
+  object-fit: cover;
+  border-radius: 10px;
+}
+@media (min-width: 768px) {
+  .sale-modal-img img { height: 60vh; }
+}
+.sale-modal-title {
+  margin: 0 0 0.5rem 0;
+  color: var(--primary-blue);
+  font-size: clamp(1.1rem, 4.5vw, 1.6rem);
+}
+.sale-modal-price {
+  margin: 0 0 0.5rem 0;
+  font-weight: 700;
+  color: #1f2937;
+  font-size: clamp(1rem, 4vw, 1.2rem);
+}
+.sale-modal-desc { color: #475569; margin: 0 0 1rem 0; }
+.sale-modal-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+.sale-modal-actions a { flex: 1 1 160px; text-align: center; padding: 0.8rem 1rem; border-radius: 8px; text-decoration: none; }
+@media (max-width: 480px) { .sale-modal-actions a { flex-basis: 100%; } }
+
+/* Sell bike contact strip */
+.sell-contact {
+  max-width: 1000px;
+  margin: 0 auto 2rem auto;
+  background: linear-gradient(180deg, #ffffff 0%, #f7f9fc 100%);
+  padding: 1.25rem 1.25rem 1.5rem 1.25rem;
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 14px rgba(43,75,140,0.08);
+}
+.sell-row { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 1rem; }
+@media (max-width: 640px) { .sell-row { grid-template-columns: 1fr; text-align: center; } }
+.sell-copy { text-align: left; }
+@media (max-width: 640px) { .sell-copy { text-align: center; } }
+.sell-title { margin: 0; color: var(--primary-blue); font-size: clamp(1rem, 2.8vw, 1.2rem); font-weight: 700; display: flex; align-items: center; gap: 0.5rem; }
+.sell-sub { margin: 0.25rem 0 0 0; color: #475569; font-size: 0.95rem; }
+.sell-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: flex-end; }
+@media (max-width: 640px) { .sell-actions { justify-content: center; } }
+.contact-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem; min-width: 170px; padding: 0.78rem 1rem; border-radius: 10px; font-weight: 700; text-decoration: none; border: 1px solid transparent; transition: transform .15s ease, box-shadow .2s ease; }
+.contact-btn:active { transform: translateY(1px); }
+.contact-btn.primary { background: var(--primary-blue); color: #fff; border-color: var(--primary-blue); box-shadow: 0 4px 14px rgba(43,75,140,0.18); }
+.contact-btn.primary:hover { box-shadow: 0 6px 18px rgba(43,75,140,0.25); }
+.contact-btn.whatsapp { background: #25D366; color: #0b3f22; border-color: #21be5b; }
+.contact-btn.whatsapp:hover { filter: brightness(0.97); }
+
+/* Extra small phones: one card per row */
+@media (max-width: 520px) {
+  .bike-listings-grid { grid-template-columns: 1fr !important; }
+}
+</style>
+</head>
+<body>
+    <!-- Add notification div -->
+    <div id="notification" class="notification"></div>
+
+    <!-- Add cart modal -->
+    <div id="cart-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeCartModal()">&times;</span>
+            <h2>Shopping Cart</h2>
+            <div id="cart-items"></div>
+            <div class="cart-total">
+                <strong>Total: ₹</strong>
+                <span id="cart-total">0</span>
+            </div>
+            <button onclick="checkoutCart()" class="checkout-btn">Proceed to Checkout</button>
+        </div>
+    </div>
+
+    <!-- Sidebar overlay and menu -->
+    <div id="sidebar-overlay" class="sidebar-overlay" style="display:none;"></div>
+    <nav id="sidebar-menu" class="sidebar-menu" style="display:none;">
+      <div class="sidebar-header">
+        <button id="close-sidebar" class="close-sidebar" title="Close">&times;</button>
+      </div>
+      <div class="sidebar-profile-section">
+        <div class="sidebar-profile-info">
+          <i class="fa-regular fa-user sidebar-profile-icon"></i>
+          <div>
+            <span class="sidebar-profile-greeting">Hello,</span>
+            <span class="sidebar-profile-name" id="sidebar-profile-name">Guest</span>
+            <span class="sidebar-profile-email" id="sidebar-profile-email"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-section-title">Account Settings</div>
+      <ul class="sidebar-list">
+        <li><a href="#" id="sidebar-profile-info"><i class="fa-solid fa-user-pen"></i> Profile information</a></li>
+        <li><a href="#" id="sidebar-manage-address"><i class="fa-solid fa-location-dot"></i> Manage Address</a></li>
+        <li><a href="#" id="sidebar-orders"><i class="fa-solid fa-box"></i> My Orders</a></li>
+        <li><a href="cart.html" id="sidebar-cart"><i class="fa-solid fa-cart-shopping"></i> Cart</a></li>
+        <li><a href="#" id="sidebar-subscriptions"><i class="fa-solid fa-id-badge"></i> Subscriptions</a></li>
+      </ul>
+
+      <div class="sidebar-section-title">Payment Setting</div>
+      <ul class="sidebar-list">
+        <li><a href="#" id="sidebar-upi-saved"><i class="fa-brands fa-google-pay"></i> UPI Saved</a></li>
+        <li><a href="#" id="sidebar-add-payment"><i class="fa-solid fa-credit-card"></i> Add New Payment</a></li>
+      </ul>
+
+      <div class="sidebar-section-title">MY STUFF</div>
+      <ul class="sidebar-list">
+        <li><a href="#" id="sidebar-last-service"><i class="fa-solid fa-clock-rotate-left"></i> Last services booked</a></li>
+        <li><a href="#" id="sidebar-invoices"><i class="fa-solid fa-file-invoice"></i> Invoices</a></li>
+      </ul>
+
+      <ul class="sidebar-list">
+        <li><a href="#" id="sidebar-support"><i class="fa-solid fa-headset"></i> Customer Care</a></li>
+        <li id="sidebar-logout-li" style=""><a href="#" id="sidebar-logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
+      </ul>
+    </nav>
+
+    <header>
+        <div class="top-bar">
+            <div class="contact-info">
+                <a href="tel:+917310542113"><i class="fas fa-phone"></i> 7310542113</a>
+                <a href="mailto:lalamotors1@gmail.com"><i class="fas fa-envelope"></i> lalamotors1@gmail.com</a>
+                <a href="https://instagram.com/lalamotors1" target="_blank"><i class="fab fa-instagram"></i> @lalamotors1</a>
+                <a href="https://www.google.com/maps/place/Lala+Motors/@27.1674164,78.0161954,17z/data=!4m6!3m5!1s0x397477aa18fdfe99:0xcfb37df5b30ed1a6!8m2!3d27.1676738!4d78.0159854!16s%2Fg%2F11vl7kctdh?entry=ttu&amp;g_ep=EgoyMDI1MDYyMy4yIKXMDSoASAFQAw%3D%3D" target="_blank"><i class="fas fa-location-dot"></i> 4/143 Ahmedia Market Baluganj Agra</a>
+            </div>
+        </div>
+        <nav>
+            <button id="sidebar-hamburger" class="sidebar-hamburger" title="Menu" aria-label="Open menu">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect y="7" width="32" height="3" rx="1.5" fill="#FFD700"/>
+                    <rect y="14.5" width="32" height="3" rx="1.5" fill="#FFD700"/>
+                    <rect y="22" width="32" height="3" rx="1.5" fill="#FFD700"/>
+                </svg>
+            </button>
+            <div class="logo">
+                <img src="/images/logoo neww.png" alt="LALA MOTORS Logo" class="main-logo">
+            </div>
+            <ul class="nav-links">
+                <li><a href="/index.html#home">Home</a></li>
+                <li><a href="/index.html#services">Services</a></li>
+                <li><a href="/index.html#booking">Booking</a></li>
+                <li><a href="/index.html#contact">Contact</a></li>
+                <li><a href="/services/about.html">About Us</a></li>
+                <li>
+                  <div class="cart-icon-container">
+                    <a href="/services/cart.html" class="cart-icon" title="Cart">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span id="cart-count" class="cart-item-count">0</span>
+                    </a>
+                  </div>
+                </li>
+            </ul>
+            <a href="/services/login.html" class="login-btn" title="Login">
+              <i class="fa-regular fa-user"></i>
+            </a>
+        </nav>
+    </header>
+    <main>
+        <section class="sale-section">
+            <h2 class="section-title">Pre-Owned Bikes</h2>
+            <div class="sale-filters" style="max-width:900px;margin:0 auto 2rem auto;display:flex;flex-wrap:wrap;gap:1rem;align-items:center;">
+                <select id="filter-brand" style="padding:0.5rem 1rem;border-radius:6px;border:1.2px solid var(--primary-blue);font-size:1rem;">
+                    <option value="">All Brands</option>
+                    <option>Hero</option><option>Honda</option><option>Bajaj</option><option>TVS</option><option>Yamaha</option><option>Suzuki</option><option>KTM</option><option>Royal Enfield</option><option>Jawa</option><option>Benelli</option><option>Kawasaki</option>
+                </select>
+                <select id="filter-model" style="padding:0.5rem 1rem;border-radius:6px;border:1.2px solid var(--primary-blue);font-size:1rem;">
+                    <option value="">All Models</option>
+                </select>
+                <select id="filter-price" style="padding:0.5rem 1rem;border-radius:6px;border:1.2px solid var(--primary-blue);font-size:1rem;">
+                    <option value="">All Prices</option>
+                    <option value="0-20000">Below ₹20,000</option>
+                    <option value="20000-50000">₹20,000–₹50,000</option>
+                    <option value="50000-100000">₹50,000–₹1,00,000</option>
+                    <option value="100000-999999">Above ₹1,00,000</option>
+                </select>
+            </div>
+            <div class="bike-listings-grid">
+                <!-- Bike listings will be rendered here by JS -->
+            </div>
+        </section>
+        <section class="sell-contact">
+            <div class="sell-row">
+              <div class="sell-copy">
+                <h3 class="sell-title"><i class="fa-solid fa-rectangle-ad" style="color:#FFD700"></i> Want to sell your bike?</h3>
+                <p class="sell-sub">Reach out and we’ll help you with a quick, hassle-free evaluation.</p>
+              </div>
+              <div class="sell-actions">
+                <a href="tel:+917310542113" class="contact-btn primary"><i class="fa-solid fa-phone"></i> Call Now</a>
+                <a href="https://wa.me/917310542113?text=I%20want%20to%20sell%20my%20bike" target="_blank" rel="noopener" class="contact-btn whatsapp"><i class="fa-brands fa-whatsapp"></i> WhatsApp Us</a>
+              </div>
+            </div>
+        </section>
+        <div id="sale-contact-modal">
+            <div class="sale-modal">
+                <button class="sale-modal-close" onclick="closeContactModal()">×</button>
+                <div id="bike-details-content"></div>
+            </div>
+        </div>
+    </main>
+    <div class="subscription-promo" style="max-width: 700px; margin: 40px auto 0 auto; background: linear-gradient(135deg, #2B4B8C 80%, #224080 100%); border-radius: 16px; padding: 28px 24px 32px 24px; color: #fff; text-align: center; box-shadow: 0 2px 12px rgba(43,75,140,0.08);">
+        <div style="font-size: 1.35em; font-weight: bold; color: #FFD700; margin-bottom: 10px;">Want Better Deals? Join Our Subscription Plans!</div>
+        <div style="font-size: 1.08em; color: #fff; margin-bottom: 18px;">Get exclusive benefits including:</div>
+        <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 18px; margin-bottom: 18px;">
+            <div style="min-width: 220px; text-align: left;">
+                <span style="color: #FFD700; font-size: 1.2em;">✔</span> Priority Service Booking<br>
+                <span style="color: #FFD700; font-size: 1.2em;">✔</span> Special Member Discounts
+            </div>
+            <div style="min-width: 220px; text-align: left;">
+                <span style="color: #FFD700; font-size: 1.2em;">✔</span> Free Pickup & Drop<br>
+                <span style="color: #FFD700; font-size: 1.2em;">✔</span> Seasonal Offers
+            </div>
+        </div>
+        <a href="subscription.html" style="display: inline-block; background: #FFD700; color: #2B4B8C; font-weight: bold; letter-spacing: 0.12em; border-radius: 6px; padding: 14px 0; width: 100%; max-width: 420px; font-size: 1.1em; text-decoration: none; margin-top: 10px; box-shadow: 0 2px 6px rgba(43,75,140,0.08);">VIEW SUBSCRIPTION PLANS</a>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+      const supabaseUrl = 'https://fjhlglaivlbrowsuxres.supabase.co';
+      const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqaGxnbGFpdmxicm93c3V4cmVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA1OTUwNDYsImV4cCI6MjA2NjE3MTA0Nn0.0p7afOyJ_Q67d0k7ZTQWnxYIJ6eseuNx_7yjupT6eWo';
+      const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+      async function loadBikes() {
+        console.log('Fetching bikes from Supabase...');
+        try {
+          // First try to get the count to verify access
+          const { count, error: countError } = await supabase
+            .from('bikes')
+            .select('*', { count: 'exact', head: true });
+
+          if (countError) {
+            console.error('Error checking bikes count:', countError);
+            throw countError;
+          }
+
+          console.log('Total bikes in database:', count);
+
+          // Now get the actual data
+          const { data: bikes, error } = await supabase
+            .from('bikes')
+            .select('*')
+            .order('created_at', { ascending: false });
+          
+          if (error) {
+            console.error('Error loading bikes:', error);
+            throw error;
+          }
+
+          console.log('Bikes data received:', bikes);
+          
+          const grid = document.querySelector('.bike-listings-grid');
+          if (!grid) {
+            console.error('Could not find bike-listings-grid element');
+            return;
+          }
+
+          grid.innerHTML = '';
+          if (!bikes || bikes.length === 0) {
+            console.log('No bikes found in database');
+            grid.innerHTML = `
+              <p style="text-align: center; grid-column: 1/-1; color: #666;">
+                No bikes listed yet. 
+                <br>
+                <small style="display: block; margin-top: 0.5rem; font-size: 0.9em;">
+                  Database count: ${count} | Query result: ${bikes ? bikes.length : 0}
+                </small>
+              </p>`;
+            return;
+          }
+
+          console.log(`Found ${bikes.length} bikes, rendering cards...`);
+          
+          bikes.forEach(bike => {
+            console.log('Rendering bike:', bike);
+            const card = document.createElement('div');
+            card.className = 'bike-card';
+            card.style = 'background:#fff;padding:1rem;border-radius:8px;box-shadow:0 2px 8px rgba(43,75,140,0.08);';
+            
+            // Format price with commas for Indian numbering system
+            const formattedPrice = new Intl.NumberFormat('en-IN', {
+              style: 'currency',
+              currency: 'INR',
+              maximumFractionDigits: 0
+            }).format(bike.price);
+
+            card.innerHTML = `
+              <img src="${bike.image_url || ''}" 
+                   alt="${bike.brand} ${bike.model}" 
+                   style="width:100%;height:180px;object-fit:cover;border-radius:6px;margin-bottom:1rem;"
+                   onerror="this.src='../images/logoo neww.png'">
+              <h4 style="margin:0 0 0.5rem 0;color:var(--primary-blue);">${bike.brand} ${bike.model}</h4>
+              <p style="margin:0 0 0.5rem 0;font-size:1.1rem;font-weight:500;">${formattedPrice}</p>
+              <p style="margin:0 0 0.5rem 0;color:#666;">Year: ${bike.year}</p>
+              <button class="primary-button" onclick='showSupabaseBikeDetails(${JSON.stringify(bike)})'>View Details</button>
+            `;
+            grid.appendChild(card);
+          });
+        } catch (error) {
+          console.error('Failed to load bikes:', error);
+          const grid = document.querySelector('.bike-listings-grid');
+          if (grid) {
+            grid.innerHTML = `
+              <p style="text-align: center; grid-column: 1/-1; color: #dc2626;">
+                Error loading bikes: ${error.message || 'Unknown error'}
+                <br>
+                <small style="display: block; margin-top: 0.5rem; font-size: 0.9em;">
+                  Please try refreshing the page
+                </small>
+              </p>`;
+          }
+        }
+      }
+
+      // Show bike details in a modal with a large image, description and contact button
+      function showSupabaseBikeDetails(bike) {
+        const modal = document.getElementById('sale-contact-modal');
+        const container = document.getElementById('bike-details-content');
+        if (!modal || !container) return;
+
+        const defaultImg = '../images/logoo neww.png';
+
+        // Format price nicely
+        const formattedPrice = new Intl.NumberFormat('en-IN', {
+          style: 'currency',
+          currency: 'INR',
+          maximumFractionDigits: 0
+        }).format(bike.price || 0);
+
+        const yearText = bike.year ? `<span style="color:#475569">Year:</span> ${bike.year}` : '';
+        const description = bike.description || 'Contact us for more details about this motorcycle.';
+
+        const message = `Hello! I am interested in the pre-owned ${bike.brand || ''} ${bike.model || ''}${bike.year ? ' (' + bike.year + ')' : ''} listed at ${formattedPrice}. Please share more details.`;
+        const whatsappUrl = `https://wa.me/917310542113?text=${encodeURIComponent(message)}`;
+
+        container.innerHTML = `
+          <div class="sale-modal-grid">
+            <div class="sale-modal-img">
+              <img src="${bike.image_url || ''}" alt="${bike.brand || ''} ${bike.model || ''}" onerror="this.src='${defaultImg}'">
+            </div>
+            <div>
+              <h2 class="sale-modal-title">${bike.brand || ''} ${bike.model || ''}</h2>
+              <div class="sale-modal-price">${formattedPrice}</div>
+              ${yearText ? `<p style="margin:0 0 0.75rem 0;">${yearText}</p>` : ''}
+              <p class="sale-modal-desc">${description}</p>
+              <div class="sale-modal-actions">
+                <a href="${whatsappUrl}" target="_blank" rel="noopener" class="primary-button">Contact Dealer</a>
+                <a href="tel:+917310542113" class="secondary-button">Call Now</a>
+              </div>
+            </div>
+          </div>
+        `;
+
+        modal.style.display = 'block';
+
+        // Close when clicking outside the inner content
+        modal.onclick = (e) => {
+          if (e.target === modal) {
+            closeContactModal();
+          }
+        };
+
+        // Close with ESC key
+        document.addEventListener('keydown', escHandler);
+        function escHandler(ev) {
+          if (ev.key === 'Escape') {
+            closeContactModal();
+            document.removeEventListener('keydown', escHandler);
+          }
+        }
+      }
+
+      function closeContactModal() {
+        const modal = document.getElementById('sale-contact-modal');
+        const container = document.getElementById('bike-details-content');
+        if (modal) modal.style.display = 'none';
+        if (container) container.innerHTML = '';
+      }
+
+      // Load bikes initially and set up refresh
+      document.addEventListener('DOMContentLoaded', () => {
+        console.log('Page loaded, initializing bike listings...');
+        loadBikes();
+        // Refresh bike listings every 30 seconds
+        setInterval(loadBikes, 30000);
+      });
+
+      // Add error handler for Supabase client initialization
+      if (!window.supabase) {
+        console.error('Supabase client not loaded properly');
+      } else {
+        console.log('Supabase client initialized successfully');
+      }
+    </script>
+</body>
+</html> 

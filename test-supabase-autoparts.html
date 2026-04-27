@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase Autoparts Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            background: #f5f5f5;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        .results {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Supabase Autoparts Integration Test</h1>
+    
+    <div class="test-section">
+        <h2>Connection Test</h2>
+        <button onclick="testConnection()">Test Supabase Connection</button>
+        <div id="connection-results" class="results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Data Loading Test</h2>
+        <button onclick="testDataLoading()">Load Autoparts Data</button>
+        <div id="data-results" class="results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Brands Test</h2>
+        <button onclick="testBrands()">Get Available Brands</button>
+        <div id="brands-results" class="results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Search Test</h2>
+        <input type="text" id="search-input" placeholder="Search for parts..." style="width: 300px; padding: 8px;">
+        <button onclick="testSearch()">Search Parts</button>
+        <div id="search-results" class="results"></div>
+    </div>
+
+    <script>
+        // Initialize Supabase client
+        const supabaseUrl = 'https://fjhlglaivlbrowsuxres.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqaGxnbGFpdmxicm93c3V4cmVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA1OTUwNDYsImV4cCI6MjA2NjE3MTA0Nn0.0p7afOyJ_Q67d0k7ZTQWnxYIJ6eseuNx_7yjupT6eWo';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        function log(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : 'info';
+            element.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+            element.scrollTop = element.scrollHeight;
+        }
+
+        async function testConnection() {
+            const results = document.getElementById('connection-results');
+            results.innerHTML = '';
+            
+            try {
+                log('connection-results', 'Testing Supabase connection...');
+                
+                // Test basic connection
+                const { data, error } = await supabase
+                    .from('parts')
+                    .select('count')
+                    .limit(1);
+                
+                if (error) {
+                    throw error;
+                }
+                
+                log('connection-results', '✅ Supabase connection successful!', 'success');
+                log('connection-results', 'Database is accessible and responding.');
+                
+            } catch (error) {
+                log('connection-results', `❌ Connection failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testDataLoading() {
+            const results = document.getElementById('data-results');
+            results.innerHTML = '';
+            
+            try {
+                log('data-results', 'Loading autoparts data from Supabase...');
+                
+                const { data, error } = await supabase
+                    .from('parts')
+                    .select('*')
+                    .limit(10);
+                
+                if (error) {
+                    throw error;
+                }
+                
+                log('data-results', `✅ Successfully loaded ${data.length} parts`, 'success');
+                log('data-results', 'Sample data:');
+                
+                data.forEach((part, index) => {
+                    log('data-results', `${index + 1}. ${part.brand} ${part.model} - ${part.name} (₹${part.price})`);
+                });
+                
+            } catch (error) {
+                log('data-results', `❌ Data loading failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testBrands() {
+            const results = document.getElementById('brands-results');
+            results.innerHTML = '';
+            
+            try {
+                log('brands-results', 'Fetching available brands...');
+                
+                const { data, error } = await supabase
+                    .from('parts')
+                    .select('brand')
+                    .order('brand');
+                
+                if (error) {
+                    throw error;
+                }
+                
+                const brands = [...new Set(data.map(part => part.brand))].sort();
+                
+                log('brands-results', `✅ Found ${brands.length} unique brands`, 'success');
+                log('brands-results', 'Available brands:');
+                brands.forEach(brand => {
+                    log('brands-results', `• ${brand}`);
+                });
+                
+            } catch (error) {
+                log('brands-results', `❌ Brands fetch failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testSearch() {
+            const results = document.getElementById('search-results');
+            const searchTerm = document.getElementById('search-input').value.trim();
+            
+            if (!searchTerm) {
+                log('search-results', 'Please enter a search term', 'error');
+                return;
+            }
+            
+            results.innerHTML = '';
+            
+            try {
+                log('search-results', `Searching for: "${searchTerm}"`);
+                
+                const { data, error } = await supabase
+                    .from('parts')
+                    .select('*')
+                    .or(`name.ilike.%${searchTerm}%,brand.ilike.%${searchTerm}%,model.ilike.%${searchTerm}%`)
+                    .limit(10);
+                
+                if (error) {
+                    throw error;
+                }
+                
+                log('search-results', `✅ Found ${data.length} matching parts`, 'success');
+                
+                if (data.length > 0) {
+                    data.forEach((part, index) => {
+                        log('search-results', `${index + 1}. ${part.brand} ${part.model} - ${part.name} (₹${part.price})`);
+                    });
+                } else {
+                    log('search-results', 'No parts found matching your search term.');
+                }
+                
+            } catch (error) {
+                log('search-results', `❌ Search failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-run connection test on page load
+        window.addEventListener('load', () => {
+            testConnection();
+        });
+    </script>
+</body>
+</html> 

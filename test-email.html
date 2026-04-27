@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <form id="emailForm">
+    <input name="to" placeholder="Recipient Email" required><br>
+    <input name="subject" placeholder="Subject" required><br>
+    <textarea name="text" placeholder="Text"></textarea><br>
+    <textarea name="html" placeholder="HTML"></textarea><br>
+    <button type="submit">Send Test Email</button>
+  </form>
+  <pre id="result"></pre>
+  <script>
+    document.getElementById('emailForm').onsubmit = async function(e) {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(this).entries());
+            const res = await fetch('/api/send-confirmation', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+      });
+      document.getElementById('result').textContent = await res.text();
+    };
+  </script>
+</body>
+</html>

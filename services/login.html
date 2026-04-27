@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | LALA MOTORS</title>
+    <link rel="icon" type="image/x-icon" href="../images/logoo neww.png">
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Poppins', Arial, sans-serif;
+        }
+        .modal-blur-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(255,255,255,0.5);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+        }
+        .login-modal {
+            max-width: 400px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+            padding: 2.5rem 2rem 1.5rem 2rem;
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1001;
+        }
+        
+        /* Mobile optimization */
+        @media (max-width: 768px) {
+            .login-modal {
+                top: 60%;
+                margin-top: 60px;
+                max-height: 80vh;
+                overflow-y: auto;
+            }
+            
+            .modal-blur-bg {
+                padding-top: 80px;
+            }
+        }
+        .login-modal .close-btn {
+            position: absolute;
+            top: 18px;
+            right: 18px;
+            background: none;
+            border: none;
+            font-size: 1.3rem;
+            color: #333;
+            cursor: pointer;
+        }
+        .login-modal .logo {
+            display: block;
+            margin: 0 auto 1.2rem auto;
+            max-width: 160px;
+        }
+        .login-modal h2 {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0 0 0.5rem 0;
+        }
+        .login-modal .subtitle {
+            text-align: center;
+            color: #6b6b6b;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .login-modal form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .login-modal input[type="email"],
+        .login-modal input[type="password"] {
+            width: 100%;
+            padding: 0.9rem 1rem;
+            border-radius: 8px;
+            border: 1.5px solid #e0e0e0;
+            background: #fafbfc;
+            font-size: 1rem;
+            transition: border 0.2s;
+        }
+        .login-modal input:focus {
+            outline: none;
+            border-color: #b30000;
+        }
+        .login-modal .sign-in-btn {
+            width: 100%;
+            background: #222;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 0.9rem 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .login-modal .sign-in-btn:hover {
+            background: #b30000;
+        }
+        .login-modal .divider {
+            display: flex;
+            align-items: center;
+            margin: 2rem 0 1rem 0;
+        }
+        .login-modal .divider span {
+            flex: 1;
+            height: 1px;
+            background: #eee;
+        }
+        .login-modal .divider p {
+            margin: 0 1rem;
+            color: #888;
+            font-size: 0.95rem;
+        }
+        .login-modal .create-account-btn {
+            width: 100%;
+            background: #fff;
+            color: #222;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 0.9rem 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1.2rem;
+            cursor: pointer;
+            transition: border 0.2s, background 0.2s;
+        }
+        .login-modal .create-account-btn:hover {
+            background: #f7f7f7;
+            border-color: #b30000;
+        }
+        .login-modal .terms {
+            text-align: center;
+            color: #888;
+            font-size: 0.93rem;
+            margin-top: 0.5rem;
+        }
+        .login-modal .terms a {
+            color: #b30000;
+            text-decoration: underline;
+        }
+        @media (max-width: 500px) {
+            .login-modal {
+                width: 95vw;
+                max-width: 95vw;
+                min-width: unset;
+                padding: 2rem 1.2rem 1.5rem 1.2rem;
+                left: 50%;
+                top: 60%;
+                transform: translate(-50%, -50%);
+                margin-top: 80px;
+                max-height: 75vh;
+                overflow-y: auto;
+            }
+            .login-modal .logo {
+                max-width: 70vw;
+            }
+            .login-modal h2 {
+                font-size: 1.5rem;
+            }
+            .login-modal .subtitle {
+                font-size: 0.98rem;
+            }
+            .login-modal input[type="email"],
+            .login-modal input[type="password"] {
+                font-size: 1.05rem;
+                padding: 1rem 1.1rem;
+            }
+            .login-modal .sign-in-btn,
+            .login-modal .create-account-btn {
+                font-size: 1.08rem;
+                padding: 1rem 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="modal-blur-bg"></div>
+    <div class="login-modal">
+        <button class="close-btn" onclick="window.location.href='../index.html'" title="Close"><i class="fa-solid fa-xmark"></i></button>
+        <img src="../images/logoo neww.png" alt="LALA MOTORS Logo" class="logo">
+        <h2>Welcome to LALA MOTORS</h2>
+        <div class="subtitle">Book, service, and upgrade your bike with trusted experts at LALA MOTORS.</div>
+        <form>
+            <input type="email" placeholder="Email" autocomplete="email" required>
+            <input type="password" placeholder="Password (min. 8 characters)" autocomplete="current-password" minlength="8" required>
+            <button type="submit" class="sign-in-btn">Sign In</button>
+        </form>
+        <div class="divider"><span></span><p>New to LALA MOTORS?</p><span></span></div>
+        <button class="create-account-btn" onclick="window.location.href='register.html'">Create an Account</button>
+        <div class="terms">
+            By continuing, you agree to LALA MOTORS's <a href="#">Terms of Service</a> and acknowledge our <a href="#">Privacy Policy</a>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+      const authSupabaseUrl = 'https://fjhlglaivlbrowsuxres.supabase.co';
+      const authSupabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqaGxnbGFpdmxicm93c3V4cmVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA1OTUwNDYsImV4cCI6MjA2NjE3MTA0Nn0.0p7afOyJ_Q67d0k7ZTQWnxYIJ6eseuNx_7yjupT6eWo';
+      const authClient = window.supabase?.createClient
+        ? window.supabase.createClient(authSupabaseUrl, authSupabaseKey)
+        : null;
+
+      const loginForm = document.querySelector('.login-modal form');
+      if (loginForm) {
+        loginForm.addEventListener('submit', async function(e) {
+          e.preventDefault();
+          const rawEmail = this.querySelector('input[type="email"]').value || '';
+          const email = rawEmail.trim().toLowerCase();
+          const password = this.querySelector('input[type="password"]').value || '';
+          const signInBtn = this.querySelector('.sign-in-btn');
+
+          let errorDiv = document.getElementById('login-error');
+          if (!errorDiv) {
+            errorDiv = document.createElement('div');
+            errorDiv.id = 'login-error';
+            errorDiv.style.color = 'red';
+            errorDiv.style.textAlign = 'center';
+            errorDiv.style.margin = '10px 0';
+            this.parentElement.insertBefore(errorDiv, this.nextSibling);
+          }
+          errorDiv.textContent = '';
+
+          if (!email || !password) {
+            errorDiv.textContent = 'Please enter both email and password.';
+            return;
+          }
+
+          signInBtn.disabled = true;
+          signInBtn.textContent = 'Signing In...';
+
+          try {
+            if (!authClient) {
+              errorDiv.textContent = 'Auth client failed to initialize. Please refresh and try again.';
+              return;
+            }
+
+            const { error } = await authClient.auth.signInWithPassword({ email, password });
+            if (error) {
+              errorDiv.textContent = error.message || 'Sign in failed. Please try again.';
+              return;
+            }
+            window.location.href = '../index.html';
+          } catch (err) {
+            errorDiv.textContent = 'Network error while signing in. Please try again.';
+          } finally {
+            signInBtn.disabled = false;
+            signInBtn.textContent = 'Sign In';
+          }
+        });
+      }
+    </script>
+    <!-- HEADER/NAV START -->
+    <div id="notification" class="notification"></div>
+    <div id="cart-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeCartModal()">&times;</span>
+            <h2>Shopping Cart</h2>
+            <div id="cart-items"></div>
+            <div class="cart-total">
+                <strong>Total: ₹</strong>
+                <span id="cart-total">0</span>
+            </div>
+            <button onclick="checkoutCart()" class="checkout-btn">Proceed to Checkout</button>
+        </div>
+    </div>
+    <div id="sidebar-overlay" class="sidebar-overlay" style="display:none;"></div>
+    <nav id="sidebar-menu" class="sidebar-menu" style="display:none;">
+      <div class="sidebar-header">
+        <button id="close-sidebar" class="close-sidebar" title="Close">&times;</button>
+      </div>
+      <div class="sidebar-profile-section">
+        <div class="sidebar-profile-info">
+          <i class="fa-regular fa-user sidebar-profile-icon"></i>
+          <div>
+            <span class="sidebar-profile-greeting">Hello,</span>
+            <span class="sidebar-profile-name" id="sidebar-profile-name">Guest</span>
+          </div>
+        </div>
+      </div>
+      <div class="sidebar-section-title">Account Settings</div>
+      <ul class="sidebar-list">
+        <li><a href="#" id="sidebar-profile-info"><i class="fa-solid fa-user-pen"></i> Profile information</a></li>
+        <li><a href="#" id="sidebar-manage-address"><i class="fa-solid fa-location-dot"></i> Manage Address</a></li>
+        <li><a href="#" id="sidebar-orders"><i class="fa-solid fa-box"></i> My Orders</a></li>
+        <li><a href="cart.html" id="sidebar-cart"><i class="fa-solid fa-cart-shopping"></i> Cart</a></li>
+        <li><a href="#" id="sidebar-subscriptions"><i class="fa-solid fa-id-badge"></i> Subscriptions</a></li>
+      </ul>
+      <div class="sidebar-section-title">Payment Setting</div>
+      <ul class="sidebar-list">
+        <li><a href="#" id="sidebar-upi-saved"><i class="fa-brands fa-google-pay"></i> UPI Saved</a></li>
+        <li><a href="#" id="sidebar-add-payment"><i class="fa-solid fa-credit-card"></i> Add New Payment</a></li>
+      </ul>
+      <div class="sidebar-section-title">MY STUFF</div>
+      <ul class="sidebar-list">
+        <li><a href="#" id="sidebar-last-service"><i class="fa-solid fa-clock-rotate-left"></i> Last services booked</a></li>
+        <li><a href="#" id="sidebar-invoices"><i class="fa-solid fa-file-invoice"></i> Invoices</a></li>
+      </ul>
+      <ul class="sidebar-list">
+        <li><a href="#" id="sidebar-support"><i class="fa-solid fa-headset"></i> Customer Care</a></li>
+        <li id="sidebar-logout-li" style=""><a href="#" id="sidebar-logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
+      </ul>
+    </nav>
+    <header>
+        <div class="top-bar">
+            <div class="contact-info">
+                <a href="tel:+917310542113"><i class="fas fa-phone"></i> 7310542113</a>
+                <a href="mailto:lalamotors1@gmail.com"><i class="fas fa-envelope"></i> lalamotors1@gmail.com</a>
+                <a href="https://instagram.com/lalamotors1" target="_blank"><i class="fab fa-instagram"></i> @lalamotors1</a>
+                <a href="https://www.google.com/maps/place/Lala+Motors/@27.1674164,78.0161954,17z/data=!4m6!3m5!1s0x397477aa18fdfe99:0xcfb37df5b30ed1a6!8m2!3d27.1676738!4d78.0159854!16s%2Fg%2F11vl7kctdh?entry=ttu&amp;g_ep=EgoyMDI1MDYyMy4yIKXMDSoASAFQAw%3D%3D" target="_blank"><i class="fas fa-location-dot"></i> 4/143 Ahmedia Market Baluganj Agra</a>
+            </div>
+        </div>
+        <nav>
+            <button id="sidebar-hamburger" class="sidebar-hamburger" title="Menu" aria-label="Open menu">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect y="7" width="32" height="3" rx="1.5" fill="#FFD700"/>
+                    <rect y="14.5" width="32" height="3" rx="1.5" fill="#FFD700"/>
+                    <rect y="22" width="32" height="3" rx="1.5" fill="#FFD700"/>
+                </svg>
+            </button>
+            <div class="logo">
+                <img src="../images/logoo neww.png" alt="LALA MOTORS Logo" class="main-logo">
+            </div>
+            <ul class="nav-links">
+                <li><a href="../index.html#home">Home</a></li>
+                <li><a href="../index.html#services">Services</a></li>
+                <li><a href="../index.html#booking">Booking</a></li>
+                <li><a href="../index.html#contact">Contact</a></li>
+                <li><a href="about.html">About Us</a></li>
+                <li>
+                  <div class="cart-icon-container">
+                    <a href="cart.html" class="cart-icon" title="Cart">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span id="cart-count" class="cart-item-count">0</span>
+                    </a>
+                  </div>
+                </li>
+            </ul>
+            <a href="login.html" class="login-btn" title="Login">
+              <i class="fa-regular fa-user"></i>
+            </a>
+        </nav>
+    </header>
+    <!-- HEADER/NAV END -->
+</body>
+</html> 

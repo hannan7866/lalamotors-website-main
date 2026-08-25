@@ -2604,8 +2604,8 @@ if (!window.supabaseClient) {
       const glareOverlay = card.querySelector('.tilt-glare-overlay');
       const glareElement = card.querySelector('.tilt-glare-element');
 
-      const maxTilt = card.classList.contains('service-card') ? 14 :
-                      card.classList.contains('brand-logo-card') ? 12 : 8;
+      const maxTilt = card.classList.contains('service-card') ? 12 :
+                      card.classList.contains('brand-logo-card') ? 10 : 8;
 
       function onMouseMove(e) {
         if (!rect) rect = card.getBoundingClientRect();
@@ -2615,15 +2615,16 @@ if (!window.supabaseClient) {
         const width = rect.width;
         const height = rect.height;
 
-        const xPercent = (x / width) * 2 - 1;
-        const yPercent = (y / height) * 2 - 1;
+        // Clamp between -1 and 1
+        const xPercent = Math.max(-1, Math.min(1, (x / width) * 2 - 1));
+        const yPercent = Math.max(-1, Math.min(1, (y / height) * 2 - 1));
 
         const rotX = (-yPercent * maxTilt).toFixed(2);
         const rotY = (xPercent * maxTilt).toFixed(2);
 
         if (rafId) cancelAnimationFrame(rafId);
         rafId = requestAnimationFrame(() => {
-          card.style.transform = `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale3d(1.03, 1.03, 1.03)`;
+          card.style.transform = `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale3d(1.04, 1.04, 1.04) translateZ(6px)`;
           if (glareOverlay && glareElement) {
             glareOverlay.style.opacity = '1';
             glareElement.style.left = `${x}px`;
@@ -2632,15 +2633,15 @@ if (!window.supabaseClient) {
         });
       }
 
-      function onMouseEnter() {
+      function onMouseEnter(e) {
         rect = card.getBoundingClientRect();
-        card.style.transition = 'transform 0.1s ease-out, box-shadow 0.2s ease-out';
+        card.style.transition = 'transform 0.12s ease-out, box-shadow 0.25s ease-out';
       }
 
       function onMouseLeave() {
         if (rafId) cancelAnimationFrame(rafId);
         card.style.transition = 'transform 0.5s cubic-bezier(0.2, 0.8, 0.4, 1), box-shadow 0.5s ease';
-        card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+        card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1) translateZ(0px)';
         if (glareOverlay) {
           glareOverlay.style.opacity = '0';
         }

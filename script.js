@@ -2584,7 +2584,7 @@ if (!window.supabaseClient) {
   // 2. Interactive 3D Card Hover & Specular Light Reflection
   function setup3DTilt() {
     const tiltElements = document.querySelectorAll(
-      '.service-card, .bike-card, .brand-logo-card, .booking-form-container'
+      '.service-card, .bike-card, .brand-logo-card'
     );
 
     tiltElements.forEach(card => {

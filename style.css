@@ -4811,8 +4811,7 @@ button, a, .primary-button, .secondary-button, .add-button { min-width: 44px; mi
 .tilt-card-3d,
 .service-card,
 .bike-card,
-.brand-logo-card,
-.booking-form-container {
+.brand-logo-card {
     transform-style: preserve-3d;
     transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.4, 1), box-shadow 0.25s cubic-bezier(0.2, 0.8, 0.4, 1), border-color 0.25s ease;
     will-change: transform;

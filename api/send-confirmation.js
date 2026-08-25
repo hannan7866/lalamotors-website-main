@@ -1,15 +1,6 @@
 require('dotenv').config();
 const nodemailer = require('nodemailer');
 
-// --- Nodemailer Transporter Setup ---
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_PASS,
-    },
-});
-
 module.exports = async (req, res) => {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method Not Allowed' });
@@ -20,6 +11,17 @@ module.exports = async (req, res) => {
     if (!to || !subject || !html) {
         return res.status(400).json({ success: false, error: 'Missing required email fields: to, subject, html.' });
     }
+
+    const gmailUser = process.env.GMAIL_USER || 'lalamotors1@gmail.com';
+    const gmailPass = (process.env.GMAIL_PASS || '').replace(/\s+/g, '');
+
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: gmailUser,
+            pass: gmailPass,
+        },
+    });
 
     console.log(`Received email request for: ${to}`);
 

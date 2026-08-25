@@ -3,286 +3,579 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register | LALA MOTORS</title>
+    <title>Create Account | LALA MOTORS</title>
+    <link rel="icon" type="image/x-icon" href="../images/logoo neww.png">
     <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
             margin: 0;
+            padding: 0;
             font-family: 'Poppins', Arial, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #172554 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
-        .modal-blur-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(255,255,255,0.5);
-            backdrop-filter: blur(8px);
-            z-index: 1000;
+
+        .auth-page-main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem 1.5rem;
+            position: relative;
+            overflow: hidden;
         }
-        .register-modal {
-            max-width: 400px;
-            margin: 40px auto;
-            background: #fff;
-            border-radius: 18px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.10);
-            padding: 2.5rem 2rem 1.5rem 2rem;
-            position: fixed;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 1001;
-        }
-        .register-modal .close-btn {
+
+        .auth-bg-orb {
             position: absolute;
-            top: 18px;
-            right: 18px;
-            background: none;
-            border: none;
-            font-size: 1.3rem;
-            color: #333;
-            cursor: pointer;
+            border-radius: 50%;
+            filter: blur(80px);
+            pointer-events: none;
+            opacity: 0.22;
         }
-        .register-modal .logo {
-            display: block;
-            margin: 0 auto 1.2rem auto;
-            max-width: 160px;
+        .auth-orb-1 {
+            width: 400px;
+            height: 400px;
+            background: #FFD700;
+            top: 5%;
+            left: 10%;
         }
-        .register-modal h2 {
+        .auth-orb-2 {
+            width: 500px;
+            height: 500px;
+            background: #2B4B8C;
+            bottom: 5%;
+            right: 10%;
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 480px;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-top: 3px solid #FFD700;
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.4), 0 0 30px rgba(43, 75, 140, 0.2);
+            padding: 2.5rem 2.2rem 2rem 2.2rem;
+            position: relative;
+            z-index: 10;
             text-align: center;
-            font-size: 2rem;
+            transform-style: preserve-3d;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .auth-card:hover {
+            box-shadow: 0 30px 70px -12px rgba(0, 0, 0, 0.5), 0 0 35px rgba(255, 215, 0, 0.25);
+        }
+
+        .auth-card-logo-wrap {
+            margin-bottom: 1rem;
+        }
+
+        .auth-card-logo {
+            max-height: 50px;
+            width: auto;
+            display: inline-block;
+        }
+
+        .auth-card h2 {
+            font-size: 1.75rem;
             font-weight: 700;
-            margin: 0 0 0.5rem 0;
+            color: #1e293b;
+            margin: 0 0 0.4rem 0;
+            letter-spacing: -0.5px;
         }
-        .register-modal .subtitle {
-            text-align: center;
-            color: #6b6b6b;
-            font-size: 1rem;
+
+        .auth-card .subtitle {
+            color: #64748b;
+            font-size: 0.95rem;
+            line-height: 1.5;
             margin-bottom: 1.5rem;
         }
-        .register-modal form {
+
+        .auth-form {
             display: flex;
             flex-direction: column;
             gap: 1rem;
+            text-align: left;
         }
-        .register-modal input[type="text"],
-        .register-modal input[type="email"],
-        .register-modal input[type="password"],
-        .register-modal input[type="tel"] {
-            width: 100%;
-            padding: 0.9rem 1rem;
-            border-radius: 8px;
-            border: 1.5px solid #e0e0e0;
-            background: #fafbfc;
-            font-size: 1rem;
-            transition: border 0.2s;
+
+        .input-group {
+            position: relative;
         }
-        .register-modal input:focus {
-            outline: none;
-            border-color: #b30000;
+
+        .input-group label {
+            display: block;
+            font-size: 0.86rem;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 0.35rem;
         }
-        .register-modal .terms-row {
+
+        .input-wrapper {
+            position: relative;
             display: flex;
             align-items: center;
-            font-size: 0.97rem;
-            margin: 0.5rem 0 0.5rem 0;
         }
-        .register-modal .terms-row input[type="checkbox"] {
-            margin-right: 0.5rem;
+
+        .input-wrapper i.input-icon {
+            position: absolute;
+            left: 14px;
+            color: #94a3b8;
+            font-size: 0.95rem;
+            pointer-events: none;
+            transition: color 0.2s;
         }
-        .register-modal .register-btn {
+
+        .auth-form input[type="email"],
+        .auth-form input[type="password"],
+        .auth-form input[type="text"],
+        .auth-form input[type="tel"] {
             width: 100%;
-            background: #222;
-            color: #fff;
+            padding: 0.8rem 1rem 0.8rem 2.5rem;
+            border-radius: 10px;
+            border: 1.5px solid #cbd5e1;
+            background: #f8fafc;
+            font-size: 0.95rem;
+            color: #1e293b;
+            box-sizing: border-box;
+            transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
+        }
+
+        .auth-form input:focus {
+            outline: none;
+            border-color: #2B4B8C;
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(43, 75, 140, 0.15);
+        }
+
+        .auth-form input:focus + i.input-icon {
+            color: #2B4B8C;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 14px;
+            background: none;
             border: none;
-            border-radius: 8px;
-            padding: 0.9rem 0;
-            font-size: 1.1rem;
-            font-weight: 600;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 0.95rem;
+            padding: 4px;
+        }
+
+        .toggle-password:hover {
+            color: #475569;
+        }
+
+        .terms-checkbox-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 0.2rem;
+            line-height: 1.4;
+        }
+
+        .terms-checkbox-row input[type="checkbox"] {
+            margin-top: 0.15rem;
+            accent-color: #2B4B8C;
+            width: 1rem;
+            height: 1rem;
+            cursor: pointer;
+        }
+
+        .terms-checkbox-row a {
+            color: #2B4B8C;
+            text-decoration: underline;
+            font-weight: 500;
+        }
+
+        .register-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #1e3a8a 0%, #2B4B8C 100%);
+            color: #FFD700;
+            border: none;
+            border-radius: 10px;
+            padding: 0.95rem;
+            font-size: 1.05rem;
+            font-weight: 700;
             margin-top: 0.5rem;
             cursor: pointer;
-            transition: background 0.2s;
+            box-shadow: 0 4px 14px rgba(43, 75, 140, 0.35);
+            transition: transform 0.15s, box-shadow 0.2s, background 0.2s;
         }
-        .register-modal .register-btn:hover {
-            background: #b30000;
+
+        .register-btn:hover {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #1e3a8a;
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+            transform: translateY(-2px);
         }
-        .register-modal .divider {
+
+        .register-btn:active {
+            transform: translateY(1px);
+        }
+
+        .auth-divider {
             display: flex;
             align-items: center;
-            margin: 2rem 0 1rem 0;
+            margin: 1.6rem 0 1.1rem 0;
         }
-        .register-modal .divider span {
+
+        .auth-divider span {
             flex: 1;
             height: 1px;
-            background: #eee;
+            background: #e2e8f0;
         }
-        .register-modal .divider p {
+
+        .auth-divider p {
             margin: 0 1rem;
-            color: #888;
-            font-size: 0.95rem;
+            color: #94a3b8;
+            font-size: 0.88rem;
+            font-weight: 500;
         }
-        .register-modal .sign-in-btn {
+
+        .switch-auth-btn {
             width: 100%;
-            background: #fff;
-            color: #222;
-            border: 1.5px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 0.9rem 0;
-            font-size: 1.1rem;
+            background: #ffffff;
+            color: #1e293b;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 0.85rem;
+            font-size: 0.98rem;
             font-weight: 600;
-            margin-bottom: 1.2rem;
             cursor: pointer;
-            transition: border 0.2s, background 0.2s;
+            transition: border-color 0.2s, background-color 0.2s, color 0.2s;
         }
-        .register-modal .sign-in-btn:hover {
-            background: #f7f7f7;
-            border-color: #b30000;
+
+        .switch-auth-btn:hover {
+            background: #f8fafc;
+            border-color: #2B4B8C;
+            color: #2B4B8C;
         }
-        .register-modal .terms {
-            text-align: center;
-            color: #888;
-            font-size: 0.93rem;
-            margin-top: 0.5rem;
+
+        #register-error {
+            background: #fef2f2;
+            border-left: 4px solid #ef4444;
+            color: #b91c1c;
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            display: none;
         }
-        .register-modal .terms a {
-            color: #b30000;
-            text-decoration: underline;
-        }
-        @media (max-width: 500px) {
-            .register-modal {
-                width: 95vw;
-                max-width: 95vw;
-                min-width: unset;
-                padding: 2rem 1.2rem 1.5rem 1.2rem;
-                left: 50%;
-                top: 50%;
-                transform: translate(-50%, -50%);
+
+        @media (max-width: 480px) {
+            .auth-card {
+                padding: 1.8rem 1.3rem 1.5rem 1.3rem;
+                border-radius: 16px;
             }
-            .register-modal .logo {
-                max-width: 70vw;
-            }
-            .register-modal h2 {
-                font-size: 1.5rem;
-            }
-            .register-modal .subtitle {
-                font-size: 0.98rem;
-            }
-            .register-modal input[type="text"],
-            .register-modal input[type="email"],
-            .register-modal input[type="password"],
-            .register-modal input[type="tel"] {
-                font-size: 1.05rem;
-                padding: 1rem 1.1rem;
-            }
-            .register-modal .register-btn,
-            .register-modal .sign-in-btn {
-                font-size: 1.08rem;
-                padding: 1rem 0;
+            .auth-card h2 {
+                font-size: 1.45rem;
             }
         }
     </style>
 </head>
 <body>
-    <div class="modal-blur-bg"></div>
-    <div class="register-modal">
-        <button class="close-btn" onclick="window.location.href='../services/login.html'" title="Close"><i class="fa-solid fa-xmark"></i></button>
-        <img src="../images/logoo neww.png" alt="LALA MOTORS Logo" class="logo">
-        <h2>Create an Account</h2>
-        <div class="subtitle">Get started with LALA MOTORS</div>
-        <form id="register-form">
-            <input type="text" id="register-name" placeholder="Full Name" autocomplete="name" required>
-            <input type="tel" id="register-phone" placeholder="Phone Number (Optional)" autocomplete="tel">
-            <input type="email" id="register-email" placeholder="Email" autocomplete="email" required>
-            <input type="password" id="register-password" placeholder="Password (min. 8 characters)" autocomplete="new-password" minlength="8" required>
-            <input type="password" id="register-confirm-password" placeholder="Confirm Password" autocomplete="new-password" minlength="8" required>
-            <div class="terms-row">
-                <input type="checkbox" id="register-terms" required>
-                <label for="register-terms">I agree to the <b>Terms & Privacy Policy</b>.</label>
+    <!-- Notifications and Cart Modal -->
+    <div id="notification" class="notification"></div>
+    <div id="cart-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeCartModal()">&times;</span>
+            <h2>Shopping Cart</h2>
+            <div id="cart-items"></div>
+            <div class="cart-total">
+                <strong>Total: ₹</strong>
+                <span id="cart-total">0</span>
             </div>
-            <button type="submit" class="register-btn">Create Account</button>
-        </form>
-        <div id="register-error" style="color:red;text-align:center;margin:10px 0;"></div>
-        <div class="divider"><span></span><p>Already have an account?</p><span></span></div>
-        <button class="sign-in-btn" onclick="window.location.href='login.html'">Sign In</button>
-        <div class="terms">
-            By signing up, you agree to LALA MOTORS's <a href="#">Terms of Service</a> and acknowledge our <a href="#">Privacy Policy</a>
+            <button onclick="checkoutCart()" class="checkout-btn">Proceed to Checkout</button>
         </div>
     </div>
+
+    <!-- Sidebar Overlay & Menu -->
+    <div id="sidebar-overlay" class="sidebar-overlay" style="display:none;"></div>
+    <nav id="sidebar-menu" class="sidebar-menu" style="display:none;">
+      <div class="sidebar-header">
+        <button id="close-sidebar" class="close-sidebar" title="Close">&times;</button>
+      </div>
+      <div class="sidebar-profile-section">
+        <div class="sidebar-profile-info">
+          <i class="fa-regular fa-user sidebar-profile-icon"></i>
+          <div>
+            <span class="sidebar-profile-greeting">Hello,</span>
+            <span class="sidebar-profile-name" id="sidebar-profile-name">Guest</span>
+          </div>
+        </div>
+      </div>
+      <div class="sidebar-section-title">Account Settings</div>
+      <ul class="sidebar-list">
+        <li><a href="#" id="sidebar-profile-info"><i class="fa-solid fa-user-pen"></i> Profile information</a></li>
+        <li><a href="#" id="sidebar-manage-address"><i class="fa-solid fa-location-dot"></i> Manage Address</a></li>
+        <li><a href="#" id="sidebar-orders"><i class="fa-solid fa-box"></i> My Orders</a></li>
+        <li><a href="cart.html" id="sidebar-cart"><i class="fa-solid fa-cart-shopping"></i> Cart</a></li>
+        <li><a href="#" id="sidebar-subscriptions"><i class="fa-solid fa-id-badge"></i> Subscriptions</a></li>
+      </ul>
+      <div class="sidebar-section-title">Payment Setting</div>
+      <ul class="sidebar-list">
+        <li><a href="#" id="sidebar-upi-saved"><i class="fa-brands fa-google-pay"></i> UPI Saved</a></li>
+        <li><a href="#" id="sidebar-add-payment"><i class="fa-solid fa-credit-card"></i> Add New Payment</a></li>
+      </ul>
+      <div class="sidebar-section-title">MY STUFF</div>
+      <ul class="sidebar-list">
+        <li><a href="#" id="sidebar-last-service"><i class="fa-solid fa-clock-rotate-left"></i> Last services booked</a></li>
+        <li><a href="#" id="sidebar-invoices"><i class="fa-solid fa-file-invoice"></i> Invoices</a></li>
+      </ul>
+      <ul class="sidebar-list">
+        <li><a href="#" id="sidebar-support"><i class="fa-solid fa-headset"></i> Customer Care</a></li>
+        <li id="sidebar-logout-li"><a href="#" id="sidebar-logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
+      </ul>
+    </nav>
+
+    <!-- Header / Navigation -->
+    <header>
+        <div class="top-bar">
+            <div class="contact-info">
+                <a href="tel:+917310542113"><i class="fas fa-phone"></i> 7310542113</a>
+                <a href="mailto:lalamotors1@gmail.com"><i class="fas fa-envelope"></i> lalamotors1@gmail.com</a>
+                <a href="https://instagram.com/lalamotors1" target="_blank"><i class="fab fa-instagram"></i> @lalamotors1</a>
+                <a href="https://www.google.com/maps/place/Lala+Motors/@27.1674164,78.0161954,17z/data=!4m6!3m5!1s0x397477aa18fdfe99:0xcfb37df5b30ed1a6!8m2!3d27.1676738!4d78.0159854!16s%2Fg%2F11vl7kctdh?entry=ttu&amp;g_ep=EgoyMDI1MDYyMy4yIKXMDSoASAFQAw%3D%3D" target="_blank"><i class="fas fa-location-dot"></i> 4/143 Ahmedia Market Baluganj Agra</a>
+            </div>
+        </div>
+        <nav>
+            <button id="sidebar-hamburger" class="sidebar-hamburger" title="Menu" aria-label="Open menu">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect y="7" width="32" height="3" rx="1.5" fill="#FFD700"/>
+                    <rect y="14.5" width="32" height="3" rx="1.5" fill="#FFD700"/>
+                    <rect y="22" width="32" height="3" rx="1.5" fill="#FFD700"/>
+                </svg>
+            </button>
+            <div class="logo">
+                <a href="../index.html">
+                    <img src="../images/logoo neww.png" alt="LALA MOTORS Logo" class="main-logo">
+                </a>
+            </div>
+            <ul class="nav-links">
+                <li><a href="../index.html#home">Home</a></li>
+                <li><a href="../index.html#services">Services</a></li>
+                <li><a href="../index.html#booking">Booking</a></li>
+                <li><a href="../index.html#contact">Contact</a></li>
+                <li><a href="about.html">About Us</a></li>
+                <li>
+                  <div class="cart-icon-container">
+                    <a href="cart.html" class="cart-icon" title="Cart">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span id="cart-count" class="cart-item-count">0</span>
+                    </a>
+                  </div>
+                </li>
+            </ul>
+            <a href="login.html" class="login-btn" title="Login">
+              <i class="fa-regular fa-user"></i>
+            </a>
+        </nav>
+    </header>
+
+    <!-- Main Auth Container -->
+    <main class="auth-page-main">
+        <div class="auth-bg-orb auth-orb-1"></div>
+        <div class="auth-bg-orb auth-orb-2"></div>
+
+        <div class="auth-card">
+            <div class="auth-card-logo-wrap">
+                <img src="../images/logoo neww.png" alt="LALA MOTORS Logo" class="auth-card-logo">
+            </div>
+            <h2>Create an Account</h2>
+            <div class="subtitle">Join LALA MOTORS for seamless service tracking & bookings.</div>
+            
+            <div id="register-error"></div>
+
+            <form class="auth-form" id="registerForm">
+                <div class="input-group">
+                    <label for="registerName">Full Name</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="registerName" placeholder="e.g. John Doe" autocomplete="name" required>
+                        <i class="fa-regular fa-user input-icon"></i>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="registerPhone">Phone Number (Optional)</label>
+                    <div class="input-wrapper">
+                        <input type="tel" id="registerPhone" placeholder="e.g. 9876543210" autocomplete="tel">
+                        <i class="fa-solid fa-phone input-icon"></i>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="registerEmail">Email Address</label>
+                    <div class="input-wrapper">
+                        <input type="email" id="registerEmail" placeholder="e.g. user@example.com" autocomplete="email" required>
+                        <i class="fa-regular fa-envelope input-icon"></i>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="registerPassword">Password</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="registerPassword" placeholder="Min. 8 characters" autocomplete="new-password" minlength="8" required>
+                        <i class="fa-solid fa-lock input-icon"></i>
+                        <button type="button" class="toggle-password" id="toggleRegPasswordBtn" title="Show/Hide Password">
+                            <i class="fa-regular fa-eye" id="toggleRegPasswordIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="registerConfirmPassword">Confirm Password</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="registerConfirmPassword" placeholder="Re-enter password" autocomplete="new-password" minlength="8" required>
+                        <i class="fa-solid fa-shield-halved input-icon"></i>
+                    </div>
+                </div>
+
+                <div class="terms-checkbox-row">
+                    <input type="checkbox" id="registerTerms" required>
+                    <label for="registerTerms">
+                        I agree to LALA MOTORS's <a href="#">Terms of Service</a> & <a href="#">Privacy Policy</a>.
+                    </label>
+                </div>
+
+                <button type="submit" class="register-btn" id="registerSubmitBtn">Create Account</button>
+            </form>
+
+            <div class="auth-divider">
+                <span></span>
+                <p>Already have an account?</p>
+                <span></span>
+            </div>
+
+            <button type="button" class="switch-auth-btn" onclick="window.location.href='login.html'">Sign In Instead</button>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer id="contact">
+        <div class="footer-bottom" style="text-align:center; padding: 1.5rem; color: #94a3b8; font-size: 0.9rem;">
+            <p>&copy; 2024 LALA MOTORS. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Supabase Auth Script -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../script.js"></script>
     <script>
       const authSupabaseUrl = 'https://fjhlglaivlbrowsuxres.supabase.co';
       const authSupabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqaGxnbGFpdmxicm93c3V4cmVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA1OTUwNDYsImV4cCI6MjA2NjE3MTA0Nn0.0p7afOyJ_Q67d0k7ZTQWnxYIJ6eseuNx_7yjupT6eWo';
       const authClient = window.supabase?.createClient
         ? window.supabase.createClient(authSupabaseUrl, authSupabaseKey)
-        : null;
-      const registerForm = document.getElementById('register-form');
-      registerForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const name = document.getElementById('register-name').value.trim();
-        const phone = document.getElementById('register-phone').value.trim();
-        const email = document.getElementById('register-email').value.trim().toLowerCase();
-        const password = document.getElementById('register-password').value;
-        const confirmPassword = document.getElementById('register-confirm-password').value;
-        const termsChecked = document.getElementById('register-terms').checked;
-        const errorDiv = document.getElementById('register-error');
-        errorDiv.textContent = '';
-        errorDiv.style.color = 'red';
-        if (!termsChecked) {
-          errorDiv.textContent = 'You must agree to the Terms & Privacy Policy.';
-          return;
-        }
-        if (!name) {
-          errorDiv.textContent = 'Please enter your full name.';
-          return;
-        }
-        if (password !== confirmPassword) {
-          errorDiv.textContent = 'Passwords do not match.';
-          return;
-        }
-        const registerBtn = document.querySelector('.register-btn');
-        registerBtn.disabled = true;
-        registerBtn.textContent = 'Registering...';
-        try {
-          if (!authClient) {
-            errorDiv.textContent = 'Auth client failed to initialize. Please refresh and try again.';
+        : (window.supabaseClient || null);
+
+      // Password toggle
+      const toggleRegBtn = document.getElementById('toggleRegPasswordBtn');
+      const regPasswordInput = document.getElementById('registerPassword');
+      const toggleRegIcon = document.getElementById('toggleRegPasswordIcon');
+      
+      if (toggleRegBtn && regPasswordInput && toggleRegIcon) {
+        toggleRegBtn.addEventListener('click', () => {
+          const type = regPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+          regPasswordInput.setAttribute('type', type);
+          toggleRegIcon.className = type === 'password' ? 'fa-regular fa-eye' : 'fa-regular fa-eye-slash';
+        });
+      }
+
+      const registerForm = document.getElementById('registerForm');
+      if (registerForm) {
+        registerForm.addEventListener('submit', async function(e) {
+          e.preventDefault();
+          const name = (document.getElementById('registerName').value || '').trim();
+          const phone = (document.getElementById('registerPhone').value || '').trim();
+          const email = (document.getElementById('registerEmail').value || '').trim().toLowerCase();
+          const password = document.getElementById('registerPassword').value || '';
+          const confirmPassword = document.getElementById('registerConfirmPassword').value || '';
+          const termsChecked = document.getElementById('registerTerms').checked;
+          const registerBtn = document.getElementById('registerSubmitBtn');
+          const errorDiv = document.getElementById('register-error');
+
+          if (errorDiv) {
+            errorDiv.style.display = 'none';
+            errorDiv.style.background = '#fef2f2';
+            errorDiv.style.borderLeftColor = '#ef4444';
+            errorDiv.style.color = '#b91c1c';
+            errorDiv.textContent = '';
+          }
+
+          if (!termsChecked) {
+            if (errorDiv) {
+              errorDiv.textContent = 'Please accept the Terms & Privacy Policy.';
+              errorDiv.style.display = 'block';
+            }
             return;
           }
 
-          const { error } = await authClient.auth.signUp({
-            email,
-            password,
-            options: { data: { name, phone } }
-          });
-
-          if (error) {
-            errorDiv.textContent = error.message || 'Registration failed. Please try again.';
+          if (!name) {
+            if (errorDiv) {
+              errorDiv.textContent = 'Please enter your full name.';
+              errorDiv.style.display = 'block';
+            }
             return;
           }
 
-          // Sign in immediately after successful signup for smoother UX.
-          const { error: signInError } = await authClient.auth.signInWithPassword({ email, password });
-          if (signInError) {
-            errorDiv.style.color = 'green';
-            errorDiv.textContent = 'Account created successfully. Please sign in now.';
+          if (password !== confirmPassword) {
+            if (errorDiv) {
+              errorDiv.textContent = 'Passwords do not match.';
+              errorDiv.style.display = 'block';
+            }
+            return;
+          }
+
+          registerBtn.disabled = true;
+          registerBtn.textContent = 'Creating Account...';
+
+          try {
+            if (!authClient) {
+              throw new Error('Auth client failed to initialize. Please refresh and try again.');
+            }
+
+            const { error } = await authClient.auth.signUp({
+              email,
+              password,
+              options: { data: { full_name: name, name, phone } }
+            });
+
+            if (error) throw error;
+
+            // Auto sign in for smooth UX
+            const { error: signInError } = await authClient.auth.signInWithPassword({ email, password });
+            
+            if (errorDiv) {
+              errorDiv.style.background = '#ecfdf5';
+              errorDiv.style.borderLeftColor = '#10b981';
+              errorDiv.style.color = '#047857';
+              errorDiv.textContent = 'Account created successfully! Redirecting...';
+              errorDiv.style.display = 'block';
+            }
+
             setTimeout(() => {
-              window.location.href = 'login.html';
-            }, 1200);
-            return;
-          }
+              window.location.href = '../index.html';
+            }, 1000);
 
-          errorDiv.style.color = 'green';
-          errorDiv.textContent = 'Registration successful! Redirecting...';
-          setTimeout(() => {
-            window.location.href = '../index.html';
-          }, 1000);
-        } catch (err) {
-          errorDiv.textContent = 'Network error while creating account. Please try again.';
-        } finally {
-          registerBtn.disabled = false;
-          registerBtn.textContent = 'Create Account';
-        }
-      });
+          } catch (err) {
+            if (errorDiv) {
+              errorDiv.textContent = err.message || 'Registration failed. Please try again.';
+              errorDiv.style.display = 'block';
+            }
+          } finally {
+            registerBtn.disabled = false;
+            registerBtn.textContent = 'Create Account';
+          }
+        });
+      }
     </script>
 </body>
 </html> 

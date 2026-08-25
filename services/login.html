@@ -10,260 +10,274 @@
     <style>
         body {
             margin: 0;
+            padding: 0;
             font-family: 'Poppins', Arial, sans-serif;
-        }
-        .modal-blur-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(255,255,255,0.5);
-            backdrop-filter: blur(8px);
-            z-index: 1000;
-        }
-        .login-modal {
-            max-width: 400px;
-            margin: 40px auto;
-            background: #fff;
-            border-radius: 18px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.10);
-            padding: 2.5rem 2rem 1.5rem 2rem;
-            position: fixed;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 1001;
-        }
-        
-        /* Mobile optimization */
-        @media (max-width: 768px) {
-            .login-modal {
-                top: 60%;
-                margin-top: 60px;
-                max-height: 80vh;
-                overflow-y: auto;
-            }
-            
-            .modal-blur-bg {
-                padding-top: 80px;
-            }
-        }
-        .login-modal .close-btn {
-            position: absolute;
-            top: 18px;
-            right: 18px;
-            background: none;
-            border: none;
-            font-size: 1.3rem;
-            color: #333;
-            cursor: pointer;
-        }
-        .login-modal .logo {
-            display: block;
-            margin: 0 auto 1.2rem auto;
-            max-width: 160px;
-        }
-        .login-modal h2 {
-            text-align: center;
-            font-size: 2rem;
-            font-weight: 700;
-            margin: 0 0 0.5rem 0;
-        }
-        .login-modal .subtitle {
-            text-align: center;
-            color: #6b6b6b;
-            font-size: 1rem;
-            margin-bottom: 1.5rem;
-        }
-        .login-modal form {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #172554 100%);
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            gap: 1rem;
         }
-        .login-modal input[type="email"],
-        .login-modal input[type="password"] {
-            width: 100%;
-            padding: 0.9rem 1rem;
-            border-radius: 8px;
-            border: 1.5px solid #e0e0e0;
-            background: #fafbfc;
-            font-size: 1rem;
-            transition: border 0.2s;
-        }
-        .login-modal input:focus {
-            outline: none;
-            border-color: #b30000;
-        }
-        .login-modal .sign-in-btn {
-            width: 100%;
-            background: #222;
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            padding: 0.9rem 0;
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-top: 0.5rem;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .login-modal .sign-in-btn:hover {
-            background: #b30000;
-        }
-        .login-modal .divider {
+
+        .auth-page-main {
+            flex: 1;
             display: flex;
             align-items: center;
-            margin: 2rem 0 1rem 0;
+            justify-content: center;
+            padding: 3rem 1.5rem;
+            position: relative;
+            overflow: hidden;
         }
-        .login-modal .divider span {
+
+        /* Ambient 3D background orbs */
+        .auth-bg-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            pointer-events: none;
+            opacity: 0.22;
+        }
+        .auth-orb-1 {
+            width: 400px;
+            height: 400px;
+            background: #FFD700;
+            top: 5%;
+            left: 10%;
+        }
+        .auth-orb-2 {
+            width: 500px;
+            height: 500px;
+            background: #2B4B8C;
+            bottom: 5%;
+            right: 10%;
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 440px;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-top: 3px solid #FFD700;
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.4), 0 0 30px rgba(43, 75, 140, 0.2);
+            padding: 2.8rem 2.2rem 2.2rem 2.2rem;
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            transform-style: preserve-3d;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .auth-card:hover {
+            box-shadow: 0 30px 70px -12px rgba(0, 0, 0, 0.5), 0 0 35px rgba(255, 215, 0, 0.25);
+        }
+
+        .auth-card-logo-wrap {
+            margin-bottom: 1.2rem;
+        }
+
+        .auth-card-logo {
+            max-height: 54px;
+            width: auto;
+            display: inline-block;
+        }
+
+        .auth-card h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0 0 0.5rem 0;
+            letter-spacing: -0.5px;
+        }
+
+        .auth-card .subtitle {
+            color: #64748b;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 1.8rem;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.1rem;
+            text-align: left;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 0.4rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper i.input-icon {
+            position: absolute;
+            left: 14px;
+            color: #94a3b8;
+            font-size: 1rem;
+            pointer-events: none;
+            transition: color 0.2s;
+        }
+
+        .auth-form input[type="email"],
+        .auth-form input[type="password"],
+        .auth-form input[type="text"] {
+            width: 100%;
+            padding: 0.85rem 1rem 0.85rem 2.6rem;
+            border-radius: 10px;
+            border: 1.5px solid #cbd5e1;
+            background: #f8fafc;
+            font-size: 0.98rem;
+            color: #1e293b;
+            box-sizing: border-box;
+            transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
+        }
+
+        .auth-form input:focus {
+            outline: none;
+            border-color: #2B4B8C;
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(43, 75, 140, 0.15);
+        }
+
+        .auth-form input:focus + i.input-icon {
+            color: #2B4B8C;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 14px;
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 0.95rem;
+            padding: 4px;
+        }
+
+        .toggle-password:hover {
+            color: #475569;
+        }
+
+        .sign-in-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #1e3a8a 0%, #2B4B8C 100%);
+            color: #FFD700;
+            border: none;
+            border-radius: 10px;
+            padding: 0.95rem;
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin-top: 0.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(43, 75, 140, 0.35);
+            transition: transform 0.15s, box-shadow 0.2s, background 0.2s;
+        }
+
+        .sign-in-btn:hover {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #1e3a8a;
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .sign-in-btn:active {
+            transform: translateY(1px);
+        }
+
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            margin: 1.8rem 0 1.2rem 0;
+        }
+
+        .auth-divider span {
             flex: 1;
             height: 1px;
-            background: #eee;
+            background: #e2e8f0;
         }
-        .login-modal .divider p {
+
+        .auth-divider p {
             margin: 0 1rem;
-            color: #888;
-            font-size: 0.95rem;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            font-weight: 500;
         }
-        .login-modal .create-account-btn {
+
+        .create-account-btn {
             width: 100%;
-            background: #fff;
-            color: #222;
-            border: 1.5px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 0.9rem 0;
-            font-size: 1.1rem;
+            background: #ffffff;
+            color: #1e293b;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 0.85rem;
+            font-size: 1rem;
             font-weight: 600;
-            margin-bottom: 1.2rem;
             cursor: pointer;
-            transition: border 0.2s, background 0.2s;
+            transition: border-color 0.2s, background-color 0.2s, color 0.2s;
         }
-        .login-modal .create-account-btn:hover {
-            background: #f7f7f7;
-            border-color: #b30000;
+
+        .create-account-btn:hover {
+            background: #f8fafc;
+            border-color: #2B4B8C;
+            color: #2B4B8C;
         }
-        .login-modal .terms {
+
+        .auth-terms {
             text-align: center;
-            color: #888;
-            font-size: 0.93rem;
-            margin-top: 0.5rem;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            margin-top: 1.4rem;
+            line-height: 1.5;
         }
-        .login-modal .terms a {
-            color: #b30000;
+
+        .auth-terms a {
+            color: #2B4B8C;
             text-decoration: underline;
+            font-weight: 500;
         }
-        @media (max-width: 500px) {
-            .login-modal {
-                width: 95vw;
-                max-width: 95vw;
-                min-width: unset;
-                padding: 2rem 1.2rem 1.5rem 1.2rem;
-                left: 50%;
-                top: 60%;
-                transform: translate(-50%, -50%);
-                margin-top: 80px;
-                max-height: 75vh;
-                overflow-y: auto;
+
+        .auth-terms a:hover {
+            color: #1e3a8a;
+        }
+
+        #login-error {
+            background: #fef2f2;
+            border-left: 4px solid #ef4444;
+            color: #b91c1c;
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            display: none;
+        }
+
+        @media (max-width: 480px) {
+            .auth-card {
+                padding: 2rem 1.4rem 1.6rem 1.4rem;
+                border-radius: 16px;
             }
-            .login-modal .logo {
-                max-width: 70vw;
-            }
-            .login-modal h2 {
+            .auth-card h2 {
                 font-size: 1.5rem;
-            }
-            .login-modal .subtitle {
-                font-size: 0.98rem;
-            }
-            .login-modal input[type="email"],
-            .login-modal input[type="password"] {
-                font-size: 1.05rem;
-                padding: 1rem 1.1rem;
-            }
-            .login-modal .sign-in-btn,
-            .login-modal .create-account-btn {
-                font-size: 1.08rem;
-                padding: 1rem 0;
             }
         }
     </style>
 </head>
 <body>
-    <div class="modal-blur-bg"></div>
-    <div class="login-modal">
-        <button class="close-btn" onclick="window.location.href='../index.html'" title="Close"><i class="fa-solid fa-xmark"></i></button>
-        <img src="../images/logoo neww.png" alt="LALA MOTORS Logo" class="logo">
-        <h2>Welcome to LALA MOTORS</h2>
-        <div class="subtitle">Book, service, and upgrade your bike with trusted experts at LALA MOTORS.</div>
-        <form>
-            <input type="email" placeholder="Email" autocomplete="email" required>
-            <input type="password" placeholder="Password (min. 8 characters)" autocomplete="current-password" minlength="8" required>
-            <button type="submit" class="sign-in-btn">Sign In</button>
-        </form>
-        <div class="divider"><span></span><p>New to LALA MOTORS?</p><span></span></div>
-        <button class="create-account-btn" onclick="window.location.href='register.html'">Create an Account</button>
-        <div class="terms">
-            By continuing, you agree to LALA MOTORS's <a href="#">Terms of Service</a> and acknowledge our <a href="#">Privacy Policy</a>
-        </div>
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-      const authSupabaseUrl = 'https://fjhlglaivlbrowsuxres.supabase.co';
-      const authSupabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqaGxnbGFpdmxicm93c3V4cmVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA1OTUwNDYsImV4cCI6MjA2NjE3MTA0Nn0.0p7afOyJ_Q67d0k7ZTQWnxYIJ6eseuNx_7yjupT6eWo';
-      const authClient = window.supabase?.createClient
-        ? window.supabase.createClient(authSupabaseUrl, authSupabaseKey)
-        : null;
-
-      const loginForm = document.querySelector('.login-modal form');
-      if (loginForm) {
-        loginForm.addEventListener('submit', async function(e) {
-          e.preventDefault();
-          const rawEmail = this.querySelector('input[type="email"]').value || '';
-          const email = rawEmail.trim().toLowerCase();
-          const password = this.querySelector('input[type="password"]').value || '';
-          const signInBtn = this.querySelector('.sign-in-btn');
-
-          let errorDiv = document.getElementById('login-error');
-          if (!errorDiv) {
-            errorDiv = document.createElement('div');
-            errorDiv.id = 'login-error';
-            errorDiv.style.color = 'red';
-            errorDiv.style.textAlign = 'center';
-            errorDiv.style.margin = '10px 0';
-            this.parentElement.insertBefore(errorDiv, this.nextSibling);
-          }
-          errorDiv.textContent = '';
-
-          if (!email || !password) {
-            errorDiv.textContent = 'Please enter both email and password.';
-            return;
-          }
-
-          signInBtn.disabled = true;
-          signInBtn.textContent = 'Signing In...';
-
-          try {
-            if (!authClient) {
-              errorDiv.textContent = 'Auth client failed to initialize. Please refresh and try again.';
-              return;
-            }
-
-            const { error } = await authClient.auth.signInWithPassword({ email, password });
-            if (error) {
-              errorDiv.textContent = error.message || 'Sign in failed. Please try again.';
-              return;
-            }
-            window.location.href = '../index.html';
-          } catch (err) {
-            errorDiv.textContent = 'Network error while signing in. Please try again.';
-          } finally {
-            signInBtn.disabled = false;
-            signInBtn.textContent = 'Sign In';
-          }
-        });
-      }
-    </script>
-    <!-- HEADER/NAV START -->
+    <!-- Notifications and Cart Modal -->
     <div id="notification" class="notification"></div>
     <div id="cart-modal" class="modal">
         <div class="modal-content">
@@ -277,6 +291,8 @@
             <button onclick="checkoutCart()" class="checkout-btn">Proceed to Checkout</button>
         </div>
     </div>
+
+    <!-- Sidebar Overlay & Menu -->
     <div id="sidebar-overlay" class="sidebar-overlay" style="display:none;"></div>
     <nav id="sidebar-menu" class="sidebar-menu" style="display:none;">
       <div class="sidebar-header">
@@ -311,9 +327,11 @@
       </ul>
       <ul class="sidebar-list">
         <li><a href="#" id="sidebar-support"><i class="fa-solid fa-headset"></i> Customer Care</a></li>
-        <li id="sidebar-logout-li" style=""><a href="#" id="sidebar-logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
+        <li id="sidebar-logout-li"><a href="#" id="sidebar-logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
       </ul>
     </nav>
+
+    <!-- Header / Navigation -->
     <header>
         <div class="top-bar">
             <div class="contact-info">
@@ -332,7 +350,9 @@
                 </svg>
             </button>
             <div class="logo">
-                <img src="../images/logoo neww.png" alt="LALA MOTORS Logo" class="main-logo">
+                <a href="../index.html">
+                    <img src="../images/logoo neww.png" alt="LALA MOTORS Logo" class="main-logo">
+                </a>
             </div>
             <ul class="nav-links">
                 <li><a href="../index.html#home">Home</a></li>
@@ -349,11 +369,139 @@
                   </div>
                 </li>
             </ul>
-            <a href="login.html" class="login-btn" title="Login">
+            <a href="login.html" class="login-btn active" title="Login">
               <i class="fa-regular fa-user"></i>
             </a>
         </nav>
     </header>
-    <!-- HEADER/NAV END -->
+
+    <!-- Main Auth Container -->
+    <main class="auth-page-main">
+        <div class="auth-bg-orb auth-orb-1"></div>
+        <div class="auth-bg-orb auth-orb-2"></div>
+
+        <div class="auth-card">
+            <div class="auth-card-logo-wrap">
+                <img src="../images/logoo neww.png" alt="LALA MOTORS Logo" class="auth-card-logo">
+            </div>
+            <h2>Welcome Back</h2>
+            <div class="subtitle">Book, service, and upgrade your bike with trusted experts at LALA MOTORS.</div>
+            
+            <div id="login-error"></div>
+
+            <form class="auth-form" id="loginForm">
+                <div class="input-group">
+                    <label for="loginEmail">Email Address</label>
+                    <div class="input-wrapper">
+                        <input type="email" id="loginEmail" placeholder="Enter your email" autocomplete="email" required>
+                        <i class="fa-regular fa-envelope input-icon"></i>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="loginPassword">Password</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="loginPassword" placeholder="Enter your password" autocomplete="current-password" minlength="8" required>
+                        <i class="fa-solid fa-lock input-icon"></i>
+                        <button type="button" class="toggle-password" id="togglePasswordBtn" title="Show/Hide Password">
+                            <i class="fa-regular fa-eye" id="togglePasswordIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="sign-in-btn" id="signInSubmitBtn">Sign In</button>
+            </form>
+
+            <div class="auth-divider">
+                <span></span>
+                <p>New to LALA MOTORS?</p>
+                <span></span>
+            </div>
+
+            <button type="button" class="create-account-btn" onclick="window.location.href='register.html'">Create an Account</button>
+
+            <div class="auth-terms">
+                By continuing, you agree to LALA MOTORS's <a href="#">Terms of Service</a> and acknowledge our <a href="#">Privacy Policy</a>.
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer id="contact">
+        <div class="footer-bottom" style="text-align:center; padding: 1.5rem; color: #94a3b8; font-size: 0.9rem;">
+            <p>&copy; 2024 LALA MOTORS. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Supabase Auth Script -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../script.js"></script>
+    <script>
+      const authSupabaseUrl = 'https://fjhlglaivlbrowsuxres.supabase.co';
+      const authSupabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqaGxnbGFpdmxicm93c3V4cmVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA1OTUwNDYsImV4cCI6MjA2NjE3MTA0Nn0.0p7afOyJ_Q67d0k7ZTQWnxYIJ6eseuNx_7yjupT6eWo';
+      const authClient = window.supabase?.createClient
+        ? window.supabase.createClient(authSupabaseUrl, authSupabaseKey)
+        : (window.supabaseClient || null);
+
+      // Password visibility toggle
+      const toggleBtn = document.getElementById('togglePasswordBtn');
+      const passwordInput = document.getElementById('loginPassword');
+      const toggleIcon = document.getElementById('togglePasswordIcon');
+      
+      if (toggleBtn && passwordInput && toggleIcon) {
+        toggleBtn.addEventListener('click', () => {
+          const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+          passwordInput.setAttribute('type', type);
+          toggleIcon.className = type === 'password' ? 'fa-regular fa-eye' : 'fa-regular fa-eye-slash';
+        });
+      }
+
+      const loginForm = document.getElementById('loginForm');
+      if (loginForm) {
+        loginForm.addEventListener('submit', async function(e) {
+          e.preventDefault();
+          const email = (document.getElementById('loginEmail').value || '').trim().toLowerCase();
+          const password = document.getElementById('loginPassword').value || '';
+          const signInBtn = document.getElementById('signInSubmitBtn');
+          const errorDiv = document.getElementById('login-error');
+
+          if (errorDiv) {
+            errorDiv.style.display = 'none';
+            errorDiv.textContent = '';
+          }
+
+          if (!email || !password) {
+            if (errorDiv) {
+              errorDiv.textContent = 'Please enter both email and password.';
+              errorDiv.style.display = 'block';
+            }
+            return;
+          }
+
+          signInBtn.disabled = true;
+          signInBtn.textContent = 'Signing In...';
+
+          try {
+            if (!authClient) {
+              throw new Error('Database client could not be loaded. Please refresh the page.');
+            }
+
+            const { data, error } = await authClient.auth.signInWithPassword({ email, password });
+            if (error) {
+              throw error;
+            }
+            window.location.href = '../index.html';
+          } catch (err) {
+            if (errorDiv) {
+              errorDiv.textContent = err.message || 'Sign in failed. Please check your credentials.';
+              errorDiv.style.display = 'block';
+            }
+          } finally {
+            signInBtn.disabled = false;
+            signInBtn.textContent = 'Sign In';
+          }
+        });
+      }
+    </script>
 </body>
 </html> 

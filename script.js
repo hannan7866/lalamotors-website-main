@@ -2561,4 +2561,226 @@ if (!window.supabaseClient) {
     console.error('Supabase library not loaded! Make sure to include https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2 before script.js');
   }
 }
-// ... existing code ...
+
+// ==========================================================================
+// 3D TILT, SPECULAR GLARE & MOUSE SCROLL PERSPECTIVE PHYSICS ENGINE
+// ==========================================================================
+(function init3DEngine() {
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    return;
+  }
+
+  const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
+  // 1. Setup 3D Top Progress Bar
+  function setupProgressBar() {
+    if (!document.querySelector('.scroll-progress-3d')) {
+      const bar = document.createElement('div');
+      bar.className = 'scroll-progress-3d';
+      document.body.appendChild(bar);
+    }
+  }
+
+  // 2. Interactive 3D Card Hover & Specular Light Reflection
+  function setup3DTilt() {
+    const tiltElements = document.querySelectorAll(
+      '.service-card, .bike-card, .brand-logo-card, .booking-form-container'
+    );
+
+    tiltElements.forEach(card => {
+      if (!card.querySelector('.tilt-glare-overlay')) {
+        const glareOverlay = document.createElement('div');
+        glareOverlay.className = 'tilt-glare-overlay';
+        const glareElement = document.createElement('div');
+        glareElement.className = 'tilt-glare-element';
+        glareOverlay.appendChild(glareElement);
+        card.appendChild(glareOverlay);
+      }
+
+      if (isTouchDevice) return;
+
+      let rect = null;
+      let rafId = null;
+      const glareOverlay = card.querySelector('.tilt-glare-overlay');
+      const glareElement = card.querySelector('.tilt-glare-element');
+
+      const maxTilt = card.classList.contains('service-card') ? 14 :
+                      card.classList.contains('brand-logo-card') ? 12 : 8;
+
+      function onMouseMove(e) {
+        if (!rect) rect = card.getBoundingClientRect();
+
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const width = rect.width;
+        const height = rect.height;
+
+        const xPercent = (x / width) * 2 - 1;
+        const yPercent = (y / height) * 2 - 1;
+
+        const rotX = (-yPercent * maxTilt).toFixed(2);
+        const rotY = (xPercent * maxTilt).toFixed(2);
+
+        if (rafId) cancelAnimationFrame(rafId);
+        rafId = requestAnimationFrame(() => {
+          card.style.transform = `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale3d(1.03, 1.03, 1.03)`;
+          if (glareOverlay && glareElement) {
+            glareOverlay.style.opacity = '1';
+            glareElement.style.left = `${x}px`;
+            glareElement.style.top = `${y}px`;
+          }
+        });
+      }
+
+      function onMouseEnter() {
+        rect = card.getBoundingClientRect();
+        card.style.transition = 'transform 0.1s ease-out, box-shadow 0.2s ease-out';
+      }
+
+      function onMouseLeave() {
+        if (rafId) cancelAnimationFrame(rafId);
+        card.style.transition = 'transform 0.5s cubic-bezier(0.2, 0.8, 0.4, 1), box-shadow 0.5s ease';
+        card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+        if (glareOverlay) {
+          glareOverlay.style.opacity = '0';
+        }
+        rect = null;
+      }
+
+      card.addEventListener('mouseenter', onMouseEnter, { passive: true });
+      card.addEventListener('mousemove', onMouseMove, { passive: true });
+      card.addEventListener('mouseleave', onMouseLeave, { passive: true });
+    });
+  }
+
+  // 3. Continuous 3D Scroll Physics & Velocity Pitch
+  function setup3DScrollPhysics() {
+    let lastScrollY = window.pageYOffset || document.documentElement.scrollTop;
+    let scrollVelocity = 0;
+    let currentPitch = 0;
+    let isTicking = false;
+
+    const progressBar = document.querySelector('.scroll-progress-3d');
+    const heroContent = document.querySelector('.hero-content');
+    const heroOrbs = document.querySelectorAll('.floating-orb');
+    const servicesGrid = document.querySelector('.services-grid');
+    const brandsGrid = document.querySelector('.brands-grid');
+    const bikeContainer = document.querySelector('.bike-cards-container');
+
+    function updateScrollEffects() {
+      const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      
+      // Update 3D Progress Bar
+      if (progressBar && maxScroll > 0) {
+        const progress = Math.min(100, Math.max(0, (scrollY / maxScroll) * 100));
+        progressBar.style.width = `${progress}%`;
+      }
+
+      // Calculate instantaneous scroll velocity
+      const delta = scrollY - lastScrollY;
+      lastScrollY = scrollY;
+      scrollVelocity = scrollVelocity * 0.75 + delta * 0.25;
+
+      // Target pitch angle based on velocity (clamped between -6deg and 6deg)
+      const targetPitch = Math.max(-6, Math.min(6, scrollVelocity * 0.12));
+      currentPitch += (targetPitch - currentPitch) * 0.18;
+
+      // 1. Hero 3D Receding Parallax
+      if (heroContent && scrollY < window.innerHeight) {
+        const heroZ = -scrollY * 0.45;
+        const heroOpacity = Math.max(0, 1 - (scrollY / (window.innerHeight * 0.75)));
+        heroContent.style.transform = `perspective(1000px) translateZ(${heroZ}px) translateY(${scrollY * 0.25}px)`;
+        heroContent.style.opacity = heroOpacity;
+      }
+
+      // 2. Floating Orbs Differential Depth
+      if (heroOrbs.length > 0 && scrollY < window.innerHeight) {
+        heroOrbs.forEach((orb, idx) => {
+          const speed = idx === 0 ? 0.35 : -0.25;
+          orb.style.transform = `translateY(${scrollY * speed}px) scale(${1 + (scrollY * 0.0004)})`;
+        });
+      }
+
+      // 3. Grid 3D Dynamic Pitch on Mouse Scrolling
+      if (Math.abs(currentPitch) > 0.05) {
+        if (servicesGrid) {
+          servicesGrid.style.transform = `perspective(1400px) rotateX(${currentPitch.toFixed(2)}deg)`;
+        }
+        if (brandsGrid) {
+          brandsGrid.style.transform = `perspective(1400px) rotateX(${(currentPitch * 0.8).toFixed(2)}deg)`;
+        }
+        if (bikeContainer) {
+          bikeContainer.style.transform = `perspective(1400px) rotateX(${(currentPitch * 0.7).toFixed(2)}deg)`;
+        }
+      } else {
+        if (servicesGrid) servicesGrid.style.transform = 'perspective(1400px) rotateX(0deg)';
+        if (brandsGrid) brandsGrid.style.transform = 'perspective(1400px) rotateX(0deg)';
+        if (bikeContainer) bikeContainer.style.transform = 'perspective(1400px) rotateX(0deg)';
+      }
+
+      // Damp velocity when user stops scrolling
+      scrollVelocity *= 0.85;
+
+      if (Math.abs(scrollVelocity) > 0.1 || Math.abs(currentPitch) > 0.05) {
+        requestAnimationFrame(updateScrollEffects);
+      } else {
+        isTicking = false;
+      }
+    }
+
+    window.addEventListener('scroll', () => {
+      if (!isTicking) {
+        isTicking = true;
+        requestAnimationFrame(updateScrollEffects);
+      }
+    }, { passive: true });
+  }
+
+  // 4. 3D Scroll Reveal Observer
+  function setup3DScrollReveal() {
+    const revealTargets = document.querySelectorAll(
+      '.service-card, .brand-logo-card, .bike-card, .section-title, .booking-form-container'
+    );
+
+    if (!('IntersectionObserver' in window)) {
+      revealTargets.forEach(el => el.classList.add('is-revealed'));
+      return;
+    }
+
+    const observer = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-revealed');
+          obs.unobserve(entry.target);
+        }
+      });
+    }, {
+      rootMargin: '0px 0px -40px 0px',
+      threshold: 0.1
+    });
+
+    revealTargets.forEach((el, index) => {
+      el.classList.add('reveal-3d');
+      if (el.classList.contains('service-card') || el.classList.contains('brand-logo-card')) {
+        el.style.transitionDelay = `${(index % 4) * 0.08}s`;
+      }
+      observer.observe(el);
+    });
+  }
+
+  // Initialize once DOM is ready
+  function initAll() {
+    setupProgressBar();
+    setup3DTilt();
+    setup3DScrollPhysics();
+    setup3DScrollReveal();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAll);
+  } else {
+    initAll();
+  }
+})();
+

@@ -138,23 +138,31 @@
     <script>
     async function showAllBookings() {
         const contentDiv = document.getElementById('bookings-content');
+        const supabaseUrl = 'https://fjhlglaivlbrowsuxres.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqaGxnbGFpdmxicm93c3V4cmVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA1OTUwNDYsImV4cCI6MjA2NjE3MTA0Nn0.0p7afOyJ_Q67d0k7ZTQWnxYIJ6eseuNx_7yjupT6eWo';
+        const client = window.supabaseClient || (window.supabase && typeof window.supabase.createClient === 'function' ? window.supabase.createClient(supabaseUrl, supabaseKey) : null);
+        
         let userEmail = null;
         let user = null;
         try {
-            const { data } = await supabaseClient.auth.getUser();
+            if (!client) {
+                contentDiv.innerHTML = '<div class="no-bookings">Database client could not be loaded. Please refresh.<br><a href="login.html">Login</a></div>';
+                return;
+            }
+            const { data } = await client.auth.getUser();
             user = data.user;
             if (!user) {
-                contentDiv.innerHTML = '<div class="no-bookings">Please log in to see your bookings. <a href="/services/login.html">Login</a></div>';
+                contentDiv.innerHTML = '<div class="no-bookings">Please log in to see your bookings. <a href="login.html">Login</a></div>';
                 return;
             }
             userEmail = user.email.trim().toLowerCase();
         } catch (e) {
-            contentDiv.innerHTML = '<div class="no-bookings">Network or Supabase error: ' + (e.message || e) + '<br>Please check your internet connection and CORS settings in Supabase.<br><a href="/services/login.html">Login</a></div>';
+            contentDiv.innerHTML = '<div class="no-bookings">Network or Supabase error: ' + (e.message || e) + '<br>Please check your internet connection.<br><a href="login.html">Login</a></div>';
             return;
         }
 
         // Fetch bookings from Supabase for this user
-        let { data: bookings, error } = await supabaseClient
+        let { data: bookings, error } = await client
             .from('bookings')
             .select('*')
             .eq('email', userEmail)

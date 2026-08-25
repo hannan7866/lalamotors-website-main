@@ -30,3 +30,5 @@ build/
 # Service account
 service-account.json 
 .vercel
+repomix-output.xml
+lalamotors-website-main/

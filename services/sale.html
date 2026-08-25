@@ -312,135 +312,256 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-      const supabaseUrl = 'https://fjhlglaivlbrowsuxres.supabase.co';
-      const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqaGxnbGFpdmxicm93c3V4cmVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA1OTUwNDYsImV4cCI6MjA2NjE3MTA0Nn0.0p7afOyJ_Q67d0k7ZTQWnxYIJ6eseuNx_7yjupT6eWo';
-      const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+      const SUPABASE_URL = 'https://fjhlglaivlbrowsuxres.supabase.co';
+      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqaGxnbGFpdmxicm93c3V4cmVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA1OTUwNDYsImV4cCI6MjA2NjE3MTA0Nn0.0p7afOyJ_Q67d0k7ZTQWnxYIJ6eseuNx_7yjupT6eWo';
+
+      function getSupabaseClient() {
+        if (window.supabaseClient) return window.supabaseClient;
+        if (window.supabase && typeof window.supabase.createClient === 'function') {
+          window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+          return window.supabaseClient;
+        }
+        return null;
+      }
+
+      let allBikes = [];
 
       async function loadBikes() {
-        console.log('Fetching bikes from Supabase...');
-        try {
-          // First try to get the count to verify access
-          const { count, error: countError } = await supabase
-            .from('bikes')
-            .select('*', { count: 'exact', head: true });
+        const grid = document.querySelector('.bike-listings-grid');
+        if (!grid) return;
 
-          if (countError) {
-            console.error('Error checking bikes count:', countError);
-            throw countError;
+        grid.innerHTML = `
+          <div style="grid-column: 1/-1; text-align: center; padding: 2rem; color: #64748b;">
+            <i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem; color: #2B4B8C; margin-bottom: 1rem;"></i>
+            <p style="margin: 0; font-weight: 500;">Loading pre-owned bikes...</p>
+          </div>
+        `;
+
+        try {
+          const supabase = getSupabaseClient();
+          if (!supabase) {
+            throw new Error('Database client could not be initialized.');
           }
 
-          console.log('Total bikes in database:', count);
-
-          // Now get the actual data
           const { data: bikes, error } = await supabase
             .from('bikes')
             .select('*')
             .order('created_at', { ascending: false });
-          
-          if (error) {
-            console.error('Error loading bikes:', error);
-            throw error;
-          }
 
-          console.log('Bikes data received:', bikes);
-          
-          const grid = document.querySelector('.bike-listings-grid');
-          if (!grid) {
-            console.error('Could not find bike-listings-grid element');
-            return;
-          }
+          if (error) throw error;
 
-          grid.innerHTML = '';
-          if (!bikes || bikes.length === 0) {
-            console.log('No bikes found in database');
-            grid.innerHTML = `
-              <p style="text-align: center; grid-column: 1/-1; color: #666;">
-                No bikes listed yet. 
-                <br>
-                <small style="display: block; margin-top: 0.5rem; font-size: 0.9em;">
-                  Database count: ${count} | Query result: ${bikes ? bikes.length : 0}
-                </small>
-              </p>`;
-            return;
-          }
+          allBikes = bikes || [];
+          console.log(`Loaded ${allBikes.length} bikes from Supabase:`, allBikes);
 
-          console.log(`Found ${bikes.length} bikes, rendering cards...`);
-          
-          bikes.forEach(bike => {
-            console.log('Rendering bike:', bike);
-            const card = document.createElement('div');
-            card.className = 'bike-card';
-            card.style = 'background:#fff;padding:1rem;border-radius:8px;box-shadow:0 2px 8px rgba(43,75,140,0.08);';
-            
-            // Format price with commas for Indian numbering system
-            const formattedPrice = new Intl.NumberFormat('en-IN', {
-              style: 'currency',
-              currency: 'INR',
-              maximumFractionDigits: 0
-            }).format(bike.price);
-
-            card.innerHTML = `
-              <img src="${bike.image_url || ''}" 
-                   alt="${bike.brand} ${bike.model}" 
-                   style="width:100%;height:180px;object-fit:cover;border-radius:6px;margin-bottom:1rem;"
-                   onerror="this.src='../images/logoo neww.png'">
-              <h4 style="margin:0 0 0.5rem 0;color:var(--primary-blue);">${bike.brand} ${bike.model}</h4>
-              <p style="margin:0 0 0.5rem 0;font-size:1.1rem;font-weight:500;">${formattedPrice}</p>
-              <p style="margin:0 0 0.5rem 0;color:#666;">Year: ${bike.year}</p>
-              <button class="primary-button" onclick='showSupabaseBikeDetails(${JSON.stringify(bike)})'>View Details</button>
-            `;
-            grid.appendChild(card);
-          });
-        } catch (error) {
-          console.error('Failed to load bikes:', error);
-          const grid = document.querySelector('.bike-listings-grid');
-          if (grid) {
-            grid.innerHTML = `
-              <p style="text-align: center; grid-column: 1/-1; color: #dc2626;">
-                Error loading bikes: ${error.message || 'Unknown error'}
-                <br>
-                <small style="display: block; margin-top: 0.5rem; font-size: 0.9em;">
-                  Please try refreshing the page
-                </small>
-              </p>`;
-          }
+          populateFilters();
+          applyFiltersAndRender();
+        } catch (err) {
+          console.error('Failed to load bikes from Supabase:', err);
+          grid.innerHTML = `
+            <div style="grid-column: 1/-1; text-align: center; padding: 2rem; background: #fff5f5; border: 1px solid #fed7d7; border-radius: 10px;">
+              <p style="color: #c53030; font-weight: 600; margin: 0 0 0.5rem 0;">Unable to load bikes at this moment.</p>
+              <small style="color: #742a2a;">${err.message || 'Please check your connection and refresh.'}</small>
+            </div>
+          `;
         }
       }
 
-      // Show bike details in a modal with a large image, description and contact button
+      function populateFilters() {
+        const brandSel = document.getElementById('filter-brand');
+        const modelSel = document.getElementById('filter-model');
+        if (!brandSel || !modelSel) return;
+
+        // Populate models based on selected brand
+        const selectedBrand = brandSel.value;
+        const matchingModels = [
+          ...new Set(
+            allBikes
+              .filter(b => !selectedBrand || (b.brand && b.brand.toLowerCase() === selectedBrand.toLowerCase()))
+              .map(b => b.model)
+              .filter(Boolean)
+          )
+        ];
+
+        const currentModel = modelSel.value;
+        modelSel.innerHTML = '<option value="">All Models</option>' + 
+          matchingModels.map(m => `<option value="${m}" ${m === currentModel ? 'selected' : ''}>${m}</option>`).join('');
+      }
+
+      function applyFiltersAndRender() {
+        const brandSel = document.getElementById('filter-brand');
+        const modelSel = document.getElementById('filter-model');
+        const priceSel = document.getElementById('filter-price');
+
+        const selectedBrand = brandSel ? brandSel.value.toLowerCase().trim() : '';
+        const selectedModel = modelSel ? modelSel.value.toLowerCase().trim() : '';
+        const selectedPrice = priceSel ? priceSel.value.trim() : '';
+
+        let filtered = allBikes.filter(bike => {
+          if (selectedBrand && (!bike.brand || bike.brand.toLowerCase() !== selectedBrand)) {
+            return false;
+          }
+          if (selectedModel && (!bike.model || bike.model.toLowerCase() !== selectedModel)) {
+            return false;
+          }
+          if (selectedPrice) {
+            const [min, max] = selectedPrice.split('-').map(Number);
+            const price = Number(bike.price) || 0;
+            if (min !== undefined && price < min) return false;
+            if (max !== undefined && price > max) return false;
+          }
+          return true;
+        });
+
+        renderBikeCards(filtered);
+      }
+
+      function renderBikeCards(bikes) {
+        const grid = document.querySelector('.bike-listings-grid');
+        if (!grid) return;
+
+        grid.innerHTML = '';
+
+        if (!bikes || bikes.length === 0) {
+          grid.innerHTML = `
+            <div style="grid-column: 1/-1; text-align: center; padding: 3rem 1rem; background: #ffffff; border: 1px dashed #cbd5e1; border-radius: 12px;">
+              <i class="fa-solid fa-motorcycle" style="font-size: 3rem; color: #94a3b8; margin-bottom: 1rem;"></i>
+              <h3 style="color: #334155; margin: 0 0 0.5rem 0;">No Bikes Listed Matching Your Criteria</h3>
+              <p style="color: #64748b; margin: 0;">Try adjusting your filters or check back later for new arrivals.</p>
+            </div>
+          `;
+          return;
+        }
+
+        bikes.forEach(bike => {
+          const card = document.createElement('div');
+          card.className = 'bike-card';
+          card.style = `
+            background: #ffffff;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 4px 14px rgba(43, 75, 140, 0.08);
+            border: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+          `;
+
+          card.onmouseenter = () => {
+            card.style.transform = 'translateY(-4px)';
+            card.style.boxShadow = '0 8px 24px rgba(43, 75, 140, 0.16)';
+          };
+          card.onmouseleave = () => {
+            card.style.transform = 'translateY(0)';
+            card.style.boxShadow = '0 4px 14px rgba(43, 75, 140, 0.08)';
+          };
+
+          const formattedPrice = new Intl.NumberFormat('en-IN', {
+            style: 'currency',
+            currency: 'INR',
+            maximumFractionDigits: 0
+          }).format(bike.price || 0);
+
+          const defaultImg = '../images/logoo neww.png';
+          const bikeImg = bike.image_url || defaultImg;
+
+          card.innerHTML = `
+            <div style="position: relative; width: 100%; height: 200px; background: #f1f5f9; overflow: hidden;">
+              <img src="${bikeImg}" 
+                   alt="${bike.brand || ''} ${bike.model || ''}" 
+                   style="width: 100%; height: 100%; object-fit: cover;"
+                   onerror="this.src='${defaultImg}'">
+              <span style="position: absolute; top: 12px; left: 12px; background: rgba(30, 58, 138, 0.85); backdrop-filter: blur(4px); color: #FFD700; font-size: 0.8rem; font-weight: 700; padding: 4px 10px; border-radius: 20px; letter-spacing: 0.5px;">
+                ${bike.brand || 'Verified'}
+              </span>
+              ${bike.year ? `
+                <span style="position: absolute; top: 12px; right: 12px; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(4px); color: #ffffff; font-size: 0.8rem; font-weight: 600; padding: 4px 8px; border-radius: 6px;">
+                  ${bike.year}
+                </span>
+              ` : ''}
+            </div>
+            <div style="padding: 1.25rem; display: flex; flex-direction: column; flex-grow: 1;">
+              <h4 style="margin: 0 0 0.4rem 0; color: #1e293b; font-size: 1.2rem; font-weight: 700;">
+                ${bike.brand || ''} ${bike.model || 'Motorcycle'}
+              </h4>
+              <p style="margin: 0 0 0.8rem 0; color: #2B4B8C; font-size: 1.3rem; font-weight: 800;">
+                ${formattedPrice}
+              </p>
+              ${bike.description ? `
+                <p style="margin: 0 0 1rem 0; color: #64748b; font-size: 0.88rem; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                  ${bike.description}
+                </p>
+              ` : '<div style="margin-bottom: 1rem;"></div>'}
+              <div style="margin-top: auto;">
+                <button class="primary-button details-btn" style="width: 100%; border: none; cursor: pointer; padding: 0.75rem 1rem; border-radius: 8px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                  <i class="fa-solid fa-eye"></i> View Details
+                </button>
+              </div>
+            </div>
+          `;
+
+          const detailsBtn = card.querySelector('.details-btn');
+          if (detailsBtn) {
+            detailsBtn.addEventListener('click', () => showSupabaseBikeDetails(bike));
+          }
+
+          grid.appendChild(card);
+        });
+      }
+
       function showSupabaseBikeDetails(bike) {
         const modal = document.getElementById('sale-contact-modal');
         const container = document.getElementById('bike-details-content');
         if (!modal || !container) return;
 
         const defaultImg = '../images/logoo neww.png';
-
-        // Format price nicely
         const formattedPrice = new Intl.NumberFormat('en-IN', {
           style: 'currency',
           currency: 'INR',
           maximumFractionDigits: 0
         }).format(bike.price || 0);
 
-        const yearText = bike.year ? `<span style="color:#475569">Year:</span> ${bike.year}` : '';
-        const description = bike.description || 'Contact us for more details about this motorcycle.';
+        const yearText = bike.year ? `<span style="color:#64748b; font-weight: 500;">Year:</span> <strong>${bike.year}</strong>` : '';
+        const description = bike.description || 'Pre-owned motorcycle verified by Lala Motors. Contact us for complete vehicle history and test rides.';
 
-        const message = `Hello! I am interested in the pre-owned ${bike.brand || ''} ${bike.model || ''}${bike.year ? ' (' + bike.year + ')' : ''} listed at ${formattedPrice}. Please share more details.`;
+        const message = `Hello Lala Motors! I am interested in the pre-owned ${bike.brand || ''} ${bike.model || ''}${bike.year ? ' (' + bike.year + ')' : ''} listed at ${formattedPrice}. Please share more details and availability for inspection.`;
         const whatsappUrl = `https://wa.me/917310542113?text=${encodeURIComponent(message)}`;
 
         container.innerHTML = `
           <div class="sale-modal-grid">
             <div class="sale-modal-img">
-              <img src="${bike.image_url || ''}" alt="${bike.brand || ''} ${bike.model || ''}" onerror="this.src='${defaultImg}'">
+              <img src="${bike.image_url || defaultImg}" 
+                   alt="${bike.brand || ''} ${bike.model || ''}" 
+                   style="width: 100%; max-height: 420px; object-fit: cover; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);"
+                   onerror="this.src='${defaultImg}'">
             </div>
-            <div>
-              <h2 class="sale-modal-title">${bike.brand || ''} ${bike.model || ''}</h2>
-              <div class="sale-modal-price">${formattedPrice}</div>
-              ${yearText ? `<p style="margin:0 0 0.75rem 0;">${yearText}</p>` : ''}
-              <p class="sale-modal-desc">${description}</p>
-              <div class="sale-modal-actions">
-                <a href="${whatsappUrl}" target="_blank" rel="noopener" class="primary-button">Contact Dealer</a>
-                <a href="tel:+917310542113" class="secondary-button">Call Now</a>
+            <div style="display: flex; flex-direction: column;">
+              <span style="display: inline-block; background: #e0e7ff; color: #3730a3; font-weight: 700; font-size: 0.8rem; padding: 4px 10px; border-radius: 20px; width: fit-content; margin-bottom: 0.5rem;">
+                ${bike.brand || 'Pre-Owned'}
+              </span>
+              <h2 class="sale-modal-title" style="margin: 0 0 0.5rem 0; color: #1e3a8a; font-size: 1.6rem; font-weight: 800;">
+                ${bike.brand || ''} ${bike.model || ''}
+              </h2>
+              <div class="sale-modal-price" style="font-size: 1.5rem; font-weight: 800; color: #2B4B8C; margin-bottom: 0.75rem;">
+                ${formattedPrice}
+              </div>
+              ${yearText ? `<p style="margin: 0 0 1rem 0; font-size: 0.95rem;">${yearText}</p>` : ''}
+              
+              <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1rem; margin-bottom: 1.5rem;">
+                <h4 style="margin: 0 0 0.4rem 0; color: #334155; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">Vehicle Description & Condition</h4>
+                <p class="sale-modal-desc" style="margin: 0; font-size: 0.95rem; color: #475569; line-height: 1.5;">${description}</p>
+              </div>
+
+              <div style="background: #fefce8; border: 1px solid #fef08a; border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1.5rem; font-size: 0.85rem; color: #854d0e;">
+                🛡️ <strong>Lala Motors Assurance:</strong> Verified documents & mechanical inspection.
+              </div>
+
+              <div class="sale-modal-actions" style="margin-top: auto; display: flex; gap: 0.8rem;">
+                <a href="${whatsappUrl}" target="_blank" rel="noopener" class="primary-button" style="background: #25D366; color: #ffffff; border: none; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 0.5rem; text-decoration: none; padding: 0.85rem 1.2rem; border-radius: 8px;">
+                  <i class="fa-brands fa-whatsapp" style="font-size: 1.2rem;"></i> WhatsApp Enquiry
+                </a>
+                <a href="tel:+917310542113" class="secondary-button" style="background: #2B4B8C; color: #ffffff; border: none; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 0.5rem; text-decoration: none; padding: 0.85rem 1.2rem; border-radius: 8px;">
+                  <i class="fa-solid fa-phone"></i> Call Now
+                </a>
               </div>
             </div>
           </div>
@@ -448,44 +569,46 @@
 
         modal.style.display = 'block';
 
-        // Close when clicking outside the inner content
         modal.onclick = (e) => {
-          if (e.target === modal) {
-            closeContactModal();
-          }
+          if (e.target === modal) closeContactModal();
         };
 
-        // Close with ESC key
-        document.addEventListener('keydown', escHandler);
-        function escHandler(ev) {
+        const handleEscape = (ev) => {
           if (ev.key === 'Escape') {
             closeContactModal();
-            document.removeEventListener('keydown', escHandler);
+            document.removeEventListener('keydown', handleEscape);
           }
-        }
+        };
+        document.addEventListener('keydown', handleEscape);
       }
 
-      function closeContactModal() {
+      window.closeContactModal = function() {
         const modal = document.getElementById('sale-contact-modal');
         const container = document.getElementById('bike-details-content');
         if (modal) modal.style.display = 'none';
         if (container) container.innerHTML = '';
-      }
+      };
 
-      // Load bikes initially and set up refresh
       document.addEventListener('DOMContentLoaded', () => {
-        console.log('Page loaded, initializing bike listings...');
-        loadBikes();
-        // Refresh bike listings every 30 seconds
-        setInterval(loadBikes, 30000);
-      });
+        const brandSel = document.getElementById('filter-brand');
+        const modelSel = document.getElementById('filter-model');
+        const priceSel = document.getElementById('filter-price');
 
-      // Add error handler for Supabase client initialization
-      if (!window.supabase) {
-        console.error('Supabase client not loaded properly');
-      } else {
-        console.log('Supabase client initialized successfully');
-      }
+        if (brandSel) {
+          brandSel.addEventListener('change', () => {
+            populateFilters();
+            applyFiltersAndRender();
+          });
+        }
+        if (modelSel) {
+          modelSel.addEventListener('change', applyFiltersAndRender);
+        }
+        if (priceSel) {
+          priceSel.addEventListener('change', applyFiltersAndRender);
+        }
+
+        loadBikes();
+      });
     </script>
 </body>
 </html> 

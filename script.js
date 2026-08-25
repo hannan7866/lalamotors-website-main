@@ -1198,6 +1198,10 @@ function saveBikes(bikes) {
   localStorage.setItem('bikes', JSON.stringify(bikes));
 }
 function renderBikeListings() {
+  if (window.location.pathname.endsWith('sale.html')) {
+    // sale.html manages its own live Supabase bike listings
+    return;
+  }
   const grid = document.querySelector('.bike-listings-grid');
   if (!grid) return;
   let bikes = getBikes();
@@ -2136,30 +2140,43 @@ window.addEventListener('DOMContentLoaded', () => {
   // Supabase Auth: Only show login button when logged out; show user badge or profile pic when logged in
   const supabaseUrl = 'https://fjhlglaivlbrowsuxres.supabase.co';
   const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqaGxnbGFpdmxicm93c3V4cmVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA1OTUwNDYsImV4cCI6MjA2NjE3MTA0Nn0.0p7afOyJ_Q67d0k7ZTQWnxYIJ6eseuNx_7yjupT6eWo';
-  if (window.supabase) {
+  if (!window.supabaseClient && window.supabase && typeof window.supabase.createClient === 'function') {
+    window.supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+  }
+  if (window.supabaseClient) {
     const supabase = window.supabaseClient;
     function updateLoginBtns(session) {
       const loginBtns = document.querySelectorAll('.login-btn');
+      const isInsideServices = window.location.pathname.includes('/services/');
+      const profileUrl = isInsideServices ? 'profile.html' : 'services/profile.html';
+      const loginUrl = isInsideServices ? 'login.html' : 'services/login.html';
+
       loginBtns.forEach(loginBtn => {
         if (session && session.user) {
           // Show profile picture or initial badge
           const user = session.user;
-          let profilePic = user.user_metadata && user.user_metadata.avatar_url;
+          let profilePic = user.user_metadata && (user.user_metadata.avatar_url || user.user_metadata.picture);
+          let name = (user.user_metadata && (user.user_metadata.full_name || user.user_metadata.name)) || '';
           let email = user.email || '';
-          let initial = email ? email.charAt(0).toUpperCase() : '?';
+          let initial = '?';
+          if (name && name.trim().length > 0) {
+            initial = name.trim().charAt(0).toUpperCase();
+          } else if (email && email.trim().length > 0) {
+            initial = email.trim().charAt(0).toUpperCase();
+          }
           let badgeHtml = '';
           if (profilePic) {
-            badgeHtml = `<img src="${profilePic}" alt="Profile" class="user-avatar-badge" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">`;
+            badgeHtml = `<img src="${profilePic}" alt="Profile" class="user-avatar-badge" style="width:36px;height:36px;border-radius:50%;object-fit:cover;">`;
           } else {
             badgeHtml = `<span class="user-initial-badge">${initial}</span>`;
           }
           loginBtn.innerHTML = badgeHtml;
-          loginBtn.setAttribute('title', 'Profile');
+          loginBtn.setAttribute('title', name || email || 'Profile');
           loginBtn.onclick = function(e) {
             e.preventDefault();
-            window.location.href = '/services/profile.html';
+            window.location.href = profileUrl;
           };
-          loginBtn.setAttribute('href', '/services/profile.html');
+          loginBtn.setAttribute('href', profileUrl);
           loginBtn.style.display = '';
         } else {
           // Show login icon and link when logged out
@@ -2167,7 +2184,7 @@ window.addEventListener('DOMContentLoaded', () => {
           loginBtn.innerHTML = '<i class="fa-regular fa-user"></i>';
           loginBtn.setAttribute('title', 'Login');
           loginBtn.onclick = null;
-          loginBtn.setAttribute('href', loginBtn.getAttribute('href') || 'services/login.html');
+          loginBtn.setAttribute('href', loginUrl);
         }
       });
     }
@@ -2183,36 +2200,6 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 // ... existing code ...
 
-// Supabase authentication check and nav update
-const supabaseUrl = 'https://fjhlglaivlbrowsuxres.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqaGxnbGFpdmxicm93c3V4cmVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA1OTUwNDYsImV4cCI6MjA2NjE3MTA0Nn0.0p7afOyJ_Q67d0k7ZTQWnxYIJ6eseuNx_7yjupT6eWo';
-if (window.supabase) {
-  const supabase = window.supabaseClient;
-  document.addEventListener('DOMContentLoaded', async () => {
-  const loginBtn = document.querySelector('.login-btn');
-    if (!loginBtn) return;
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      // User is logged in: show logout icon
-      loginBtn.innerHTML = '<i class="fa-solid fa-right-from-bracket"></i>';
-      loginBtn.setAttribute('title', 'Logout');
-      loginBtn.onclick = async (e) => {
-        e.preventDefault();
-        await supabase.auth.signOut();
-        window.location.reload();
-      };
-    } else {
-      // User is not logged in: show login icon
-      loginBtn.innerHTML = '<i class="fa-regular fa-user"></i>';
-      loginBtn.setAttribute('title', 'Login');
-      loginBtn.onclick = null;
-      // Optionally, set href to login page
-      loginBtn.setAttribute('href', loginBtn.getAttribute('href') || '/services/login.html');
-    }
-  });
-}
-
-// ... existing code ...
 // Sidebar menu logic
 function setupSidebarMenu() {
   const sidebar = document.getElementById('sidebar-menu');
@@ -2225,12 +2212,18 @@ function setupSidebarMenu() {
   const profileEmail = document.getElementById('sidebar-profile-email');
 
   async function updateSidebarProfile() {
-    if (window.supabase) {
-      const supabase = window.supabaseClient;
-      const { data: { user } } = await supabase.auth.getUser();
+    const client = window.supabaseClient || (window.supabase && typeof window.supabase.createClient === 'function' ? window.supabase.createClient('https://fjhlglaivlbrowsuxres.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqaGxnbGFpdmxicm93c3V4cmVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA1OTUwNDYsImV4cCI6MjA2NjE3MTA0Nn0.0p7afOyJ_Q67d0k7ZTQWnxYIJ6eseuNx_7yjupT6eWo') : null);
+    if (client) {
+      const { data: { user } } = await client.auth.getUser();
+      const profileIcon = document.querySelector('.sidebar-profile-icon');
       if (user) {
-        profileName.textContent = user.user_metadata && user.user_metadata.full_name ? user.user_metadata.full_name : (user.email || 'User');
+        const name = (user.user_metadata && (user.user_metadata.full_name || user.user_metadata.name)) || '';
+        profileName.textContent = name || user.email || 'User';
         profileEmail.textContent = user.email || '';
+        if (profileIcon) {
+          let initial = (name ? name.trim().charAt(0) : (user.email ? user.email.trim().charAt(0) : 'U')).toUpperCase();
+          profileIcon.outerHTML = `<span class="user-initial-badge sidebar-profile-icon" style="margin-right:12px;width:38px;height:38px;font-size:1.1rem;">${initial}</span>`;
+        }
       } else {
         profileName.textContent = 'Guest';
         profileEmail.textContent = '';
@@ -2261,25 +2254,25 @@ function setupSidebarMenu() {
   // Prevent sidebar click from closing
   if (sidebar) sidebar.onclick = e => e.stopPropagation();
   // Logout logic
-  if (window.supabase && logoutBtn) {
-    const supabase = window.supabaseClient;
-    document.addEventListener('DOMContentLoaded', async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        logoutLi.style.display = '';
-        logoutBtn.onclick = async (e) => {
-          e.preventDefault();
-          await supabase.auth.signOut();
-          closeSidebar();
-          window.location.reload();
-        };
-      } else {
-        logoutLi.style.display = 'none';
-      }
-    });
+  if (logoutBtn) {
+    const client = window.supabaseClient || (window.supabase && typeof window.supabase.createClient === 'function' ? window.supabase.createClient('https://fjhlglaivlbrowsuxres.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqaGxnbGFpdmxicm93c3V4cmVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA1OTUwNDYsImV4cCI6MjA2NjE3MTA0Nn0.0p7afOyJ_Q67d0k7ZTQWnxYIJ6eseuNx_7yjupT6eWo') : null);
+    if (client) {
+      client.auth.getUser().then(({ data: { user } }) => {
+        if (user) {
+          if (logoutLi) logoutLi.style.display = '';
+          logoutBtn.onclick = async (e) => {
+            e.preventDefault();
+            await client.auth.signOut();
+            closeSidebar();
+            window.location.reload();
+          };
+        } else {
+          if (logoutLi) logoutLi.style.display = 'none';
+        }
+      });
+    }
   }
 }
-// setupSidebarMenu(); // <-- Remove or comment out this direct call
 
 document.addEventListener('DOMContentLoaded', function() {
   setupSidebarMenu();

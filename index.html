@@ -854,6 +854,146 @@
               margin-right: 0.3em;
               display: inline-block;
             }
+
+            /* Booking Success Modal */
+            .booking-modal-overlay {
+              position: fixed;
+              top: 0;
+              left: 0;
+              width: 100vw;
+              height: 100vh;
+              background: rgba(15, 23, 42, 0.65);
+              backdrop-filter: blur(8px);
+              -webkit-backdrop-filter: blur(8px);
+              z-index: 9999;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              padding: 16px;
+              opacity: 0;
+              visibility: hidden;
+              transition: opacity 0.25s ease, visibility 0.25s ease;
+            }
+            .booking-modal-overlay.active {
+              opacity: 1;
+              visibility: visible;
+            }
+            .booking-modal-card {
+              background: #ffffff;
+              width: 100%;
+              max-width: 500px;
+              border-radius: 20px;
+              box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+              padding: 2rem;
+              text-align: center;
+              transform: scale(0.92);
+              transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+              max-height: 90vh;
+              overflow-y: auto;
+              position: relative;
+            }
+            .booking-modal-overlay.active .booking-modal-card {
+              transform: scale(1);
+            }
+            .booking-modal-icon {
+              width: 70px;
+              height: 70px;
+              background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+              border-radius: 50%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              margin: 0 auto 1.2rem auto;
+              color: #ffffff;
+              font-size: 2.2rem;
+              box-shadow: 0 8px 20px rgba(16, 185, 129, 0.35);
+              animation: popCheck 0.4s ease forwards;
+            }
+            @keyframes popCheck {
+              0% { transform: scale(0.5); opacity: 0; }
+              70% { transform: scale(1.15); }
+              100% { transform: scale(1); opacity: 1; }
+            }
+            .booking-modal-title {
+              font-size: 1.6rem;
+              color: #1f2937;
+              font-weight: 700;
+              margin: 0 0 0.5rem 0;
+            }
+            .booking-modal-subtitle {
+              color: #6b7280;
+              font-size: 0.95rem;
+              line-height: 1.5;
+              margin: 0 0 1.5rem 0;
+            }
+            .booking-modal-summary {
+              background: #f8fafc;
+              border: 1px solid #e2e8f0;
+              border-radius: 12px;
+              padding: 1.2rem;
+              text-align: left;
+              margin-bottom: 1.5rem;
+              font-size: 0.9rem;
+            }
+            .booking-modal-summary-row {
+              display: flex;
+              justify-content: space-between;
+              padding: 0.4rem 0;
+              border-bottom: 1px dashed #e2e8f0;
+            }
+            .booking-modal-summary-row:last-child {
+              border-bottom: none;
+            }
+            .booking-modal-summary-label {
+              font-weight: 600;
+              color: #475569;
+            }
+            .booking-modal-summary-value {
+              color: #0f172a;
+              font-weight: 600;
+              text-align: right;
+            }
+            .booking-modal-actions {
+              display: flex;
+              gap: 0.8rem;
+              justify-content: center;
+            }
+            .booking-modal-primary-btn {
+              flex: 1;
+              background: #2B4B8C;
+              color: #ffffff;
+              padding: 0.85rem 1.2rem;
+              border-radius: 10px;
+              text-decoration: none;
+              font-weight: 600;
+              font-size: 0.95rem;
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+              gap: 0.5rem;
+              border: none;
+              cursor: pointer;
+              transition: background 0.2s, transform 0.15s;
+            }
+            .booking-modal-primary-btn:hover {
+              background: #1e3a8a;
+              transform: translateY(-1px);
+            }
+            .booking-modal-secondary-btn {
+              background: #f1f5f9;
+              color: #475569;
+              padding: 0.85rem 1.4rem;
+              border-radius: 10px;
+              font-weight: 600;
+              font-size: 0.95rem;
+              border: 1px solid #e2e8f0;
+              cursor: pointer;
+              transition: background 0.2s;
+            }
+            .booking-modal-secondary-btn:hover {
+              background: #e2e8f0;
+              color: #1e293b;
+            }
           </style>
           <h2>BOOK YOUR SERVICE</h2>
           <div class="booking-form-container">
@@ -873,12 +1013,10 @@
             </div>
 
             <label>Bike Brand</label>
-            <input type="text" name="bike_brand" required />
+            <input type="text" name="bike_brand" placeholder="e.g. Hero, Bajaj, Yamaha, Honda" required />
 
             <label>Bike Model</label>
-            <input type="text" name="bike_model" required />
-
-            
+            <input type="text" name="bike_model" placeholder="e.g. Splendor Plus, Pulsar 150" required />
 
             <label>Preferred Date</label>
             <input type="date" name="preferred_date" required />
@@ -890,7 +1028,7 @@
               ⚠️ Inform us about your bike issues earlier for parts and tools availability
             </div>
 
-            <button type="submit" style="margin-top: 2rem;">📩 Submit Booking</button>
+            <button type="submit" id="bookingSubmitBtn" style="margin-top: 2rem;">📩 Submit Booking</button>
             <div class="alt-booking-note">
               <span style="display:block;margin-bottom:0.7rem;color:#2B4B8C;font-weight:500;">You can also book your service directly by call or WhatsApp.</span>
               <div style="display:flex;gap:1rem;justify-content:center;">
@@ -899,20 +1037,52 @@
               </div>
             </div>
           </form>
-            </div>
+          </div>
         </section>
+
+        <!-- Booking Success Confirmation Popup Modal -->
+        <div id="bookingSuccessModal" class="booking-modal-overlay">
+          <div class="booking-modal-card">
+            <div class="booking-modal-icon">
+              <i class="fa-solid fa-check"></i>
+            </div>
+            <h2 class="booking-modal-title">Booking Confirmed!</h2>
+            <p class="booking-modal-subtitle">
+              Thank you for booking with Lala Motors! A confirmation email has been sent to <strong id="modalCustomerEmail">your email</strong>.
+            </p>
+            
+            <div class="booking-modal-summary" id="modalBookingSummary">
+              <!-- Dynamically populated -->
+            </div>
+
+            <div class="booking-modal-actions">
+              <a href="services/last-services-booked.html" class="booking-modal-primary-btn">
+                <i class="fa-solid fa-clock-rotate-left"></i> View Bookings
+              </a>
+              <button type="button" class="booking-modal-secondary-btn" onclick="closeBookingSuccessModal()">Done</button>
+            </div>
+          </div>
+        </div>
+
         <script>
-        // Only run this script for the Supabase booking form
-        // Avoid duplicate supabase library loads (already loaded in <head>)
         const SUPABASE_URL = 'https://fjhlglaivlbrowsuxres.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqaGxnbGFpdmxicm93c3V4cmVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA1OTUwNDYsImV4cCI6MjA2NjE3MTA0Nn0.0p7afOyJ_Q67d0k7ZTQWnxYIJ6eseuNx_7yjupT6eWo';
-        const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+        function getSupabase() {
+          if (window.supabaseClient) return window.supabaseClient;
+          if (window.supabase && typeof window.supabase.createClient === 'function') {
+            window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            return window.supabaseClient;
+          }
+          return null;
+        }
 
         const form = document.getElementById('bookingForm');
         const bookingType = document.getElementById('bookingType');
         const categorySection = document.getElementById('categorySection');
         const serviceOptions = document.getElementById('serviceOptions');
         const noteBox = document.getElementById('noteBox');
+        const bookingSubmitBtn = document.getElementById('bookingSubmitBtn');
 
         const singleChoiceCategories = {
           Servicing: true,
@@ -987,7 +1157,6 @@
 
                wrapper.appendChild(mainCheckbox);
                wrapper.appendChild(label);
-               // Always hide sub-options by default when created
                subDiv.style.display = 'none';
                wrapper.appendChild(subDiv);
                serviceOptions.appendChild(wrapper);
@@ -995,34 +1164,93 @@
           }
         });
 
+        function showBookingSuccessModal(data, email) {
+          const modal = document.getElementById('bookingSuccessModal');
+          const emailSpan = document.getElementById('modalCustomerEmail');
+          const summaryDiv = document.getElementById('modalBookingSummary');
+          
+          if (emailSpan) emailSpan.textContent = email;
+          if (summaryDiv) {
+            summaryDiv.innerHTML = `
+              <div class="booking-modal-summary-row">
+                <span class="booking-modal-summary-label">Bike:</span>
+                <span class="booking-modal-summary-value">${data.bike_brand} ${data.bike_model}</span>
+              </div>
+              <div class="booking-modal-summary-row">
+                <span class="booking-modal-summary-label">Booking Type:</span>
+                <span class="booking-modal-summary-value">${data.booking_type}</span>
+              </div>
+              <div class="booking-modal-summary-row">
+                <span class="booking-modal-summary-label">Service:</span>
+                <span class="booking-modal-summary-value">${data.service_categories.join(', ') || 'General Service'}</span>
+              </div>
+              ${data.sub_services && data.sub_services.length > 0 ? `
+              <div class="booking-modal-summary-row">
+                <span class="booking-modal-summary-label">Selected Options:</span>
+                <span class="booking-modal-summary-value">${data.sub_services.join(', ')}</span>
+              </div>` : ''}
+              <div class="booking-modal-summary-row">
+                <span class="booking-modal-summary-label">Preferred Date:</span>
+                <span class="booking-modal-summary-value" style="color: #2B4B8C;">${data.preferred_date}</span>
+              </div>
+              <div class="booking-modal-summary-row">
+                <span class="booking-modal-summary-label">Preferred Time:</span>
+                <span class="booking-modal-summary-value">${data.preferred_time}</span>
+              </div>
+            `;
+          }
+          if (modal) modal.classList.add('active');
+        }
+
+        window.closeBookingSuccessModal = function() {
+          const modal = document.getElementById('bookingSuccessModal');
+          if (modal) modal.classList.remove('active');
+        };
+
         form.addEventListener('submit', async (e) => {
           e.preventDefault();
+
+          const client = getSupabase();
+          if (!client) {
+            alert('Database connection is not ready. Please refresh the page and try again.');
+            return;
+          }
+
+          // Check user session
+          let user = null;
+          try {
+            const { data: sessionData } = await client.auth.getSession();
+            user = sessionData?.session?.user;
+            if (!user) {
+              const { data: userData } = await client.auth.getUser();
+              user = userData?.user;
+            }
+          } catch (err) {
+            console.warn('Auth check error:', err);
+          }
+
+          if (!user) {
+            const shouldLogin = confirm('You need to be logged in to book a service so you can track your booking status. Click OK to log in now.');
+            if (shouldLogin) {
+              window.location.href = 'services/login.html';
+            }
+            return;
+          }
+
+          const userEmail = user.email;
+          const userName = (user.user_metadata && (user.user_metadata.full_name || user.user_metadata.name)) || '';
+          const userPhone = user.phone || (user.user_metadata && user.user_metadata.phone) || '';
 
           const formData = new FormData(form);
           const categoryCheckboxes = form.querySelectorAll('input[name="category"]:checked');
 
           const subServices = [];
           const allInputs = serviceOptions.querySelectorAll('input');
-
           allInputs.forEach(input => {
             if ((input.type === 'checkbox' || input.type === 'radio') && input.checked) {
               subServices.push(input.value);
             }
           });
-
-          // Get the authenticated user's email
-          let userEmail = null;
-          try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) {
-              alert('You must be logged in to book a service.');
-              return;
-            }
-            userEmail = user.email;
-          } catch (e) {
-            alert('Could not get user info. Please log in again.');
-            return;
-          }
 
           const data = {
             booking_type: formData.get('booking_type'),
@@ -1032,43 +1260,91 @@
             preferred_time: formData.get('preferred_time'),
             service_categories: Array.from(categoryCheckboxes).map(cb => cb.value),
             sub_services: subServices,
-            notes: noteBox.style.display === 'block' ? noteBox.textContent : '',
-            email: userEmail
+            notes: noteBox.style.display === 'block' ? noteBox.textContent.trim() : '',
+            email: userEmail,
+            customer_name: userName || null,
+            phone: userPhone || null
           };
 
-          if (!supabase) {
-            alert('Supabase client not initialized.');
-            return;
+          if (bookingSubmitBtn) {
+            bookingSubmitBtn.disabled = true;
+            bookingSubmitBtn.textContent = '⏳ Processing Booking...';
           }
 
-          const { error } = await supabase.from('bookings').insert([data]);
+          try {
+            const { error } = await client.from('bookings').insert([data]);
 
-          if (error) {
-            alert('❌ Booking failed: ' + error.message);
-          } else {
-            alert('✅ Booking submitted successfully!');
-            // Send confirmation email
+            if (error) {
+              alert('❌ Booking submission failed: ' + error.message);
+              return;
+            }
+
+            // Show Confirmation Popup Modal
+            showBookingSuccessModal(data, userEmail);
+
+            // Send confirmation email to user and business
+            const serviceList = data.service_categories.join(', ') || 'General Service';
+            const subServiceList = data.sub_services.join(', ');
+
             try {
-                                  await fetch('/api/send-confirmation', {
+              await fetch('/api/send-confirmation', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                   to: userEmail,
-                  subject: 'Lala Motors Booking Confirmation',
-                  text: `Thank you for booking your service with Lala Motors!\n\nBooking Details:\nService: ${data.service_categories.join(', ')}\nModel: ${data.bike_model}\nDate: ${data.preferred_date}`,
-                  html: `<h2>Thank you for booking!</h2>
-                         <p>Your booking for <b>${data.bike_brand} ${data.bike_model}</b> on <b>${data.preferred_date}</b> has been received.</p>
-                         <p>Service: <b>${data.service_categories.join(', ')}</b></p>
-                         <p>We look forward to serving you!</p>`
+                  subject: `Lala Motors Service Booking Confirmation - ${data.bike_brand} ${data.bike_model}`,
+                  text: `Thank you for booking your service with Lala Motors!\n\nBooking Details:\nCustomer: ${userName || userEmail}\nBike: ${data.bike_brand} ${data.bike_model}\nBooking Type: ${data.booking_type}\nService: ${serviceList}${subServiceList ? `\nOptions: ${subServiceList}` : ''}\nDate: ${data.preferred_date}\nTime: ${data.preferred_time}\n\nLocation: 4/143 Ahmedia Market Baluganj Agra\nContact: 7310542113`,
+                  html: `
+                    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
+                      <div style="background: linear-gradient(135deg, #1e3a8a 0%, #2B4B8C 100%); padding: 24px; text-align: center; color: #ffffff;">
+                        <h1 style="margin: 0; font-size: 24px; font-weight: 700; color: #FFD700; letter-spacing: 0.5px;">LALA MOTORS</h1>
+                        <p style="margin: 6px 0 0 0; font-size: 14px; opacity: 0.9;">Revving Up Reliability</p>
+                      </div>
+                      <div style="padding: 26px;">
+                        <h2 style="color: #1f2937; margin-top: 0; font-size: 20px;">Booking Confirmed! 🎉</h2>
+                        <p style="color: #4b5563; font-size: 15px; line-height: 1.6;">Hello <strong>${userName || 'Valued Customer'}</strong>,</p>
+                        <p style="color: #4b5563; font-size: 15px; line-height: 1.6;">Thank you for booking your bike service with Lala Motors. We have received your booking and our team is looking forward to serving you.</p>
+                        
+                        <div style="background: #f8fafc; border-radius: 8px; border-left: 4px solid #2B4B8C; padding: 18px; margin: 20px 0;">
+                          <h3 style="margin: 0 0 12px 0; font-size: 16px; color: #2B4B8C;">Booking Details</h3>
+                          <table style="width: 100%; border-collapse: collapse; font-size: 14px; color: #374151;">
+                            <tr><td style="padding: 6px 0; font-weight: 600; width: 40%;">Bike:</td><td style="padding: 6px 0;">${data.bike_brand} ${data.bike_model}</td></tr>
+                            <tr><td style="padding: 6px 0; font-weight: 600;">Booking Type:</td><td style="padding: 6px 0;">${data.booking_type}</td></tr>
+                            <tr><td style="padding: 6px 0; font-weight: 600;">Service Category:</td><td style="padding: 6px 0;">${serviceList}</td></tr>
+                            ${subServiceList ? `<tr><td style="padding: 6px 0; font-weight: 600;">Selected Options:</td><td style="padding: 6px 0;">${subServiceList}</td></tr>` : ''}
+                            <tr><td style="padding: 6px 0; font-weight: 600;">Preferred Date:</td><td style="padding: 6px 0; color: #1e3a8a; font-weight: 600;">${data.preferred_date}</td></tr>
+                            <tr><td style="padding: 6px 0; font-weight: 600;">Preferred Time:</td><td style="padding: 6px 0;">${data.preferred_time}</td></tr>
+                            ${data.notes ? `<tr><td style="padding: 6px 0; font-weight: 600;">Notes:</td><td style="padding: 6px 0;">${data.notes}</td></tr>` : ''}
+                          </table>
+                        </div>
+
+                        <div style="background: #fffbeb; border: 1px solid #fef3c7; border-radius: 8px; padding: 14px; margin: 18px 0; font-size: 13px; color: #92400e;">
+                          📍 <strong>Workshop:</strong> 4/143 Ahmedia Market Baluganj, Agra<br>
+                          📞 <strong>Contact Support:</strong> <a href="tel:+917310542113" style="color: #2B4B8C; font-weight: 600;">7310542113</a> / <a href="mailto:lalamotors1@gmail.com" style="color: #2B4B8C; font-weight: 600;">lalamotors1@gmail.com</a>
+                        </div>
+
+                        <p style="color: #6b7280; font-size: 13px; margin-bottom: 0;">Warm regards,<br><strong style="color: #1f2937;">Team Lala Motors</strong></p>
+                      </div>
+                    </div>
+                  `
                 })
               });
-            } catch (e) {
-              alert('Booking saved, but failed to send confirmation email.');
+            } catch (mailErr) {
+              console.error('Email confirmation error:', mailErr);
             }
+
             form.reset();
             serviceOptions.innerHTML = '';
             categorySection.style.display = 'none';
             noteBox.style.display = 'none';
+          } catch (ex) {
+            console.error('Booking submission exception:', ex);
+            alert('An unexpected error occurred: ' + ex.message);
+          } finally {
+            if (bookingSubmitBtn) {
+              bookingSubmitBtn.disabled = false;
+              bookingSubmitBtn.textContent = '📩 Submit Booking';
+            }
           }
         });
         </script>

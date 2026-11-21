@@ -435,13 +435,10 @@
 
     <!-- Supabase Auth Script -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../supabase-client.js"></script>
     <script src="../script.js"></script>
     <script>
-      const authSupabaseUrl = 'https://fjhlglaivlbrowsuxres.supabase.co';
-      const authSupabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqaGxnbGFpdmxicm93c3V4cmVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA1OTUwNDYsImV4cCI6MjA2NjE3MTA0Nn0.0p7afOyJ_Q67d0k7ZTQWnxYIJ6eseuNx_7yjupT6eWo';
-      const authClient = window.supabase?.createClient
-        ? window.supabase.createClient(authSupabaseUrl, authSupabaseKey)
-        : (window.supabaseClient || null);
+      const authClient = window.supabaseClient || (typeof window.getSupabaseClient === 'function' ? window.getSupabaseClient() : null);
 
       // Password visibility toggle
       const toggleBtn = document.getElementById('togglePasswordBtn');

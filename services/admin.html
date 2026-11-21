@@ -1,4 +1,23 @@
 <!-- admin.html -->
+<!--
+  ⚠️  SECURITY NOTE — Admin access is currently enforced CLIENT-SIDE ONLY.
+  The JavaScript below checks whether the signed-in Supabase user exists in the
+  `admins` table and redirects non-admins.  This check CAN be bypassed by anyone
+  who opens DevTools and replaces the JS, or directly calls the Supabase API.
+
+  REAL enforcement is provided by Row-Level Security (RLS) policies on the
+  `parts`, `bike_listings`, and `addresses` tables — see:
+    sql/20231112_001_add_rls_and_admin_policies.sql
+
+  Apply those policies in your Supabase dashboard so that the DB refuses
+  unauthorised writes even if someone bypasses this page entirely.
+
+  TODO: After applying the RLS migration, verify that:
+    1. An unauthenticated Supabase client CANNOT insert/update/delete parts.
+    2. An authenticated non-admin user CANNOT insert/update/delete parts.
+    3. Only a user whose uid is in the `admins` table can do so.
+-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,6 +27,7 @@
   <link rel="stylesheet" href="../style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../supabase-client.js"></script>
   <style>
     /* Mobile-first responsive design */
     * {
@@ -656,12 +676,8 @@
   <script>
     // Wait for DOM to be fully loaded
     document.addEventListener('DOMContentLoaded', function() {
-      // Initialize Supabase client
-      const supabaseUrl = 'https://fjhlglaivlbrowsuxres.supabase.co';
-      const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqaGxnbGFpdmxicm93c3V4cmVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA1OTUwNDYsImV4cCI6MjA2NjE3MTA0Nn0.0p7afOyJ_Q67d0k7ZTQWnxYIJ6eseuNx_7yjupT6eWo';
-      
-      // Create Supabase client using the global supabaseClient
-      const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+      // Use shared Supabase client
+      const supabaseClient = window.supabaseClient || (typeof window.getSupabaseClient === 'function' ? window.getSupabaseClient() : null);
 
       // Cache DOM elements
       const elements = {

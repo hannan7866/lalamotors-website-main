@@ -14,6 +14,9 @@ if (window.supabase && typeof window.supabase.createClient === 'function') {
       );
     }
   });
+// Shared Supabase client initialization
+if (!window.supabaseClient && typeof window.getSupabaseClient === 'function') {
+  window.supabaseClient = window.getSupabaseClient();
 }
 // Cart functionality
 let cart = JSON.parse(localStorage.getItem('cart') || '[]');
@@ -2145,6 +2148,8 @@ window.addEventListener('DOMContentLoaded', () => {
   }
   if (window.supabaseClient) {
     const supabase = window.supabaseClient;
+  const supabase = window.supabaseClient || (typeof window.getSupabaseClient === 'function' ? window.getSupabaseClient() : null);
+  if (supabase) {
     function updateLoginBtns(session) {
       const loginBtns = document.querySelectorAll('.login-btn');
       const isInsideServices = window.location.pathname.includes('/services/');
@@ -2213,6 +2218,7 @@ function setupSidebarMenu() {
 
   async function updateSidebarProfile() {
     const client = window.supabaseClient || (window.supabase && typeof window.supabase.createClient === 'function' ? window.supabase.createClient('https://fjhlglaivlbrowsuxres.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqaGxnbGFpdmxicm93c3V4cmVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA1OTUwNDYsImV4cCI6MjA2NjE3MTA0Nn0.0p7afOyJ_Q67d0k7ZTQWnxYIJ6eseuNx_7yjupT6eWo') : null);
+    const client = window.supabaseClient || (typeof window.getSupabaseClient === 'function' ? window.getSupabaseClient() : null);
     if (client) {
       const { data: { user } } = await client.auth.getUser();
       const profileIcon = document.querySelector('.sidebar-profile-icon');
@@ -2223,8 +2229,25 @@ function setupSidebarMenu() {
         if (profileIcon) {
           let initial = (name ? name.trim().charAt(0) : (user.email ? user.email.trim().charAt(0) : 'U')).toUpperCase();
           profileIcon.outerHTML = `<span class="user-initial-badge sidebar-profile-icon" style="margin-right:12px;width:38px;height:38px;font-size:1.1rem;">${initial}</span>`;
+      try {
+        const { data: { user }, error } = await client.auth.getUser();
+        if (error) throw error;
+        const profileIcon = document.querySelector('.sidebar-profile-icon');
+        if (user) {
+          const name = (user.user_metadata && (user.user_metadata.full_name || user.user_metadata.name)) || '';
+          profileName.textContent = name || user.email || 'User';
+          profileEmail.textContent = user.email || '';
+          if (profileIcon) {
+            let initial = (name ? name.trim().charAt(0) : (user.email ? user.email.trim().charAt(0) : 'U')).toUpperCase();
+            profileIcon.outerHTML = `<span class="user-initial-badge sidebar-profile-icon" style="margin-right:12px;width:38px;height:38px;font-size:1.1rem;">${initial}</span>`;
+          }
+        } else {
+          profileName.textContent = 'Guest';
+          profileEmail.textContent = '';
         }
       } else {
+      } catch (err) {
+        console.warn('Could not retrieve user session for sidebar:', err.message);
         profileName.textContent = 'Guest';
         profileEmail.textContent = '';
       }
@@ -2256,19 +2279,28 @@ function setupSidebarMenu() {
   // Logout logic
   if (logoutBtn) {
     const client = window.supabaseClient || (window.supabase && typeof window.supabase.createClient === 'function' ? window.supabase.createClient('https://fjhlglaivlbrowsuxres.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqaGxnbGFpdmxicm93c3V4cmVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA1OTUwNDYsImV4cCI6MjA2NjE3MTA0Nn0.0p7afOyJ_Q67d0k7ZTQWnxYIJ6eseuNx_7yjupT6eWo') : null);
+    const client = window.supabaseClient || (typeof window.getSupabaseClient === 'function' ? window.getSupabaseClient() : null);
     if (client) {
       client.auth.getUser().then(({ data: { user } }) => {
+      client.auth.getUser().then(({ data: { user } = {} }) => {
         if (user) {
           if (logoutLi) logoutLi.style.display = '';
           logoutBtn.onclick = async (e) => {
             e.preventDefault();
             await client.auth.signOut();
+            try {
+              await client.auth.signOut();
+            } catch (err) {
+              console.warn('SignOut error:', err);
+            }
             closeSidebar();
             window.location.reload();
           };
         } else {
           if (logoutLi) logoutLi.style.display = 'none';
         }
+      }).catch(err => {
+        console.warn('Could not verify user for logout button:', err);
       });
     }
   }
@@ -2560,6 +2592,8 @@ if (!window.supabaseClient) {
   } else {
     console.error('Supabase library not loaded! Make sure to include https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2 before script.js');
   }
+if (!window.supabaseClient && typeof window.getSupabaseClient === 'function') {
+  window.supabaseClient = window.getSupabaseClient();
 }
 
 // ==========================================================================
@@ -2784,4 +2818,4 @@ if (!window.supabaseClient) {
     initAll();
   }
 })();
-
+

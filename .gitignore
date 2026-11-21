@@ -27,8 +27,21 @@ logs/
 dist/
 build/
 
-# Service account
-service-account.json 
+# Service account & secrets
+service-account.json
+.env.local
+
+# Vercel
 .vercel
-repomix-output.xml
+
+# Repo analysis output (large generated file)
+repomix-output*.xml
+
+# Legacy nested project copy (keep git-ignored)
 lalamotors-website-main/
+
+# Dev/test scripts output
+scripts/*.log
+
+# Tunnel config (contains local credentials)
+tunnel-config.yml

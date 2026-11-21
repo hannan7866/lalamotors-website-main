@@ -5073,3 +5073,24 @@ button, a, .primary-button, .secondary-button, .add-button { min-width: 44px; mi
     perspective-origin: center center;
 }
 
+/* ==========================================================================
+   Accessibility & Mobile Enhancements (Phase 3)
+   ========================================================================== */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid #0066cc !important;
+    outline-offset: 2px !important;
+}
+
+.autoparts-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin: 1.5rem 0;
+}
+
+

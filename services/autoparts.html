@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../supabase-client.js"></script>
     <script src="../script.js"></script>
     <style>
         :root {
@@ -522,7 +523,7 @@
                     <button class="close-filters-btn" onclick="toggleMobileFilters()">&times;</button>
                     <div class="filter-group">
                         <h3 style="margin-top: 1rem;">Search</h3>
-                        <input type="text" id="desktop-search-input" placeholder="Search in this brand..." style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 8px;">
+                        <input type="text" id="desktop-search-input" aria-label="Search spare parts in this brand" placeholder="Search in this brand..." style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 8px;">
                     </div>
 
                     <div class="filter-group">
@@ -541,12 +542,12 @@
                 <div class="parts-container">
                     <div class="mobile-filter-bar">
                         <button class="filter-toggle-btn" onclick="toggleMobileFilters()"><i class="fas fa-filter"></i> Filters</button>
-                        <input type="text" id="mobile-search-input" placeholder="Search parts...">
+                        <input type="text" id="mobile-search-input" aria-label="Search spare parts" placeholder="Search parts...">
                         </div>
                 
                     <div class="parts-header">
                         <h2 id="parts-title">All Parts</h2>
-                        <select id="sort-select">
+                        <select id="sort-select" aria-label="Sort parts by">
                             <option value="featured">Featured</option>
                             <option value="price-low">Price: Low to High</option>
                             <option value="price-high">Price: High to Low</option>
@@ -557,7 +558,8 @@
 
                         <div class="parts-grid" id="parts-grid">
                             <!-- Parts will be populated by JavaScript -->
-                                    </div>
+                        </div>
+                        <div id="autoparts-pagination" class="autoparts-pagination"></div>
                          <p id="no-results" style="text-align:center; display:none; padding: 2rem; font-size: 1.2rem;">No parts found matching your criteria.</p>
                     </div>
                 </div>
@@ -584,14 +586,14 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
-            // Initialize Supabase client
-            const supabaseUrl = 'https://fjhlglaivlbrowsuxres.supabase.co';
-            const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqaGxnbGFpdmxicm93c3V4cmVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA1OTUwNDYsImV4cCI6MjA2NjE3MTA0Nn0.0p7afOyJ_Q67d0k7ZTQWnxYIJ6eseuNx_7yjupT6eWo';
-            const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+            // Initialize Supabase client via shared singleton
+            const supabaseClient = window.supabaseClient || (typeof window.getSupabaseClient === 'function' ? window.getSupabaseClient() : null);
 
             const state = {
                 allParts: [],
                 currentBrand: null,
+                currentPage: 1,
+                pageSize: 12,
                 filters: {
                     models: [],
                     categories: [],
@@ -617,6 +619,13 @@
 
             // --- Data Loading ---
             async function loadPartsData() {
+                if (!supabaseClient) {
+                    console.error('Supabase client is not available.');
+                    if (typeof window.showUserMessage === 'function') {
+                        window.showUserMessage('Database connection unavailable. Please refresh.', true);
+                    }
+                    return [];
+                }
                 try {
                     const { data, error } = await supabaseClient
                         .from('parts')
@@ -625,13 +634,11 @@
                     if (error) throw error;
 
                     // Get public URLs for images
-                    const partsWithImages = data.map(part => {
+                    const partsWithImages = (data || []).map(part => {
                         if (part.image_url) {
                             if (part.image_url.startsWith('http')) {
-                                // Already a public URL
                                 return { ...part };
                             } else {
-                                // Storage path, get public URL from bucket
                                 const { data: { publicUrl } } = supabaseClient.storage
                                     .from('autoparts-images')
                                     .getPublicUrl(part.image_url);
@@ -641,11 +648,19 @@
                         return part;
                     });
 
-                    console.log('Loaded parts data:', partsWithImages.length, 'items');
                     state.partsData = partsWithImages;
                     return partsWithImages;
                 } catch (error) {
                     console.error('Error loading parts:', error);
+                    if (typeof window.showUserMessage === 'function') {
+                        window.showUserMessage('Unable to load spare parts catalog. Please check your connection.', true);
+                    }
+                    partsGrid.innerHTML = `
+                        <div style="grid-column: 1/-1; text-align: center; padding: 2rem; background: #fff5f5; border: 1px solid #fed7d7; border-radius: 8px;">
+                            <p style="color: #c53030; font-weight: 600; margin: 0 0 0.5rem 0;">Unable to load parts catalog.</p>
+                            <small style="color: #742a2a;">${error.message || 'Please check your connection and refresh.'}</small>
+                        </div>
+                    `;
                     return [];
                 }
             }
@@ -745,6 +760,7 @@
 
             function selectBrand(brandName) {
                 state.currentBrand = brandName;
+                state.currentPage = 1;
                 state.allParts = state.partsData.filter(item => item.brand === brandName);
 
                 brandsSection.style.display = 'none';
@@ -814,6 +830,7 @@
             }
             
             function handleFilterChange() {
+                state.currentPage = 1;
                 state.filters.models = Array.from(document.querySelectorAll('input[name="model"]:checked')).map(cb => cb.value);
                 state.filters.categories = Array.from(document.querySelectorAll('input[name="category"]:checked')).map(cb => cb.value);
                 renderParts();
@@ -823,13 +840,56 @@
                 document.querySelectorAll('#filters-sidebar input[type="checkbox"]').forEach(cb => cb.checked = false);
                 desktopSearchInput.value = '';
                 mobileSearchInput.value = '';
+                state.currentPage = 1;
                 state.filters = { models: [], categories: [], searchTerm: '' };
                 state.sortBy = 'featured';
                 sortSelect.value = 'featured';
                 renderParts();
             }
 
-            // --- Rendering Logic ---
+            // --- Rendering Logic with Pagination ---
+            function renderPagination(totalItems) {
+                const paginationEl = document.getElementById('autoparts-pagination');
+                if (!paginationEl) return;
+
+                const totalPages = Math.ceil(totalItems / state.pageSize) || 1;
+                if (totalPages <= 1) {
+                    paginationEl.innerHTML = '';
+                    paginationEl.style.display = 'none';
+                    return;
+                }
+
+                paginationEl.style.display = 'flex';
+                paginationEl.innerHTML = `
+                    <div style="display: flex; justify-content: center; align-items: center; gap: 12px; margin: 2rem 0; flex-wrap: wrap;">
+                        <button class="secondary-button" 
+                                style="padding: 8px 16px; border-radius: 6px; cursor: pointer;"
+                                ${state.currentPage <= 1 ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''}
+                                onclick="goToPartsPage(${state.currentPage - 1})">
+                            &larr; Previous
+                        </button>
+                        <span style="font-size: 0.95rem; font-weight: 600; color: #2B4B8C;">
+                            Page ${state.currentPage} of ${totalPages} (${totalItems} parts)
+                        </span>
+                        <button class="secondary-button" 
+                                style="padding: 8px 16px; border-radius: 6px; cursor: pointer;"
+                                ${state.currentPage >= totalPages ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''}
+                                onclick="goToPartsPage(${state.currentPage + 1})">
+                            Next &rarr;
+                        </button>
+                    </div>
+                `;
+            }
+
+            window.goToPartsPage = (page) => {
+                state.currentPage = page;
+                renderParts();
+                const container = document.getElementById('parts-grid');
+                if (container) {
+                    container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            };
+
             function renderParts() {
                 let filteredParts = [...state.allParts];
 
@@ -865,14 +925,26 @@
                 }
 
                 partsGrid.innerHTML = '';
+                const paginationEl = document.getElementById('autoparts-pagination');
+
                 if (filteredParts.length === 0) {
                     noResultsMsg.style.display = 'block';
+                    if (paginationEl) paginationEl.style.display = 'none';
                     return;
                 }
                 
                 noResultsMsg.style.display = 'none';
 
-                filteredParts.forEach(part => {
+                // Pagination slice
+                const totalItems = filteredParts.length;
+                const totalPages = Math.ceil(totalItems / state.pageSize) || 1;
+                if (state.currentPage > totalPages) state.currentPage = totalPages;
+                if (state.currentPage < 1) state.currentPage = 1;
+
+                const startIdx = (state.currentPage - 1) * state.pageSize;
+                const pageItems = filteredParts.slice(startIdx, startIdx + state.pageSize);
+
+                pageItems.forEach(part => {
                     const defaultImage = '../images/image-removebg-preview (1).png';
                     const imageUrl = part.image_url || defaultImage;
                     
@@ -902,6 +974,8 @@
                     `;
                     partsGrid.appendChild(card);
                 });
+
+                renderPagination(totalItems);
             }
             
             // --- Mobile ---

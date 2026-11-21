@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../supabase-client.js"></script>
 </head>
 <body>
     <!-- Add notification div -->
@@ -184,9 +185,7 @@
     <script src="../script.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const supabaseUrl = 'https://fjhlglaivlbrowsuxres.supabase.co';
-            const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqaGxnbGFpdmxicm93c3V4cmVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA1OTUwNDYsImV4cCI6MjA2NjE3MTA0Nn0.0p7afOyJ_Q67d0k7ZTQWnxYIJ6eseuNx_7yjupT6eWo';
-            const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+            const supabase = window.supabaseClient || (typeof window.getSupabaseClient === 'function' ? window.getSupabaseClient() : null);
 
             // --- Personal Info Elements ---
             const editPersonalInfoBtn = document.getElementById('edit-personal-info');
@@ -207,17 +206,31 @@
             let activeForm = null;
 
             async function loadUserData() {
-                const { data: { user } } = await supabase.auth.getUser();
-                if (user) {
-                    const fullName = (user.user_metadata && (user.user_metadata.full_name || user.user_metadata.name)) || '';
-                    const nameParts = fullName.trim().split(/\s+/);
-                    firstNameInput.value = nameParts[0] || '';
-                    lastNameInput.value = nameParts.slice(1).join(' ') || '';
-                    emailInput.value = user.email || '';
-                    mobileInput.value = user.phone || (user.user_metadata && user.user_metadata.phone) || '';
-                    // Note: Gender is not stored in default Supabase user_metadata
-                } else {
-                    window.location.href = 'login.html';
+                if (!supabase) {
+                    if (typeof window.showUserMessage === 'function') {
+                        window.showUserMessage('Database connection unavailable.', true);
+                    }
+                    return;
+                }
+                try {
+                    const { data: { user }, error } = await supabase.auth.getUser();
+                    if (error) throw error;
+
+                    if (user) {
+                        const fullName = (user.user_metadata && (user.user_metadata.full_name || user.user_metadata.name)) || '';
+                        const nameParts = fullName.trim().split(/\s+/);
+                        firstNameInput.value = nameParts[0] || '';
+                        lastNameInput.value = nameParts.slice(1).join(' ') || '';
+                        emailInput.value = user.email || '';
+                        mobileInput.value = user.phone || (user.user_metadata && user.user_metadata.phone) || '';
+                    } else {
+                        window.location.href = 'login.html';
+                    }
+                } catch (err) {
+                    console.error('Failed to load user profile:', err);
+                    if (typeof window.showUserMessage === 'function') {
+                        window.showUserMessage('Failed to load profile details. Please refresh.', true);
+                    }
                 }
             }
 
@@ -249,10 +262,9 @@
 
 
             saveButton.addEventListener('click', async () => {
-                if (!activeForm) return;
+                if (!activeForm || !supabase) return;
 
                 let updates = {};
-                let success = false;
 
                 if (activeForm.form === personalInfoForm) {
                     const updatedName = `${firstNameInput.value} ${lastNameInput.value}`.trim();
@@ -265,14 +277,25 @@
                     };
                 }
 
-                const { data, error } = await supabase.auth.updateUser(updates);
+                try {
+                    const { data, error } = await supabase.auth.updateUser(updates);
 
-                if (error) {
-                    alert('Error updating profile: ' + error.message);
-                } else {
-                    alert('Profile updated successfully!');
+                    if (error) throw error;
+
+                    if (typeof window.showUserMessage === 'function') {
+                        window.showUserMessage('Profile updated successfully!', false);
+                    } else {
+                        alert('Profile updated successfully!');
+                    }
                     disableForm(activeForm.form, activeForm.button);
                     saveButton.style.display = 'none';
+                } catch (err) {
+                    console.error('Profile update error:', err);
+                    if (typeof window.showUserMessage === 'function') {
+                        window.showUserMessage('Error updating profile: ' + (err.message || 'Please try again.'), true);
+                    } else {
+                        alert('Error updating profile: ' + err.message);
+                    }
                 }
             });
 

@@ -311,19 +311,8 @@
         <a href="subscription.html" style="display: inline-block; background: #FFD700; color: #2B4B8C; font-weight: bold; letter-spacing: 0.12em; border-radius: 6px; padding: 14px 0; width: 100%; max-width: 420px; font-size: 1.1em; text-decoration: none; margin-top: 10px; box-shadow: 0 2px 6px rgba(43,75,140,0.08);">VIEW SUBSCRIPTION PLANS</a>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../supabase-client.js"></script>
     <script>
-      const SUPABASE_URL = 'https://fjhlglaivlbrowsuxres.supabase.co';
-      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqaGxnbGFpdmxicm93c3V4cmVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA1OTUwNDYsImV4cCI6MjA2NjE3MTA0Nn0.0p7afOyJ_Q67d0k7ZTQWnxYIJ6eseuNx_7yjupT6eWo';
-
-      function getSupabaseClient() {
-        if (window.supabaseClient) return window.supabaseClient;
-        if (window.supabase && typeof window.supabase.createClient === 'function') {
-          window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-          return window.supabaseClient;
-        }
-        return null;
-      }
-
       let allBikes = [];
 
       async function loadBikes() {

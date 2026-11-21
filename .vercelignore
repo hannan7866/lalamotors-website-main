@@ -1,1 +1,29 @@
-server.js 
+# Vercel deployment — files excluded from the deployed bundle
+# (they are still tracked in git, just not shipped to Vercel)
+
+# Local-only Express entry point (Vercel uses /api serverless functions instead)
+server.js
+
+# Dev/diagnostic scripts — not needed in production
+scripts/
+
+# Tunnel configuration
+tunnel-config.yml
+
+# Node dependencies (Vercel installs these itself)
+node_modules/
+
+# Env files
+.env
+.env.local
+
+# Git metadata and OS artefacts
+.git/
+.DS_Store
+Thumbs.db
+
+# Repo analysis dump
+repomix-output.xml
+
+# Legacy nested project copy
+lalamotors-website-main/
